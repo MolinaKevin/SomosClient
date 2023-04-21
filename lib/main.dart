@@ -11,8 +11,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp(
-      title: 'Flutter Tabs with Map Demo',
+    return MaterialApp(
       home: MyHomePage(),
     );
   }
@@ -83,20 +82,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
+    return Scaffold(
+      appBar: CupertinoNavigationBar(
         middle: Text(_tabTitles[_currentIndex]),
-        leading: GestureDetector(
-          onTap: () {
-            showCupertinoModalPopup(
-              context: context,
-              builder: (BuildContext context) => _buildProfileInfo(),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return GestureDetector(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              child: Icon(CupertinoIcons.bars),
             );
           },
-          child: Icon(CupertinoIcons.bars),
         ),
+        trailing: _currentIndex == 1
+          ? Builder(
+              builder: (BuildContext context) {
+                return GestureDetector(
+                  onTap: () => Scaffold.of(context).openEndDrawer(),
+                  child: Icon(CupertinoIcons.search),
+                );
+              },
+            )
+          : null,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
             items: [
@@ -123,6 +131,24 @@ class _MyHomePageState extends State<MyHomePage> {
           tabBuilder: (BuildContext context, int index) {
             return _tabs[_currentIndex];
           },
+        ),
+      ),
+      drawer: Drawer(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: _buildProfileInfo(),
+          ),
+        ),
+      ),
+      endDrawer: Drawer(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                  // Contenido
+              ],
+            ),
+          ),
         ),
       ),
     );
