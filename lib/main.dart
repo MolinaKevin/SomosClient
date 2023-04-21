@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 
@@ -24,12 +25,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  List<Widget> _tabs = [
-    Tab1(),
-    Tab2(),
-    Tab3(),
-  ];
 
   List<String> _tabTitles = [
     'Mapa',
@@ -82,7 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> _tabs = [
+      Tab1(scaffoldKey: _scaffoldKey),
+      Tab2(),
+      Tab3(),
+    ];
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: CupertinoNavigationBar(
         middle: Text(_tabTitles[_currentIndex]),
         leading: Builder(
@@ -145,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                  // Contenido
+                Text('Información del marcador')
               ],
             ),
           ),
@@ -156,6 +160,10 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Tab1 extends StatelessWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  Tab1({required this.scaffoldKey});
+
   @override
   Widget build(BuildContext context) {
     return CupertinoTabView(
@@ -163,14 +171,52 @@ class Tab1 extends StatelessWidget {
         return CupertinoPageScaffold(
           child: FlutterMap(
             options: MapOptions(
-              center: LatLng(51.541280, 9.915804), // Coordenadas de Göttingen
+              center: LatLng(51.534709, 9.932835), // Coordenadas de Göttingen
               zoom: 13.0,
+              plugins: [
+                MarkerClusterPlugin(),
+              ],
             ),
             layers: [
               TileLayerOptions(
                 urlTemplate:
                 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 subdomains: ['a', 'b', 'c'],
+              ),
+              MarkerClusterLayerOptions(
+                maxClusterRadius: 120,
+                size: Size(40, 40),
+                fitBoundsOptions: FitBoundsOptions(
+                  padding: EdgeInsets.all(50),
+                ),
+                markers: [
+                  Marker(
+                    width: 80.0,
+                    height: 80.0,
+                    point: LatLng(51.534709, 9.932835),
+                    builder: (ctx) => GestureDetector(
+                      onTap: () {
+                        scaffoldKey.currentState?.openEndDrawer();
+                      },
+                      child: Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40.0,
+                      ),
+                    ),
+                  ),
+                ],
+                polygonOptions: PolygonOptions(
+                  borderColor: Colors.blueAccent,
+                  color: Colors.black12,
+                  borderStrokeWidth: 3,
+                ),
+                builder: (context, markers) {
+                  return FloatingActionButton(
+                    child: Text(markers.length.toString()),
+                    onPressed: null,
+                  );
+                },
               ),
             ],
           ),
