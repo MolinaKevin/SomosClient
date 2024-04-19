@@ -19,10 +19,11 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(
       const Duration(seconds: 3),
-          () => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MyApp()),
-      ),
+          () =>
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MyApp()),
+          ),
     );
   }
 
@@ -38,10 +39,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
 void main() {
   runApp(
-      const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
-      ),
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
+    ),
   );
 }
 
@@ -138,15 +139,15 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
         trailing: _currentIndex == 1
-          ? Builder(
-              builder: (BuildContext context) {
-                return GestureDetector(
-                  onTap: () => Scaffold.of(context).openEndDrawer(),
-                  child: const Icon(CupertinoIcons.search),
-                );
-              },
-            )
-          : null,
+            ? Builder(
+          builder: (BuildContext context) {
+            return GestureDetector(
+              onTap: () => Scaffold.of(context).openEndDrawer(),
+              child: const Icon(CupertinoIcons.search),
+            );
+          },
+        )
+            : null,
       ),
       body: SafeArea(
         child: CupertinoTabScaffold(
@@ -206,68 +207,51 @@ class Tab1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabView(
-      builder: (context) {
-        return CupertinoPageScaffold(
-          child: FlutterMap(
-            options: MapOptions(
-              center: const LatLng(51.534709, 9.932835), // Coordenadas de Göttingen
-              zoom: 13.0,
-              //plugins: [
-              //  MarkerClusterPlugin(),
-              //],
-            ),
-            layers: [
-              TileLayerOptions(
-                urlTemplate:
-                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: ['a', 'b', 'c'],
-              ),
-              MarkerClusterLayerOptions(
-                maxClusterRadius: 120,
-                size: const Size(40, 40),
-                fitBoundsOptions: const FitBoundsOptions(
-                  padding: EdgeInsets.all(50),
-                ),
-                markers: [
-                  Marker(
-                    width: 80.0,
-                    height: 80.0,
-                    point: const LatLng(51.534709, 9.932835),
-                    builder: (ctx) => GestureDetector(
-                      onTap: () {
-                        scaffoldKey.currentState?.openEndDrawer();
-                      },
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40.0,
-                      ),
-                    ),
-                  ),
-                ],
-                polygonOptions: const PolygonOptions(
-                  borderColor: Colors.blueAccent,
-                  color: Colors.black12,
-                  borderStrokeWidth: 3,
-                ),
-                builder: (context, markers) {
-                  return FloatingActionButton(
-                    onPressed: null,
-                    child: Text(markers.length.toString()),
-                  );
-                },
-              ),
-            ],
+    return MyMapWidget(scaffoldKey: scaffoldKey);
+  }
+}
+
+class MyMapWidget extends StatefulWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  const MyMapWidget({required this.scaffoldKey});
+
+  @override
+  _MyMapWidgetState createState() => _MyMapWidgetState();
+}
+
+class _MyMapWidgetState extends State<MyMapWidget> {
+  late final MapController mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    mapController = MapController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      child: FlutterMap(
+        mapController: mapController,
+        options: MapOptions(
+          initialCenter: const LatLng(51.534709, 9.932835), // Coordenadas de Göttingen
+          initialZoom: 13.0,
+        ),
+        children: <Widget>[
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: ['a', 'b', 'c'],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
 
+
 class Tab2 extends StatelessWidget {
-  final List<String> _tarjetas = [
+  final List<String> _tarjetas = const [
     'Tarjeta 1',
     'Tarjeta 2',
     'Tarjeta 3',
@@ -302,23 +286,23 @@ class Tab2 extends StatelessWidget {
 }
 
 
-
 class Tab3 extends StatelessWidget {
   const Tab3({super.key});
 
   void _showModal(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        title: const Text('Información'),
-        message: const Text('Esta es una prueba.'),
-        cancelButton: CupertinoActionSheetAction(
-          child: const Text('Cerrar'),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+      builder: (BuildContext context) =>
+          CupertinoActionSheet(
+            title: const Text('Información'),
+            message: const Text('Esta es una prueba.'),
+            cancelButton: CupertinoActionSheetAction(
+              child: const Text('Cerrar'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
     );
   }
 
@@ -343,7 +327,8 @@ class Tab3 extends StatelessWidget {
                           children: [
                             Text(
                               'Nombre:',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'Juan Pérez',
@@ -352,7 +337,8 @@ class Tab3 extends StatelessWidget {
                             SizedBox(height: 20),
                             Text(
                               'Correo electrónico:',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'juan.perez@example.com',
@@ -361,7 +347,8 @@ class Tab3 extends StatelessWidget {
                             SizedBox(height: 20),
                             Text(
                               'Teléfono:',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '+1 234 567 8900',
@@ -370,7 +357,8 @@ class Tab3 extends StatelessWidget {
                             SizedBox(height: 20),
                             Text(
                               'Teléfono:',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '+1 234 567 8900123996623123',
