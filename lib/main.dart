@@ -7,6 +7,8 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -16,10 +18,10 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(
-      Duration(seconds: 3),
+      const Duration(seconds: 3),
           () => Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MyApp()),
+        MaterialPageRoute(builder: (context) => const MyApp()),
       ),
     );
   }
@@ -36,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 void main() {
   runApp(
-      MaterialApp(
+      const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),
@@ -44,15 +46,19 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -62,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 
-  List<String> _tabTitles = [
+  final List<String> _tabTitles = [
     'Mapa',
     'Lista',
     'Perfil'
@@ -70,8 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildProfileInfo() {
     return CupertinoActionSheet(
-      title: Text('Perfil de usuario'),
-      message: Column(
+      title: const Text('Perfil de usuario'),
+      message: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -103,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       cancelButton: CupertinoActionSheetAction(
-        child: Text('Cerrar'),
+        child: const Text('Cerrar'),
         onPressed: () {
           Navigator.pop(context);
         },
@@ -113,10 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _tabs = [
+    List<Widget> tabs = [
       Tab1(scaffoldKey: _scaffoldKey),
-      Tab2(),
-      Tab3(),
+      const Tab2(),
+      const Tab3(),
     ];
 
     return Scaffold(
@@ -127,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (BuildContext context) {
             return GestureDetector(
               onTap: () => Scaffold.of(context).openDrawer(),
-              child: Icon(CupertinoIcons.bars),
+              child: const Icon(CupertinoIcons.bars),
             );
           },
         ),
@@ -136,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (BuildContext context) {
                 return GestureDetector(
                   onTap: () => Scaffold.of(context).openEndDrawer(),
-                  child: Icon(CupertinoIcons.search),
+                  child: const Icon(CupertinoIcons.search),
                 );
               },
             )
@@ -145,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         child: CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
-            items: [
+            items: const [
               BottomNavigationBarItem(
                 icon: Icon(CupertinoIcons.map),
                 label: 'Mapa',
@@ -167,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           tabBuilder: (BuildContext context, int index) {
-            return _tabs[_currentIndex];
+            return tabs[_currentIndex];
           },
         ),
       ),
@@ -178,7 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      endDrawer: Drawer(
+      endDrawer: const Drawer(
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -196,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
 class Tab1 extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  Tab1({required this.scaffoldKey});
+  const Tab1({super.key, required this.scaffoldKey});
 
   @override
   Widget build(BuildContext context) {
@@ -205,11 +211,11 @@ class Tab1 extends StatelessWidget {
         return CupertinoPageScaffold(
           child: FlutterMap(
             options: MapOptions(
-              center: LatLng(51.534709, 9.932835), // Coordenadas de Göttingen
+              center: const LatLng(51.534709, 9.932835), // Coordenadas de Göttingen
               zoom: 13.0,
-              plugins: [
-                MarkerClusterPlugin(),
-              ],
+              //plugins: [
+              //  MarkerClusterPlugin(),
+              //],
             ),
             layers: [
               TileLayerOptions(
@@ -219,20 +225,20 @@ class Tab1 extends StatelessWidget {
               ),
               MarkerClusterLayerOptions(
                 maxClusterRadius: 120,
-                size: Size(40, 40),
-                fitBoundsOptions: FitBoundsOptions(
+                size: const Size(40, 40),
+                fitBoundsOptions: const FitBoundsOptions(
                   padding: EdgeInsets.all(50),
                 ),
                 markers: [
                   Marker(
                     width: 80.0,
                     height: 80.0,
-                    point: LatLng(51.534709, 9.932835),
+                    point: const LatLng(51.534709, 9.932835),
                     builder: (ctx) => GestureDetector(
                       onTap: () {
                         scaffoldKey.currentState?.openEndDrawer();
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.location_on,
                         color: Colors.red,
                         size: 40.0,
@@ -240,15 +246,15 @@ class Tab1 extends StatelessWidget {
                     ),
                   ),
                 ],
-                polygonOptions: PolygonOptions(
+                polygonOptions: const PolygonOptions(
                   borderColor: Colors.blueAccent,
                   color: Colors.black12,
                   borderStrokeWidth: 3,
                 ),
                 builder: (context, markers) {
                   return FloatingActionButton(
-                    child: Text(markers.length.toString()),
                     onPressed: null,
+                    child: Text(markers.length.toString()),
                   );
                 },
               ),
@@ -269,6 +275,8 @@ class Tab2 extends StatelessWidget {
     'Tarjeta 5',
   ];
 
+  const Tab2({super.key});
+
   @override
   Widget build(BuildContext context) {
     return CupertinoTabView(
@@ -279,10 +287,10 @@ class Tab2 extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 child: ListTile(
-                  leading: Icon(CupertinoIcons.circle_fill,
+                  leading: const Icon(CupertinoIcons.circle_fill,
                       color: CupertinoColors.activeBlue),
                   title: Text(_tarjetas[index]),
-                  trailing: Icon(CupertinoIcons.chevron_forward),
+                  trailing: const Icon(CupertinoIcons.chevron_forward),
                 ),
               );
             },
@@ -296,14 +304,16 @@ class Tab2 extends StatelessWidget {
 
 
 class Tab3 extends StatelessWidget {
+  const Tab3({super.key});
+
   void _showModal(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
-        title: Text('Información'),
-        message: Text('Esta es una prueba.'),
+        title: const Text('Información'),
+        message: const Text('Esta es una prueba.'),
         cancelButton: CupertinoActionSheetAction(
-          child: Text('Cerrar'),
+          child: const Text('Cerrar'),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -323,11 +333,11 @@ class Tab3 extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -369,10 +379,10 @@ class Tab3 extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       GestureDetector(
                         onTap: () => _showModal(context),
-                        child: CircleAvatar(
+                        child: const CircleAvatar(
                           radius: 50,
                           backgroundImage: NetworkImage(
                               'https://via.placeholder.com/150'), // URL de la imagen de perfil
