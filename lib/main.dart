@@ -37,7 +37,6 @@ class _MyAppState extends State<MyApp> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          // Agrega un mensaje de depuración para errores
           print('Error loading translations: ${snapshot.error}');
           return const Center(child: Text('Error loading translations'));
         }
@@ -71,7 +70,6 @@ Future<Map<String, String>> loadTranslations(Locale locale) async {
     Map<String, dynamic> jsonMap = json.decode(jsonString);
     return jsonMap.map((key, value) => MapEntry(key, value.toString()));
   } catch (e) {
-    // Agrega un mensaje de depuración para errores
     print('Error loading JSON file: $e');
     throw e;
   }
