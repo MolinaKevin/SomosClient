@@ -65,6 +65,8 @@ flutter:
 
   assets:
     - assets/images/somos_splash.png
+    - assets/images/map_marker.png
+    - assets/images/active_marker.png
     - lib/l10n/intl_en.json
     - lib/l10n/intl_es.json
     - lib/l10n/intl_de.json
