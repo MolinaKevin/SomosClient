@@ -1,0 +1,14 @@
+{
+  "appTitle": "My App",
+  "map": "Map",
+  "list": "List",
+  "profile": "Profile",
+  "modifyProfile": "Modify Profile",
+  "userProfile": "User Profile",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
+  "points": "Points",
+  "description": "Description",
+  "buy": "Buy"
+}
