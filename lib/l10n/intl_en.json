@@ -10,5 +10,13 @@
   "phone": "Phone",
   "points": "Points",
   "description": "Description",
-  "buy": "Buy"
+  "buy": "Buy",
+  "pointsTab": "Puntos",
+  "totalPoints": "Total de Puntos",
+  "referral": "Referidos",
+  "firstLevelReferrals": "Primer Nivel",
+  "lowerLevelReferrals": "Niveles Inferiores",
+  "viewReferrals": "Detalle",
+  "generateTransaction": "Generar transaccion"
+
 }

@@ -179,13 +179,16 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<String> _tabTitles = [
       localizations.translate('map'),
       localizations.translate('list'),
+      localizations.translate('points'),
       localizations.translate('buy'),
+      localizations.translate('generateTransaction'),
     ];
 
     List<Widget> tabs = [
       Tab1(scaffoldKey: _scaffoldKey),
       Tab2(translations: widget.translations),
       Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage),
+      Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage),
     ];
 
     return Scaffold(
@@ -222,6 +225,10 @@ class _MyHomePageState extends State<MyHomePage> {
               BottomNavigationBarItem(
                 icon: const Icon(CupertinoIcons.phone),
                 label: localizations.translate('list'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(CupertinoIcons.bitcoin),
+                label: localizations.translate('points'),
               ),
               BottomNavigationBarItem(
                 icon: const Icon(CupertinoIcons.profile_circled),
@@ -391,7 +398,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           onTap: _showInfoCard,
           child: const Icon(
             Icons.location_on,
-            color: Colors.red,
+            color: Colors.green,
             size: 40,
           ),
         ),
@@ -403,7 +410,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         child: Tooltip(
           message: AppLocalizations.of(context)!.translate('thisIsMarker') + ' 2',
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Colors.green,
             borderRadius: BorderRadius.circular(4),
             boxShadow: [
               BoxShadow(
@@ -417,7 +424,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           preferBelow: false, // Muestra el tooltip encima del marcador
           child: const Icon(
             Icons.location_on,
-            color: Colors.blue,
+            color: Colors.green,
             size: 40,
           ),
         ),
@@ -552,6 +559,222 @@ class Tab3 extends StatelessWidget {
   final Function(Locale) onChangeLanguage;
 
   const Tab3({super.key, required this.translations, required this.onChangeLanguage});
+
+  void _navigateToReferralScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (context) => ReferralScreen(translations: translations)),
+    );
+  }
+
+  void _navigateToTransactionScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (context) => TransactionScreen(translations: translations)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTabView(
+      builder: (context) {
+        return CupertinoPageScaffold(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  Text(
+                    '${translations['totalPoints'] ?? 'Total de Puntos'}:',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '25555', // Esta cantidad debería ser dinámica
+                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '${translations['referral'] ?? 'Referidos'}:',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${translations['firstLevelReferrals'] ?? 'Primer Nivel'}:',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '10', // Esta cantidad debería ser dinámica
+                            style: TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            '${translations['lowerLevelReferrals'] ?? 'Niveles Inferiores'}:',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '25', // Esta cantidad debería ser dinámica
+                            style: TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 20),
+                      Column(
+                        children: [
+                          CupertinoButton.filled(
+                            onPressed: () => _navigateToReferralScreen(context),
+                            child: Text(translations['viewReferrals'] ?? 'Ver'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                  CupertinoButton.filled(
+                    onPressed: () => _navigateToTransactionScreen(context),
+                    child: Text(translations['generateTransaction'] ?? 'Generar Transacción'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ReferralScreen extends StatelessWidget {
+  final Map<String, String> translations;
+
+  const ReferralScreen({super.key, required this.translations});
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(translations['viewReferrals'] ?? 'Ver Referidos'),
+      ),
+      child: Center(
+        child: Text('Detalles de los referidos aquí'),
+      ),
+    );
+  }
+}
+
+class TransactionScreen extends StatefulWidget {
+  final Map<String, String> translations;
+
+  const TransactionScreen({super.key, required this.translations});
+
+  @override
+  _TransactionScreenState createState() => _TransactionScreenState();
+}
+
+class _TransactionScreenState extends State<TransactionScreen> {
+  String _amount = '';
+
+  void _onKeyTapped(String key) {
+    setState(() {
+      if (key == 'C') {
+        _amount = '';
+      } else if (key == '←') {
+        if (_amount.isNotEmpty) {
+          _amount = _amount.substring(0, _amount.length - 1);
+        }
+      } else {
+        if (_amount.contains('.') && key == '.') return;
+        if (_amount.split('.').length == 2 && _amount.split('.')[1].length >= 2) return;
+        _amount += key;
+      }
+    });
+  }
+
+  void _initiateNFC() {
+    // Lógica para iniciar NFC
+    print('Iniciando NFC para $_amount€');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(widget.translations['generateTransaction'] ??
+            'Generar Transacción'),
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                Text(
+                  '€$_amount',
+                  style: TextStyle(fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.activeGreen),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    shrinkWrap: true,
+                    mainAxisSpacing: 5,
+                    crossAxisSpacing: 5,
+                    children: [
+                      '1', '2', '3',
+                      '4', '5', '6',
+                      '7', '8', '9',
+                      '.', '0', '←',
+                    ].map((key) {
+                      return AspectRatio(
+                        aspectRatio: 1,
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.all(4.0),
+                          color: CupertinoColors.systemGrey,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(key, style: TextStyle(
+                                fontSize: 18)),
+                          ),
+                          onPressed: () => _onKeyTapped(key),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                CupertinoButton.filled(
+                  onPressed: _amount.isNotEmpty ? _initiateNFC : null,
+                  child: Text(widget.translations['initiateTransaction'] ??
+                      'Iniciar Transacción'),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class Tab4 extends StatelessWidget {
+  final Map<String, String> translations;
+  final Function(Locale) onChangeLanguage;
+
+  const Tab4({super.key, required this.translations, required this.onChangeLanguage});
 
   void _showModal(BuildContext context) {
     showCupertinoModalPopup(
