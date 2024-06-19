@@ -5,7 +5,29 @@ import 'splash_screen.dart';
 import 'home_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const SplashScreenApp());
+}
+
+class SplashScreenApp extends StatelessWidget {
+  const SplashScreenApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('es', ''),
+        Locale('de', ''),
+      ],
+    );
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -54,6 +76,7 @@ class _MyAppState extends State<MyApp> {
           home: MyHomePage(
             translations: translations,
             onChangeLanguage: _changeLanguage,
+            currentLocale: _locale,  // Asegúrate de pasar currentLocale aquí
           ),
         );
       },

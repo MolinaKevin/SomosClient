@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class ReferralScreen extends StatelessWidget {
   final Map<String, String> translations;

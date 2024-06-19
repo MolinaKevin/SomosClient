@@ -9,8 +9,9 @@ import 'tabs/tab4.dart';
 class MyHomePage extends StatefulWidget {
   final Map<String, String> translations;
   final Function(Locale) onChangeLanguage;
+  final Locale currentLocale;
 
-  const MyHomePage({super.key, required this.translations, required this.onChangeLanguage});
+  const MyHomePage({super.key, required this.translations, required this.onChangeLanguage, required this.currentLocale});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -20,6 +21,20 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  void _navigateToTransactionTab() {
+    setState(() {
+      _currentIndex = 2; // Índice de la pestaña de transacciones (Tab3)
+    });
+    Navigator.pop(context); // Cierra el drawer
+  }
+
+  void _navigateToProfileTab() {
+    setState(() {
+      _currentIndex = 3; // Índice de la pestaña de perfil (Tab4)
+    });
+    Navigator.pop(context); // Cierra el drawer
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -28,16 +43,14 @@ class _MyHomePageState extends State<MyHomePage> {
       localizations.translate('map'),
       localizations.translate('list'),
       localizations.translate('points'),
-      localizations.translate('buy'),
-      localizations.translate('generateTransaction'),
+      localizations.translate('profile'),
     ];
 
     List<Widget> tabs = [
       Tab1(scaffoldKey: _scaffoldKey),
       Tab2(translations: widget.translations),
       Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage),
-      Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage),
-    ];
+      Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale),    ];
 
     return Scaffold(
       key: _scaffoldKey,
@@ -157,10 +170,29 @@ class _MyHomePageState extends State<MyHomePage> {
             '25555',
             style: TextStyle(fontSize: 18),
           ),
+          SizedBox(height: 20),
+          Text(
+            '${localizations.translate('totalReferrals')}:',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            '35', // Cantidad de referidos totales debería ser dinámica
+            style: TextStyle(fontSize: 18),
+          ),
         ],
       ),
+      actions: [
+        CupertinoActionSheetAction(
+          child: Text(localizations.translate('generateTransaction')),
+          onPressed: _navigateToTransactionTab,
+        ),
+        CupertinoActionSheetAction(
+          child: Text(localizations.translate('userProfile')),
+          onPressed: _navigateToProfileTab,
+        ),
+      ],
       cancelButton: CupertinoActionSheetAction(
-        child: Text(localizations.translate('description')),
+        child: Text(localizations.translate('close')),
         onPressed: () {
           Navigator.pop(context);
         },

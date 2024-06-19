@@ -17,5 +17,8 @@
   "firstLevelReferrals": "Primer Nivel",
   "lowerLevelReferrals": "Niveles Inferiores",
   "viewReferrals": "Detalle",
-  "generateTransaction": "Generar transaccion"
+  "generateTransaction": "Generar transaccion",
+  "referrals": "Referidos",
+  "viewPoints": "Ver Puntos",
+  "initiateTransaction": "Iniciar Transacción"
 }

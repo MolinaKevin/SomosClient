@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class TransactionScreen extends StatefulWidget {
   final Map<String, String> translations;
+  final Function(BuildContext) onNavigateToPointsScreen;  // Cambia el nombre de la función según la pantalla deseada
 
-  const TransactionScreen({super.key, required this.translations});
+  const TransactionScreen({super.key, required this.translations, required this.onNavigateToPointsScreen});
 
   @override
   _TransactionScreenState createState() => _TransactionScreenState();
@@ -87,6 +88,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   child: Text(widget.translations['initiateTransaction'] ?? 'Iniciar Transacción'),
                 ),
                 const SizedBox(height: 20),
+                CupertinoButton.filled(
+                  onPressed: () => widget.onNavigateToPointsScreen(context),  // Cambia aquí para la función adecuada
+                  child: Text(widget.translations['viewPoints'] ?? 'Ver Puntos'),
+                ),
               ],
             ),
           ),
