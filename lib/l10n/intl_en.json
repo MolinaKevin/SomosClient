@@ -1,5 +1,5 @@
 {
-  "appTitle": "My App",
+  "appTitle": "My Application",
   "map": "Map",
   "list": "List",
   "profile": "Profile",
@@ -11,12 +11,21 @@
   "points": "Points",
   "description": "Description",
   "buy": "Buy",
-  "pointsTab": "Puntos",
-  "totalPoints": "Total de Puntos",
-  "referral": "Referidos",
-  "firstLevelReferrals": "Primer Nivel",
-  "lowerLevelReferrals": "Niveles Inferiores",
-  "viewReferrals": "Detalle",
-  "generateTransaction": "Generar transaccion"
-
+  "pointsTab": "Points",
+  "referral": "Referrals",
+  "totalPoints": "Total Points",
+  "firstLevelReferrals": "First Level",
+  "lowerLevelReferrals": "Lower Levels",
+  "viewReferrals": "Detail",
+  "generateTransaction": "Generate Transaction",
+  "referrals": "Referrals",
+  "viewPoints": "View Points",
+  "initiateTransaction": "Initiate Transaction",
+  "close": "Close",
+  "selectLanguage": "Select Language",
+  "thisIsTest": "This is a Test",
+  "information": "Information",
+  "changePassword": "Change Password",
+  "save": "Save",
+  "language": "Language"
 }

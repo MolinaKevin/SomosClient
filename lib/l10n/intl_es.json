@@ -17,8 +17,15 @@
   "firstLevelReferrals": "Primer Nivel",
   "lowerLevelReferrals": "Niveles Inferiores",
   "viewReferrals": "Detalle",
-  "generateTransaction": "Generar transaccion",
+  "generateTransaction": "Generar Transacción",
   "referrals": "Referidos",
   "viewPoints": "Ver Puntos",
-  "initiateTransaction": "Iniciar Transacción"
+  "initiateTransaction": "Iniciar Transacción",
+  "close": "Cerrar",
+  "selectLanguage": "Seleccionar idioma",
+  "thisIsTest": "Es Prueba",
+  "information": "Información",
+  "changePassword": "Cambiar contraseña",
+  "save": "Guardar",
+  "language": "Idioma"
 }
