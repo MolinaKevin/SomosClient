@@ -76,7 +76,8 @@ class _MyAppState extends State<MyApp> {
           home: MyHomePage(
             translations: translations,
             onChangeLanguage: _changeLanguage,
-            currentLocale: _locale,  // Asegúrate de pasar currentLocale aquí
+            currentLocale: _locale,
+            initialIndex: 0,
           ),
         );
       },

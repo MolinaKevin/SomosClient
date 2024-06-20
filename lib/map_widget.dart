@@ -194,18 +194,54 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     final markers = createMarkers(context, markerData);
 
     return CupertinoPageScaffold(
-      child: FlutterMap(
-        mapController: mapController,
-        options: const MapOptions(
-          initialCenter: LatLng(51.534709, 9.932835),
-          initialZoom: 13.0,
-        ),
+      child: Stack(
         children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          FlutterMap(
+            mapController: mapController,
+            options: const MapOptions(
+              initialCenter: LatLng(51.534709, 9.932835),
+              initialZoom: 13.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              ),
+              MarkerLayer(
+                markers: markers,
+              ),
+            ],
           ),
-          MarkerLayer(
-            markers: markers,
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 10,
+            width: 150,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Puntos',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    '1234',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

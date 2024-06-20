@@ -10,8 +10,15 @@ class MyHomePage extends StatefulWidget {
   final Map<String, String> translations;
   final Function(Locale) onChangeLanguage;
   final Locale currentLocale;
+  final int initialIndex;
 
-  const MyHomePage({super.key, required this.translations, required this.onChangeLanguage, required this.currentLocale});
+  const MyHomePage({
+    super.key,
+    required this.translations,
+    required this.onChangeLanguage,
+    required this.currentLocale,
+    this.initialIndex = 0,
+  });
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -35,6 +42,16 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pop(context); // Cierra el drawer
   }
 
+  Future<bool> _onWillPop() async {
+    if (_currentIndex != 0) {
+      setState(() {
+        _currentIndex = 0;
+      });
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -50,78 +67,82 @@ class _MyHomePageState extends State<MyHomePage> {
       Tab1(scaffoldKey: _scaffoldKey),
       Tab2(translations: widget.translations),
       Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage),
-      Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale),    ];
+      Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale),
+    ];
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: CupertinoNavigationBar(
-        middle: Text(_tabTitles[_currentIndex]),
-        leading: Builder(
-          builder: (BuildContext context) {
-            return GestureDetector(
-              onTap: () => Scaffold.of(context).openDrawer(),
-              child: const Icon(CupertinoIcons.bars),
-            );
-          },
-        ),
-        trailing: _currentIndex == 1
-            ? Builder(
-          builder: (BuildContext context) {
-            return GestureDetector(
-              onTap: () => Scaffold.of(context).openEndDrawer(),
-              child: const Icon(CupertinoIcons.search),
-            );
-          },
-        )
-            : null,
-      ),
-      body: SafeArea(
-        child: CupertinoTabScaffold(
-          tabBar: CupertinoTabBar(
-            items: [
-              BottomNavigationBarItem(
-                icon: const Icon(CupertinoIcons.map),
-                label: localizations.translate('map'),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(CupertinoIcons.phone),
-                label: localizations.translate('list'),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(CupertinoIcons.bitcoin),
-                label: localizations.translate('points'),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(CupertinoIcons.profile_circled),
-                label: localizations.translate('profile'),
-              ),
-            ],
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: CupertinoNavigationBar(
+          middle: Text(_tabTitles[_currentIndex]),
+          leading: Builder(
+            builder: (BuildContext context) {
+              return GestureDetector(
+                onTap: () => Scaffold.of(context).openDrawer(),
+                child: const Icon(CupertinoIcons.bars),
+              );
             },
           ),
-          tabBuilder: (BuildContext context, int index) {
-            return tabs[_currentIndex];
-          },
+          trailing: _currentIndex == 1
+              ? Builder(
+            builder: (BuildContext context) {
+              return GestureDetector(
+                onTap: () => Scaffold.of(context).openEndDrawer(),
+                child: const Icon(CupertinoIcons.search),
+              );
+            },
+          )
+              : null,
         ),
-      ),
-      drawer: Drawer(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: _buildProfileInfo(localizations),
+        body: SafeArea(
+          child: CupertinoTabScaffold(
+            tabBar: CupertinoTabBar(
+              items: [
+                BottomNavigationBarItem(
+                  icon: const Icon(CupertinoIcons.map),
+                  label: localizations.translate('map'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(CupertinoIcons.phone),
+                  label: localizations.translate('list'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(CupertinoIcons.bitcoin),
+                  label: localizations.translate('points'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(CupertinoIcons.profile_circled),
+                  label: localizations.translate('profile'),
+                ),
+              ],
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+            ),
+            tabBuilder: (BuildContext context, int index) {
+              return tabs[_currentIndex];
+            },
           ),
         ),
-      ),
-      endDrawer: const Drawer(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text('Información del marcador')
-              ],
+        drawer: Drawer(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: _buildProfileInfo(localizations),
+            ),
+          ),
+        ),
+        endDrawer: const Drawer(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text('Información del marcador')
+                ],
+              ),
             ),
           ),
         ),

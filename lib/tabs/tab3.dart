@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../screens/points_screen.dart';  // Asegúrate de importar la pantalla de puntos
+import '../screens/points_screen.dart'; // Asegúrate de importar la pantalla de puntos
 
 class Tab3 extends StatefulWidget {
   final Map<String, String> translations;
@@ -13,27 +13,37 @@ class Tab3 extends StatefulWidget {
 }
 
 class _Tab3State extends State<Tab3> {
-  String _amount = '';
+  final TextEditingController _amountController = TextEditingController();
+  final ValueNotifier<bool> _isAmountValid = ValueNotifier<bool>(false);
 
-  void _onKeyTapped(String key) {
-    setState(() {
-      if (key == 'C') {
-        _amount = '';
-      } else if (key == '←') {
-        if (_amount.isNotEmpty) {
-          _amount = _amount.substring(0, _amount.length - 1);
-        }
-      } else {
-        if (_amount.contains('.') && key == '.') return;
-        if (_amount.split('.').length == 2 && _amount.split('.')[1].length >= 2) return;
-        _amount += key;
+  @override
+  void initState() {
+    super.initState();
+    _amountController.addListener(() {
+      final text = _amountController.text;
+      if (!text.startsWith('€')) {
+        _amountController.value = _amountController.value.copyWith(
+          text: '€' + text.replaceAll('€', ''),
+          selection: TextSelection.fromPosition(
+            TextPosition(offset: _amountController.text.length),
+          ),
+        );
       }
+      _isAmountValid.value = _validateAmount(_amountController.text);
     });
+  }
+
+  bool _validateAmount(String text) {
+    if (text.isEmpty || text == '€') {
+      return false;
+    }
+    final amount = text.substring(1); // Remove €
+    return double.tryParse(amount) != null && double.parse(amount) > 0;
   }
 
   void _initiateNFC() {
     // Lógica para iniciar NFC
-    print('Iniciando NFC para $_amount€');
+    print('Iniciando NFC para ${_amountController.text}');
   }
 
   void _navigateToPointsScreen(BuildContext context) {
@@ -59,43 +69,27 @@ class _Tab3State extends State<Tab3> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 20),
-                    Text(
-                      '€$_amount',
+                    CupertinoTextField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: GridView.count(
-                        crossAxisCount: 3,
-                        shrinkWrap: true,
-                        mainAxisSpacing: 5,
-                        crossAxisSpacing: 5,
-                        children: [
-                          '1', '2', '3',
-                          '4', '5', '6',
-                          '7', '8', '9',
-                          '.', '0', '←',
-                        ].map((key) {
-                          return AspectRatio(
-                            aspectRatio: 1,
-                            child: CupertinoButton(
-                              padding: const EdgeInsets.all(4.0),
-                              color: CupertinoColors.systemGrey,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(key, style: TextStyle(fontSize: 18)),
-                              ),
-                              onPressed: () => _onKeyTapped(key),
-                            ),
-                          );
-                        }).toList(),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: CupertinoColors.systemGrey, width: 1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      placeholder: '€0.00',
+                      placeholderStyle: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.inactiveGray),
                     ),
                     const SizedBox(height: 20),
-                    CupertinoButton.filled(
-                      onPressed: _amount.isNotEmpty ? _initiateNFC : null,
-                      child: Text(widget.translations['initiateTransaction'] ?? 'Iniciar Transacción'),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isAmountValid,
+                      builder: (context, isValid, child) {
+                        return CupertinoButton.filled(
+                          onPressed: isValid ? _initiateNFC : null,
+                          child: Text(widget.translations['initiateTransaction'] ?? 'Iniciar Transacción'),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                     CupertinoButton.filled(
