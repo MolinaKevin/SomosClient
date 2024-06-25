@@ -2,11 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MyMapWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final bool isAuthenticated;
 
-  const MyMapWidget({required this.scaffoldKey});
+  const MyMapWidget({required this.scaffoldKey, required this.isAuthenticated});
 
   @override
   _MyMapWidgetState createState() => _MyMapWidgetState();
@@ -15,11 +19,57 @@ class MyMapWidget extends StatefulWidget {
 class _MyMapWidgetState extends State<MyMapWidget> {
   late final MapController mapController;
   String activeMarker = '';
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  bool _isAuthenticated = false;
+  String _points = '';
+  List<Map<String, dynamic>> markerData = [];
 
   @override
   void initState() {
     super.initState();
     mapController = MapController();
+    _updatePoints();
+    _fetchCommerces();
+  }
+
+  void _updatePoints() {
+    setState(() {
+      _points = widget.isAuthenticated ? '1234' : 'No autenticado';
+    });
+  }
+
+  Future<void> _fetchCommerces() async {
+    final url = Uri.parse('http://localhost/api/commerces');
+
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'];
+      setState(() {
+        markerData = data.map<Map<String, dynamic>>((commerce) {
+          final entity = commerce['entity'];
+          return {
+            'id': commerce['id'],
+            'point': LatLng(double.parse(entity['latitude']), double.parse(entity['longitude'])),
+            'name': entity['name'],
+            'isOpen': entity['is_open'],
+            'icon': Icons.local_cafe,
+            'avatar': entity['avatar'],
+            'backgroundImage': entity['background_image'],
+          };
+        }).toList();
+      });
+      print('Marker data: $markerData');
+    } else {
+      print('Error: ${response.statusCode}');
+    }
   }
 
   void _showInfoCard(BuildContext context, Map<String, dynamic> data) {
@@ -161,36 +211,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> markerData = [
-      {
-        'id': 1,
-        'point': LatLng(51.534709, 9.932835),
-        'name': 'Café Central',
-        'isOpen': true,
-        'icon': Icons.local_cafe,
-        'avatar': 'https://marketplace.canva.com/EAFg-hSdo4k/2/0/1600w/canva-logotipo-boutique-moderno-blanco-y-negro-B7irPhi64eA.jpg',
-        'backgroundImage': 'https://www.kozoarquitectura.es/wp-content/uploads/2018/09/imagen-marca-local-tienda.jpg',
-      },
-      {
-        'id': 2,
-        'point': LatLng(51.514709, 9.952835),
-        'name': 'Library',
-        'isOpen': false,
-        'icon': Icons.local_library,
-        'avatar': 'https://marketplace.canva.com/EAFg-hSdo4k/2/0/1600w/canva-logotipo-boutique-moderno-blanco-y-negro-B7irPhi64eA.jpg',
-        'backgroundImage': 'https://lasillarota.com/u/fotografias/m/2023/11/2/f425x230-510604_524586_5050.jpeg',
-      },
-      {
-        'id': 3,
-        'point': LatLng(51.524709, 9.922835),
-        'name': 'Restaurant',
-        'isOpen': true,
-        'icon': Icons.restaurant,
-        'avatar': 'https://marketplace.canva.com/EAFg-hSdo4k/2/0/1600w/canva-logotipo-boutique-moderno-blanco-y-negro-B7irPhi64eA.jpg',
-        'backgroundImage': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNtTmYvwcJvTg_dzCIF8DlBVruDgpnU0OM5Q&s',
-      },
-    ];
-
+    print('Building markers with data: $markerData');
     final markers = createMarkers(context, markerData);
 
     return CupertinoPageScaffold(
@@ -231,13 +252,12 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               child: Column(
                 children: [
                   Text(
-                    'Puntos',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    '1234',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
+                    _points,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: widget.isAuthenticated ? CupertinoColors.activeGreen : CupertinoColors.destructiveRed,
+                    ),
                   ),
                 ],
               ),
@@ -249,7 +269,9 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   }
 
   List<Marker> createMarkers(BuildContext context, List<Map<String, dynamic>> markerData) {
+    print('Creating markers...');
     return markerData.map((data) {
+      print('Creating marker for data: $data');
       return Marker(
         point: data['point'],
         width: 30,

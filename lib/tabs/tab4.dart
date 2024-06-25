@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../screens/login_screen.dart';
 
 class Tab4 extends StatefulWidget {
   final Map<String, String> translations;
@@ -22,6 +24,7 @@ class _Tab4State extends State<Tab4> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late Locale _selectedLocale;
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -47,6 +50,19 @@ class _Tab4State extends State<Tab4> {
   void _changePassword(BuildContext context) {
     // Aquí va la lógica para cambiar la contraseña
     // Puede ser una nueva pantalla o un modal, según tus necesidades
+  }
+
+  Future<void> _logout() async {
+    // Eliminar el token de autenticación
+    await _secureStorage.delete(key: 'auth_token');
+
+    // Navegar a la pantalla de login
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => LoginScreen(
+        onChangeLanguage: widget.onChangeLanguage,
+        currentLocale: widget.currentLocale,
+      ),
+    ));
   }
 
   @override
@@ -146,6 +162,14 @@ class _Tab4State extends State<Tab4> {
                       color: CupertinoColors.activeBlue,
                       onPressed: () => _changePassword(context),
                       child: Text(widget.translations['changePassword'] ?? 'Cambiar Contraseña'),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: CupertinoButton(
+                      color: CupertinoColors.destructiveRed,
+                      onPressed: _logout,
+                      child: Text(widget.translations['logout'] ?? 'Cerrar sesión'),
                     ),
                   ),
                 ],

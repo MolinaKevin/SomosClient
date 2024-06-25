@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_localizations.dart';
+import 'screens/login_screen.dart';
 import 'tabs/tab1.dart';
 import 'tabs/tab2.dart';
 import 'tabs/tab3.dart';
@@ -11,6 +12,7 @@ class MyHomePage extends StatefulWidget {
   final Function(Locale) onChangeLanguage;
   final Locale currentLocale;
   final int initialIndex;
+  final bool isAuthenticated;
 
   const MyHomePage({
     super.key,
@@ -18,6 +20,7 @@ class MyHomePage extends StatefulWidget {
     required this.onChangeLanguage,
     required this.currentLocale,
     this.initialIndex = 0,
+    required this.isAuthenticated,
   });
 
   @override
@@ -64,10 +67,10 @@ class _MyHomePageState extends State<MyHomePage> {
     ];
 
     List<Widget> tabs = [
-      Tab1(scaffoldKey: _scaffoldKey),
+      Tab1(scaffoldKey: _scaffoldKey, isAuthenticated: widget.isAuthenticated),
       Tab2(translations: widget.translations),
-      Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage),
-      Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale),
+      widget.isAuthenticated ? Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage) : _buildRestrictedAccess(localizations),
+      widget.isAuthenticated ? Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale) : _buildRestrictedAccess(localizations),
     ];
 
     return WillPopScope(
@@ -131,7 +134,9 @@ class _MyHomePageState extends State<MyHomePage> {
         drawer: Drawer(
           child: SafeArea(
             child: SingleChildScrollView(
-              child: _buildProfileInfo(localizations),
+              child: widget.isAuthenticated
+                  ? _buildProfileInfo(localizations)
+                  : _buildLoginButton(localizations),
             ),
           ),
         ),
@@ -217,6 +222,49 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           Navigator.pop(context);
         },
+      ),
+    );
+  }
+
+  Widget _buildLoginButton(AppLocalizations localizations) {
+    return Center(
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => LoginScreen(
+              onChangeLanguage: widget.onChangeLanguage,
+              currentLocale: widget.currentLocale,
+            ),
+          ));
+        },
+        child: Text(localizations.translate('login')),
+      ),
+    );
+  }
+
+  Widget _buildRestrictedAccess(AppLocalizations localizations) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            localizations.translate('restricted_access_message'),
+            style: TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => LoginScreen(
+                  onChangeLanguage: widget.onChangeLanguage,
+                  currentLocale: widget.currentLocale,
+                ),
+              ));
+            },
+            child: Text(localizations.translate('login')),
+          ),
+        ],
       ),
     );
   }
