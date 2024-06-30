@@ -107,7 +107,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                   ],
                 ),
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.2,
+                  maxHeight: MediaQuery.of(context).size.height * 0.3,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -119,7 +119,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                         // Imagen de fondo
                         Container(
                           width: double.infinity,
-                          height: MediaQuery.of(context).size.height * 0.1 * 0.9,
+                          height: MediaQuery.of(context).size.height * 0.2 * 0.9,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: NetworkImage(data['backgroundImage']),
@@ -131,7 +131,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                         // Avatar centrado
                         Center(
                           child: Container(
-                            margin: EdgeInsets.only(top: 10),
+                            margin: EdgeInsets.only(bottom:0,top:100),
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
@@ -154,7 +154,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                           Icon(
                             data['icon'],
                             color: data['isOpen'] ? Colors.green : Colors.red,
-                            size: 15,
+                            size: 18,
                           ),
                           SizedBox(width: 5),
                           Container(
@@ -170,7 +170,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                             data['isOpen'] ? 'Abierto' : 'Cerrado',
                             style: TextStyle(
                               color: data['isOpen'] ? Colors.green : Colors.red,
-                              fontSize: 14,
+                              fontSize: 17,
                             ),
                           ),
                         ],
@@ -180,7 +180,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                       padding: const EdgeInsets.only(left: 16.0, bottom: 10.0),
                       child: Text(
                         data['name'],
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

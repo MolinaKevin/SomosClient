@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'app_localizations.dart';
 import 'screens/login_screen.dart';
 import 'tabs/tab1.dart';
 import 'tabs/tab2.dart';
 import 'tabs/tab3.dart';
 import 'tabs/tab4.dart';
+import 'user_data_provider.dart';
 
 class MyHomePage extends StatefulWidget {
   final Map<String, String> translations;
@@ -133,10 +135,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         drawer: Drawer(
           child: SafeArea(
-            child: SingleChildScrollView(
-              child: widget.isAuthenticated
-                  ? _buildProfileInfo(localizations)
-                  : _buildLoginButton(localizations),
+            child: Consumer<UserDataProvider>(
+              builder: (context, userData, child) {
+                return SingleChildScrollView(
+                  child: widget.isAuthenticated
+                      ? _buildProfileInfo(localizations, userData)
+                      : _buildLoginButton(localizations),
+                );
+              },
             ),
           ),
         ),
@@ -145,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Text('Información del marcador')
+                  Text('Información del marcador'),
                 ],
               ),
             ),
@@ -155,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildProfileInfo(AppLocalizations localizations) {
+  Widget _buildProfileInfo(AppLocalizations localizations, UserDataProvider userData) {
     return CupertinoActionSheet(
       title: Text(localizations.translate('userProfile')),
       message: Column(
@@ -166,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            'Juan Pérez',
+            userData.name,
             style: TextStyle(fontSize: 18),
           ),
           SizedBox(height: 20),
@@ -175,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            'juan.perez@example.com',
+            userData.email,
             style: TextStyle(fontSize: 18),
           ),
           SizedBox(height: 20),
@@ -184,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            '+1 234 567 8900',
+            userData.phone,
             style: TextStyle(fontSize: 18),
           ),
           SizedBox(height: 20),
@@ -193,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            '25555',
+            userData.points,
             style: TextStyle(fontSize: 18),
           ),
           SizedBox(height: 20),
@@ -202,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            '35', // Cantidad de referidos totales debería ser dinámica
+            userData.totalReferrals,
             style: TextStyle(fontSize: 18),
           ),
         ],

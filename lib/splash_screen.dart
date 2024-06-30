@@ -5,6 +5,8 @@ import 'screens/login_screen.dart';
 import 'home_page.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -27,7 +29,13 @@ class _SplashScreenState extends State<SplashScreen> {
       ));
     } else {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => MyAppState(onChangeLanguage: (locale) {}, currentLocale: Locale('en')),
+        builder: (context) => MyHomePage(
+          translations: {}, // En este caso, puedes usar un mapa vacío o manejarlo como prefieras
+          onChangeLanguage: (locale) {},
+          currentLocale: Locale('en'),
+          initialIndex: 0,
+          isAuthenticated: true,
+        ),
       ));
     }
   }

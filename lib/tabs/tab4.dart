@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import '../screens/login_screen.dart';
+import '../user_data_provider.dart';
 
 class Tab4 extends StatefulWidget {
   final Map<String, String> translations;
@@ -23,27 +24,25 @@ class _Tab4State extends State<Tab4> {
   bool _isEditing = false;
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
+  late TextEditingController _emailController;
   late Locale _selectedLocale;
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Juan Pérez');
-    _phoneController = TextEditingController(text: '+1 234 567 8900');
     _selectedLocale = widget.currentLocale;
+    final userData = Provider.of<UserDataProvider>(context, listen: false);
+    _nameController = TextEditingController(text: userData.name);
+    _emailController = TextEditingController(text: userData.email);
+    _phoneController = TextEditingController(text: userData.phone);
   }
 
-  void _toggleEdit() {
+  void _toggleEdit(UserDataProvider userData) {
     setState(() {
       _isEditing = !_isEditing;
     });
     if (!_isEditing) {
-      // Save changes
-      print('Name: ${_nameController.text}');
-      print('Phone: ${_phoneController.text}');
-      print('Language: ${_selectedLocale.languageCode}');
-      // Aquí puedes agregar la lógica para guardar la información
+      userData.saveUserData(_nameController.text, _emailController.text, _phoneController.text);
     }
   }
 
@@ -52,11 +51,8 @@ class _Tab4State extends State<Tab4> {
     // Puede ser una nueva pantalla o un modal, según tus necesidades
   }
 
-  Future<void> _logout() async {
-    // Eliminar el token de autenticación
-    await _secureStorage.delete(key: 'auth_token');
-
-    // Navegar a la pantalla de login
+  Future<void> _logout(UserDataProvider userData) async {
+    await userData.logout();
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (context) => LoginScreen(
         onChangeLanguage: widget.onChangeLanguage,
@@ -67,6 +63,7 @@ class _Tab4State extends State<Tab4> {
 
   @override
   Widget build(BuildContext context) {
+    final userData = Provider.of<UserDataProvider>(context);
     return CupertinoTabView(
       builder: (context) {
         return CupertinoPageScaffold(
@@ -93,7 +90,7 @@ class _Tab4State extends State<Tab4> {
                               controller: _nameController,
                             )
                                 : Text(
-                              _nameController.text,
+                              userData.name,
                               style: const TextStyle(fontSize: 18),
                             ),
                             const SizedBox(height: 20),
@@ -101,9 +98,13 @@ class _Tab4State extends State<Tab4> {
                               '${widget.translations['email'] ?? 'Correo electrónico'}:',
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            const Text(
-                              'juan.perez@example.com',
-                              style: TextStyle(fontSize: 18),
+                            _isEditing
+                                ? CupertinoTextField(
+                              controller: _emailController,
+                            )
+                                : Text(
+                              userData.email,
+                              style: const TextStyle(fontSize: 18),
                             ),
                             const SizedBox(height: 20),
                             Text(
@@ -115,7 +116,7 @@ class _Tab4State extends State<Tab4> {
                               controller: _phoneController,
                             )
                                 : Text(
-                              _phoneController.text,
+                              userData.phone,
                               style: const TextStyle(fontSize: 18),
                             ),
                             const SizedBox(height: 20),
@@ -140,8 +141,7 @@ class _Tab4State extends State<Tab4> {
                         onTap: () => _showModal(context),
                         child: const CircleAvatar(
                           radius: 50,
-                          backgroundImage: NetworkImage(
-                              'https://via.placeholder.com/150'), // URL de la imagen de perfil
+                          backgroundImage: NetworkImage('https://via.placeholder.com/150'), // URL de la imagen de perfil
                         ),
                       ),
                     ],
@@ -150,10 +150,12 @@ class _Tab4State extends State<Tab4> {
                   Center(
                     child: CupertinoButton(
                       color: CupertinoColors.activeBlue,
-                      onPressed: _toggleEdit,
-                      child: Text(_isEditing
-                          ? widget.translations['save'] ?? 'Guardar'
-                          : widget.translations['modifyProfile'] ?? 'Modificar perfil'),
+                      onPressed: () => _toggleEdit(userData),
+                      child: Text(
+                        _isEditing
+                            ? widget.translations['save'] ?? 'Guardar'
+                            : widget.translations['modifyProfile'] ?? 'Modificar perfil',
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -168,7 +170,7 @@ class _Tab4State extends State<Tab4> {
                   Center(
                     child: CupertinoButton(
                       color: CupertinoColors.destructiveRed,
-                      onPressed: _logout,
+                      onPressed: () => _logout(userData),
                       child: Text(widget.translations['logout'] ?? 'Cerrar sesión'),
                     ),
                   ),

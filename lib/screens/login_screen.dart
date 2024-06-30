@@ -39,8 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           final token = data['token'];
+          final user = data['user'];
 
           await _secureStorage.write(key: 'auth_token', value: token);
+          await _secureStorage.write(key: 'user_name', value: user['name']);
+          await _secureStorage.write(key: 'user_email', value: user['email']);
+          await _secureStorage.write(key: 'user_phone', value: user['phone_number'] ?? '');
 
           final translations = await loadTranslations(widget.currentLocale);
 
@@ -87,8 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
           final token = data['token'];
+          final user = data['user'];
 
           await _secureStorage.write(key: 'auth_token', value: token);
+          await _secureStorage.write(key: 'user_name', value: user['name']);
+          await _secureStorage.write(key: 'user_email', value: user['email']);
+          await _secureStorage.write(key: 'user_phone', value: user['phone_number'] ?? '');
 
           final translations = await loadTranslations(widget.currentLocale);
 
