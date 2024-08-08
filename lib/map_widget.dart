@@ -252,6 +252,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               child: Column(
                 children: [
                   Text(
+                    "Puntos",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: widget.isAuthenticated ? CupertinoColors.activeGreen : CupertinoColors.destructiveRed,
+                    ),
+                  ),
+                  Text(
                     _points,
                     style: TextStyle(
                       fontSize: 20,
