@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 import '../screens/points_screen.dart'; // Asegúrate de importar la pantalla de puntos
 
 class Tab3 extends StatefulWidget {
@@ -15,6 +16,7 @@ class Tab3 extends StatefulWidget {
 class _Tab3State extends State<Tab3> {
   final TextEditingController _amountController = TextEditingController();
   final ValueNotifier<bool> _isAmountValid = ValueNotifier<bool>(false);
+  bool _isWaitingForNFC = false; // Estado para el popup de espera
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _Tab3State extends State<Tab3> {
       }
       _isAmountValid.value = _validateAmount(_amountController.text);
     });
+    _checkNFCAvailability();
   }
 
   bool _validateAmount(String text) {
@@ -41,9 +44,86 @@ class _Tab3State extends State<Tab3> {
     return double.tryParse(amount) != null && double.parse(amount) > 0;
   }
 
-  void _initiateNFC() {
-    // Lógica para iniciar NFC
-    print('Iniciando NFC para ${_amountController.text}');
+  Future<void> _checkNFCAvailability() async {
+    bool isAvailable = await NfcManager.instance.isAvailable();
+    if (!isAvailable) {
+      _showNFCErrorDialog(context);
+    }
+  }
+
+  // Mostrar popup de espera con botón de cancelar
+  void _showWaitingPopup(BuildContext context) {
+    setState(() {
+      _isWaitingForNFC = true;
+    });
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(widget.translations['waitingForDevice'] ?? 'Esperando aceptación'),
+          content: CupertinoActivityIndicator(), // Animación de carga
+          actions: [
+            CupertinoDialogAction(
+              child: Text(widget.translations['cancel'] ?? 'Cancelar'),
+              onPressed: () {
+                _cancelTransaction();
+                Navigator.of(context).pop(); // Cierra el popup
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Inicia la transacción NFC
+  Future<void> _initiateNFC() async {
+    try {
+      _showWaitingPopup(context); // Mostrar el popup de espera
+
+      NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+        print('NFC Tag discovered: ${tag.data}');
+        Navigator.of(context).pop(); // Cierra el popup
+        setState(() {
+          _isWaitingForNFC = false;
+        });
+        NfcManager.instance.stopSession(); // Detener la sesión NFC después de la transacción
+      });
+    } catch (e) {
+      print('Error al iniciar NFC: $e');
+      _showNFCErrorDialog(context);
+    }
+  }
+
+  // Mostrar un diálogo si NFC no está habilitado
+  void _showNFCErrorDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(widget.translations['nfcDisabled'] ?? 'NFC deshabilitado'),
+          content: Text(widget.translations['enableNFC'] ?? 'Por favor, habilita NFC para continuar.'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(widget.translations['ok'] ?? 'Aceptar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Lógica para cancelar la transacción NFC
+  void _cancelTransaction() {
+    print('Transacción NFC cancelada');
+    setState(() {
+      _isWaitingForNFC = false;
+    });
+    NfcManager.instance.stopSession(); // Detener la sesión NFC si se cancela
   }
 
   void _navigateToPointsScreen(BuildContext context) {

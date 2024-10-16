@@ -49,22 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  convert:
-    dependency: transitive
-    description:
-      name: convert
-      sha256: "0f08b14755d163f6e2134cb58222dd25ea2a2ee8a195e53983d57c075324d592"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.1"
   crypto:
     dependency: transitive
     description:
       name: crypto
-      sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
+      sha256: ec30d999af904f33454ba22ed9a86162b35e52b44ac4807d1d93c288041d7d27
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.3"
+    version: "3.0.5"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -131,14 +123,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
-  flutter_nfc_kit:
-    dependency: "direct main"
-    description:
-      name: flutter_nfc_kit
-      sha256: "586a8309a7be4d9be307c46d5e9db1460a9f59a37a097c77d53e2f6bfc11be2d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.4.2"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -209,10 +193,10 @@ packages:
     dependency: transitive
     description:
       name: geolocator_android
-      sha256: "00c7177a95823dd3ee35ef42fd8666cd27d219ae14cea472ac76a21dff43000b"
+      sha256: "7aefc530db47d90d0580b552df3242440a10fe60814496a979aa67aa98b1fd47"
       url: "https://pub.dev"
     source: hosted
-    version: "4.6.0"
+    version: "4.6.1"
   geolocator_apple:
     dependency: transitive
     description:
@@ -249,10 +233,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: "761a297c042deedc1ffbb156d6e2af13886bb305c2a343a4d972504cd67dd938"
+      sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.2"
   http_parser:
     dependency: transitive
     description:
@@ -277,14 +261,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
-  json_annotation:
-    dependency: transitive
-    description:
-      name: json_annotation
-      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.9.0"
   latlong2:
     dependency: "direct main"
     description:
@@ -337,18 +313,10 @@ packages:
     dependency: transitive
     description:
       name: logger
-      sha256: af05cc8714f356fd1f3888fb6741cbe9fbe25cdb6eedbab80e1a6db21047d4a4
+      sha256: "697d067c60c20999686a0add96cf6aba723b3aa1f83ecf806a8097231529ec32"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
+    version: "2.4.0"
   matcher:
     dependency: transitive
     description:
@@ -381,14 +349,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  ndef:
-    dependency: transitive
-    description:
-      name: ndef
-      sha256: "634d2b5c6f2c186e953218bac9905f3f5e1824b15e30bd1ed6e03a91cdbc7293"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.3"
   nested:
     dependency: transitive
     description:
@@ -397,6 +357,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nfc_manager:
+    dependency: "direct main"
+    description:
+      name: nfc_manager
+      sha256: f5be75e90f8f2bff3ee49fbd7ef65bdd4a86ee679c2412e71ab2846a8cff8c59
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.0"
   path:
     dependency: transitive
     description:
@@ -518,10 +486,10 @@ packages:
     dependency: transitive
     description:
       name: uuid
-      sha256: "814e9e88f21a176ae1359149021870e87f7cddaf633ab678a5d2b0bff7fd1ba8"
+      sha256: f33d6bb662f0e4f79dcd7ada2e6170f3b3a2530c28fc41f49a411ddedd576a77
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.0"
+    version: "4.5.0"
   vector_math:
     dependency: transitive
     description:
@@ -542,10 +510,10 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: "97da13628db363c635202ad97068d47c5b8aa555808e7a9411963c533b449b27"
+      sha256: d43c1d6b787bf0afad444700ae7f4db8827f701bc61c255ac8d328c6f4d52062
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.1"
+    version: "1.0.0"
   wkt_parser:
     dependency: transitive
     description:
@@ -555,5 +523,5 @@ packages:
     source: hosted
     version: "2.0.0"
 sdks:
-  dart: ">=3.3.0 <4.0.0"
+  dart: ">=3.4.0 <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"

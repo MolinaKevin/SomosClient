@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'app_localizations.dart';
 import 'screens/login_screen.dart';
 import 'tabs/tab1.dart';
 import 'tabs/tab2.dart';
 import 'tabs/tab3.dart';
 import 'tabs/tab4.dart';
-import 'user_data_provider.dart';
+import 'services/auth_service.dart';
 
 class MyHomePage extends StatefulWidget {
   final Map<String, String> translations;
@@ -32,47 +30,95 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final AuthService _authService = AuthService();
+
+  String name = 'Nombre no disponible';
+  String email = 'Email no disponible';
+  String phone = 'Teléfono no disponible';
+  int points = 0;
+  int totalReferrals = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isAuthenticated) {
+      _fetchUserData();
+    } else {
+      _performLogin();
+    }
+  }
+
+  Future<void> _performLogin() async {
+    try {
+      final loginData = await _authService.login('usuario@example.com', 'password');
+
+      if (loginData['success']) {
+        _fetchUserData();
+      } else {
+        _navigateToLogin();
+      }
+    } catch (e) {
+      _navigateToLogin();
+    }
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final userData = await _authService.fetchUserData();
+      setState(() {
+        name = userData['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible';
+        email = userData['email'] ?? widget.translations['noDataAvailable'] ?? 'Email no disponible';
+        phone = userData['phone'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible';
+        points = userData['points'] ?? 0;
+        totalReferrals = userData['totalReferrals'] ?? 0;
+      });
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
+
+  void _navigateToLogin() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => LoginScreen(
+        onChangeLanguage: widget.onChangeLanguage,
+        currentLocale: widget.currentLocale,
+        translations: widget.translations, // O asegúrate de pasar las traducciones correctas
+      )),
+    );
+  }
 
   void _navigateToTransactionTab() {
     setState(() {
-      _currentIndex = 2; // Índice de la pestaña de transacciones (Tab3)
+      _currentIndex = 2;
     });
-    Navigator.pop(context); // Cierra el drawer
+    Navigator.pop(context);
   }
 
   void _navigateToProfileTab() {
     setState(() {
-      _currentIndex = 3; // Índice de la pestaña de perfil (Tab4)
+      _currentIndex = 3;
     });
-    Navigator.pop(context); // Cierra el drawer
-  }
-
-  Future<bool> _onWillPop() async {
-    if (_currentIndex != 0) {
-      setState(() {
-        _currentIndex = 0;
-      });
-      return false;
-    }
-    return true;
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-
     final List<String> _tabTitles = [
-      localizations.translate('map'),
-      localizations.translate('list'),
-      localizations.translate('points'),
-      localizations.translate('profile'),
+      widget.translations['map'] ?? 'Mapa',
+      widget.translations['list'] ?? 'Lista',
+      widget.translations['pointsTab'] ?? 'Puntos',
+      widget.translations['profile'] ?? 'Perfil',
     ];
 
     List<Widget> tabs = [
-      Tab1(scaffoldKey: _scaffoldKey, isAuthenticated: widget.isAuthenticated),
+      Tab1(scaffoldKey: _scaffoldKey, isAuthenticated: widget.isAuthenticated, translations: widget.translations), // Pasar translations
       Tab2(translations: widget.translations),
-      widget.isAuthenticated ? Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage) : _buildRestrictedAccess(localizations),
-      widget.isAuthenticated ? Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale) : _buildRestrictedAccess(localizations),
+      widget.isAuthenticated
+          ? Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage)
+          : _buildRestrictedAccess(),
+      widget.isAuthenticated
+          ? Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale)
+          : _buildRestrictedAccess(),
     ];
 
     return WillPopScope(
@@ -106,19 +152,19 @@ class _MyHomePageState extends State<MyHomePage> {
               items: [
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.map),
-                  label: localizations.translate('map'),
+                  label: widget.translations['map'] ?? 'Mapa',
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.phone),
-                  label: localizations.translate('list'),
+                  label: widget.translations['list'] ?? 'Lista',
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.bitcoin),
-                  label: localizations.translate('points'),
+                  label: widget.translations['pointsTab'] ?? 'Puntos',
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.profile_circled),
-                  label: localizations.translate('profile'),
+                  label: widget.translations['profile'] ?? 'Perfil',
                 ),
               ],
               currentIndex: _currentIndex,
@@ -135,14 +181,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         drawer: Drawer(
           child: SafeArea(
-            child: Consumer<UserDataProvider>(
-              builder: (context, userData, child) {
-                return SingleChildScrollView(
-                  child: widget.isAuthenticated
-                      ? _buildProfileInfo(localizations, userData)
-                      : _buildLoginButton(localizations),
-                );
-              },
+            child: SingleChildScrollView(
+              child: widget.isAuthenticated
+                  ? _buildProfileInfo()
+                  : _buildLoginButton(),
             ),
           ),
         ),
@@ -161,70 +203,40 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildProfileInfo(AppLocalizations localizations, UserDataProvider userData) {
+  Widget _buildProfileInfo() {
     return CupertinoActionSheet(
-      title: Text(localizations.translate('userProfile')),
+      title: Text(widget.translations['userProfile'] ?? 'Perfil de usuario'),
       message: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${localizations.translate('name')}:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            userData.name,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          Text(
-            '${localizations.translate('email')}:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            userData.email,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          Text(
-            '${localizations.translate('phone')}:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            userData.phone,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          Text(
-            '${localizations.translate('points')}:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            userData.points,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          Text(
-            '${localizations.translate('totalReferrals')}:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            userData.totalReferrals,
-            style: TextStyle(fontSize: 18),
-          ),
+          Text('${widget.translations['name'] ?? 'Nombre'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(name, style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 20),
+          Text('${widget.translations['email'] ?? 'Correo electrónico'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(email, style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 20),
+          Text('${widget.translations['phone'] ?? 'Teléfono'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(phone, style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 20),
+          Text('${widget.translations['points'] ?? 'Puntos'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(points.toString(), style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 20),
+          Text('${widget.translations['totalReferrals'] ?? 'Referidos'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(totalReferrals.toString(), style: const TextStyle(fontSize: 18)),
         ],
       ),
       actions: [
         CupertinoActionSheetAction(
-          child: Text(localizations.translate('generateTransaction')),
+          child: Text(widget.translations['generateTransaction'] ?? 'Generar Transacción'),
           onPressed: _navigateToTransactionTab,
         ),
         CupertinoActionSheetAction(
-          child: Text(localizations.translate('userProfile')),
+          child: Text(widget.translations['userProfile'] ?? 'Perfil de usuario'),
           onPressed: _navigateToProfileTab,
         ),
       ],
       cancelButton: CupertinoActionSheetAction(
-        child: Text(localizations.translate('close')),
+        child: Text(widget.translations['close'] ?? 'Cerrar'),
         onPressed: () {
           Navigator.pop(context);
         },
@@ -232,46 +244,42 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildLoginButton(AppLocalizations localizations) {
+  Widget _buildLoginButton() {
     return Center(
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => LoginScreen(
-              onChangeLanguage: widget.onChangeLanguage,
-              currentLocale: widget.currentLocale,
-            ),
-          ));
-        },
-        child: Text(localizations.translate('login')),
+        onPressed: _navigateToLogin,
+        child: Text(widget.translations['login'] ?? 'Iniciar sesión'),
       ),
     );
   }
 
-  Widget _buildRestrictedAccess(AppLocalizations localizations) {
+  Widget _buildRestrictedAccess() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            localizations.translate('restricted_access_message'),
-            style: TextStyle(fontSize: 18),
+            widget.translations['restricted_access_message'] ?? 'Acceso restringido',
+            style: const TextStyle(fontSize: 18),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => LoginScreen(
-                  onChangeLanguage: widget.onChangeLanguage,
-                  currentLocale: widget.currentLocale,
-                ),
-              ));
-            },
-            child: Text(localizations.translate('login')),
+            onPressed: _navigateToLogin,
+            child: Text(widget.translations['login'] ?? 'Iniciar sesión'),
           ),
         ],
       ),
     );
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_currentIndex != 0) {
+      setState(() {
+        _currentIndex = 0;
+      });
+      return false;
+    }
+    return true;
   }
 }

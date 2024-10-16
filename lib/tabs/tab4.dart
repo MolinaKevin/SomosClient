@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../screens/login_screen.dart';
-import '../user_data_provider.dart';
+import '../providers/user_data_provider.dart';
 
 class Tab4 extends StatefulWidget {
   final Map<String, String> translations;
@@ -47,8 +47,7 @@ class _Tab4State extends State<Tab4> {
   }
 
   void _changePassword(BuildContext context) {
-    // Aquí va la lógica para cambiar la contraseña
-    // Puede ser una nueva pantalla o un modal, según tus necesidades
+    // Lógica para cambiar la contraseña
   }
 
   Future<void> _logout(UserDataProvider userData) async {
@@ -57,6 +56,7 @@ class _Tab4State extends State<Tab4> {
       builder: (context) => LoginScreen(
         onChangeLanguage: widget.onChangeLanguage,
         currentLocale: widget.currentLocale,
+        translations: widget.translations, // Asegúrate de pasar las traducciones adecuadas
       ),
     ));
   }
@@ -131,6 +131,26 @@ class _Tab4State extends State<Tab4> {
                             )
                                 : Text(
                               _selectedLocale.languageCode,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Agregar Somos Pass y Pass de referido
+                            Text(
+                              '${widget.translations['pass'] ?? 'Somos Pass'}:',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              userData.pass ?? widget.translations['noDataAvailable'] ?? 'No disponible',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              '${widget.translations['referrer_pass'] ?? 'Pass de referido'}:',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              userData.referrerPass ?? widget.translations['noDataAvailable'] ?? 'No disponible',
                               style: const TextStyle(fontSize: 18),
                             ),
                           ],

@@ -5,7 +5,9 @@ import 'screens/login_screen.dart';
 import 'home_page.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final Map<String, String> translations;
+
+  const SplashScreen({super.key, required this.translations});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -25,12 +27,16 @@ class _SplashScreenState extends State<SplashScreen> {
     final token = await _secureStorage.read(key: 'auth_token');
     if (token == null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => LoginScreen(onChangeLanguage: (locale) {}, currentLocale: Locale('en')),
+        builder: (context) => LoginScreen(
+          onChangeLanguage: (locale) {},
+          currentLocale: Locale('en'),
+          translations: widget.translations, // Ahora el campo existe
+        ),
       ));
     } else {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => MyHomePage(
-          translations: {}, // En este caso, puedes usar un mapa vacío o manejarlo como prefieras
+          translations: widget.translations, // Usamos las mismas traducciones
           onChangeLanguage: (locale) {},
           currentLocale: Locale('en'),
           initialIndex: 0,
@@ -43,12 +49,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // O el color de fondo que prefieras
+      backgroundColor: Colors.white,
       body: Center(
         child: Image.asset(
           'assets/images/somos_splash.png',
-          //width: 200,
-          //height: 200,
         ),
       ),
     );
