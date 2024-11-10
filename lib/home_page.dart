@@ -8,7 +8,7 @@ import 'tabs/tab4.dart';
 import 'services/auth_service.dart';
 
 class MyHomePage extends StatefulWidget {
-  final Map<String, String> translations;
+  final Map<String, dynamic> translations;
   final Function(Locale) onChangeLanguage;
   final Locale currentLocale;
   final int initialIndex;
@@ -35,14 +35,16 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = 'Nombre no disponible';
   String email = 'Email no disponible';
   String phone = 'Teléfono no disponible';
+  String profilePhotoUrl = '';
   int points = 0;
   int totalReferrals = 0;
 
   @override
   void initState() {
     super.initState();
+    print('Idioma actual al inicializar MyHomePage: ${widget.currentLocale.languageCode}');
     if (widget.isAuthenticated) {
-      _fetchUserData();
+      _fetchUserDetails(); // Llamamos a la nueva función para cargar todos los datos del usuario
     } else {
       _performLogin();
     }
@@ -53,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final loginData = await _authService.login('usuario@example.com', 'password');
 
       if (loginData['success']) {
-        _fetchUserData();
+        _fetchUserDetails(); // Una vez autenticado, cargamos los datos
       } else {
         _navigateToLogin();
       }
@@ -62,13 +64,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> _fetchUserData() async {
+  Future<void> _fetchUserDetails() async {
     try {
+      // Cargar detalles del usuario desde /user
+      final userDetails = await _authService.fetchUserDetails();
+      setState(() {
+        name = userDetails['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible';
+        email = userDetails['email'] ?? widget.translations['noDataAvailable'] ?? 'Email no disponible';
+        phone = userDetails['phone'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible';
+        profilePhotoUrl = userDetails['profile_photo_url'] ?? '';
+      });
+
+      // Cargar puntos y referidos desde /user/data
       final userData = await _authService.fetchUserData();
       setState(() {
-        name = userData['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible';
-        email = userData['email'] ?? widget.translations['noDataAvailable'] ?? 'Email no disponible';
-        phone = userData['phone'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible';
         points = userData['points'] ?? 0;
         totalReferrals = userData['totalReferrals'] ?? 0;
       });
@@ -79,11 +88,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _navigateToLogin() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => LoginScreen(
-        onChangeLanguage: widget.onChangeLanguage,
-        currentLocale: widget.currentLocale,
-        translations: widget.translations, // O asegúrate de pasar las traducciones correctas
-      )),
+      MaterialPageRoute(
+        builder: (context) => LoginScreen(
+          onChangeLanguage: widget.onChangeLanguage,
+          currentLocale: widget.currentLocale,
+          translations: widget.translations, // Asegúrate de pasar las traducciones correctas
+        ),
+      ),
     );
   }
 
@@ -223,6 +234,14 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(height: 20),
           Text('${widget.translations['totalReferrals'] ?? 'Referidos'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Text(totalReferrals.toString(), style: const TextStyle(fontSize: 18)),
+          if (profilePhotoUrl.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(profilePhotoUrl),
+              ),
+            ),
         ],
       ),
       actions: [

@@ -11,7 +11,7 @@ class EntityDetailScreen extends StatelessWidget {
   final String description;
   final String backgroundImage;
   final List<String> fotosUrls;
-  final Map<String, String> translations;
+  final Map<String, dynamic> translations;
 
   const EntityDetailScreen({
     super.key,
@@ -24,7 +24,7 @@ class EntityDetailScreen extends StatelessWidget {
     required this.description,
     required this.backgroundImage,
     required this.fotosUrls,
-    required this.translations, // Pasamos translations
+    required this.translations,
   });
 
   @override
@@ -44,16 +44,18 @@ class EntityDetailScreen extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(backgroundImage),
-                        fit: BoxFit.cover,
+                  // Asegúrate de que la URL de la imagen es válida
+                  if (backgroundImage.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(backgroundImage),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
                   Positioned(
                     top: 120,
                     left: MediaQuery.of(context).size.width / 2 - 40,
@@ -84,32 +86,32 @@ class EntityDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['address'] ?? 'Dirección'}: $address', // Traducir Dirección
+                      '${translations['entities']['address'] ?? 'Dirección'}: $address',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['phone'] ?? 'Teléfono'}: $phone', // Traducir Teléfono
+                      '${translations['entities']['phone'] ?? 'Teléfono'}: $phone',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['email'] ?? 'Correo electrónico'}: $email', // Traducir Email
+                      '${translations['entities']['email'] ?? 'Correo electrónico'}: $email',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['city'] ?? 'Ciudad'}: $city', // Traducir Ciudad
+                      '${translations['entities']['city'] ?? 'Ciudad'}: $city',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['description'] ?? 'Descripción'}: $description', // Traducir Descripción
+                      '${translations['entities']['description'] ?? 'Descripción'}: $description',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      translations['gallery'] ?? 'Galería:', // Traducir Galería
+                      translations['entities']['gallery'] ?? 'Galería:',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
@@ -119,29 +121,34 @@ class EntityDetailScreen extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         itemCount: allFotos.length,
                         itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              _showImagePopup(context, allFotos, index);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  allFotos[index],
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      CupertinoIcons.photo,
-                                      size: 120,
-                                    );
-                                  },
+                          // Validamos que 'index' sea un entero y esté dentro de los límites
+                          if (index < allFotos.length) {
+                            return GestureDetector(
+                              onTap: () {
+                                _showImagePopup(context, allFotos, index);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    allFotos[index],
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        CupertinoIcons.photo,
+                                        size: 120,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            return const SizedBox.shrink(); // Retorna un widget vacío si el índice no es válido
+                          }
                         },
                       ),
                     ),
@@ -157,81 +164,44 @@ class EntityDetailScreen extends StatelessWidget {
 
   void _showImagePopup(BuildContext context, List<String> allFotos, int initialIndex) {
     PageController pageController = PageController(initialPage: initialIndex);
-    int currentIndex = initialIndex;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return CupertinoPageScaffold(
-              backgroundColor: Colors.black.withOpacity(0.9),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PageView.builder(
-                    controller: pageController,
-                    itemCount: allFotos.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        currentIndex = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: InteractiveViewer(
-                          child: Image.network(
-                            allFotos[index],
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                CupertinoIcons.photo,
-                                size: 100,
-                                color: Colors.white,
-                              );
-                            },
-                          ),
+        return CupertinoPageScaffold(
+          backgroundColor: Colors.black.withOpacity(0.9),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PageView.builder(
+                controller: pageController,
+                itemCount: allFotos.length,
+                itemBuilder: (context, index) {
+                  // Asegúrate de que el índice es válido
+                  if (index < allFotos.length) {
+                    return GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: InteractiveViewer(
+                        child: Image.network(
+                          allFotos[index],
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              CupertinoIcons.photo,
+                              size: 100,
+                              color: Colors.white,
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                  if (currentIndex > 0)
-                    Positioned(
-                      left: 10,
-                      child: FloatingActionButton(
-                        mini: true,
-                        backgroundColor: Colors.white.withOpacity(0.5),
-                        onPressed: () {
-                          if (currentIndex > 0) {
-                            pageController.previousPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut);
-                          }
-                        },
-                        child: const Icon(Icons.arrow_back, color: Colors.black),
                       ),
-                    ),
-                  if (currentIndex < allFotos.length - 1)
-                    Positioned(
-                      right: 10,
-                      child: FloatingActionButton(
-                        mini: true,
-                        backgroundColor: Colors.white.withOpacity(0.5),
-                        onPressed: () {
-                          if (currentIndex < allFotos.length - 1) {
-                            pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut);
-                          }
-                        },
-                        child: const Icon(Icons.arrow_forward, color: Colors.black),
-                      ),
-                    ),
-                ],
+                    );
+                  } else {
+                    return const SizedBox.shrink();  // Retorna un widget vacío si el índice no es válido
+                  }
+                },
               ),
-            );
-          },
+            ],
+          ),
         );
       },
     );

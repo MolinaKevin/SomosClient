@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
-import '../config/environment_config.dart'; // Importa la clase EnvironmentConfig
+import '../config/environment_config.dart';
 
 class CommerceService {
   List<Map<String, dynamic>>? _cachedCommerces;
@@ -21,8 +21,6 @@ class CommerceService {
 
     final response = await http.get(url, headers: headers);
 
-    print('Response status Com: ${response.statusCode}');
-    print('Response body Com: ${response.body}');
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];

@@ -5,7 +5,7 @@ import '../services/institution_service.dart';
 import '../screens/entity_detail_screen.dart';
 
 class Tab2 extends StatefulWidget {
-  final Map<String, String> translations;
+  final Map<String, dynamic> translations;
 
   const Tab2({super.key, required this.translations});
 
@@ -15,6 +15,7 @@ class Tab2 extends StatefulWidget {
 
 class _Tab2State extends State<Tab2> {
   int _selectedSegment = 0;
+  bool _isLoading = true; // Indicador de carga
   final CommerceService commerceService = CommerceService();
   final InstitutionService institutionService = InstitutionService();
   List<Map<String, dynamic>> _comercios = [];
@@ -44,32 +45,146 @@ class _Tab2State extends State<Tab2> {
             'avatar': commerce['avatar'],
             'avatar_url': commerce['avatar_url'],
             'background_image': commerce['background_image'] ?? '',
-            'fotos_urls': commerce['fotos_urls'] ?? [],
+            'fotos_urls': (commerce['fotos_urls'] != null && commerce['fotos_urls'] is List)
+                ? List<String>.from(commerce['fotos_urls'].where((url) => url is String))
+                : [], // Asegurarse de que es una lista de Strings
           };
         }).toList();
 
         _instituciones = institutionData.map((institution) {
           return {
             'id': institution['id'],
-            'name': institution['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible',
-            'address': institution['address'] ?? widget.translations['noDataAvailable'] ?? 'Dirección no disponible',
-            'phone': institution['phone_number'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible',
-            'email': institution['email'] ?? widget.translations['noDataAvailable'] ?? 'Correo no disponible',
-            'city': institution['city'] ?? widget.translations['noDataAvailable'] ?? 'Ciudad no disponible',
-            'description': institution['description'] ?? widget.translations['noDataAvailable'] ?? 'Descripción no disponible',
+            'name': institution['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Nombre no disponible',
+            'address': institution['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Dirección no disponible',
+            'phone': institution['phone_number'] ?? widget.translations['entities']?['noPhone'] ?? 'Teléfono no disponible',
+            'email': institution['email'] ?? widget.translations['entities']?['noEmail'] ?? 'Correo no disponible',
+            'city': institution['city'] ?? widget.translations['entities']?['noCity'] ?? 'Ciudad no disponible',
+            'description': institution['description'] ?? widget.translations['entities']?['noDescription'] ?? 'Descripción no disponible',
             'latitude': double.tryParse(institution['latitude'] ?? '') ?? 0.0,
             'longitude': double.tryParse(institution['longitude'] ?? '') ?? 0.0,
             'is_open': institution['is_open'] ?? false,
             'avatar': institution['avatar'],
             'avatar_url': institution['avatar_url'],
             'background_image': institution['background_image'] ?? '',
-            'fotos_urls': institution['fotos_urls'] ?? [],
+            'fotos_urls': (institution['fotos_urls'] != null && institution['fotos_urls'] is List)
+                ? List<String>.from(institution['fotos_urls'].where((url) => url is String))
+                : [], // Asegurarse de que es una lista de Strings
           };
         }).toList();
+        _isLoading = false; // Detenemos el indicador de carga
       });
     } catch (e) {
       print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false; // Detenemos el indicador de carga en caso de error
+      });
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTabView(
+      builder: (context) {
+        return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: CupertinoSegmentedControl<int>(
+                    children: {
+                      0: Text(
+                        widget.translations['entities']?['comercios'] ?? 'Comercios',
+                      ),
+                      1: Text(
+                        widget.translations['entities']?['instituciones'] ?? 'Instituciones',
+                      ),
+                    },
+                    onValueChanged: (int value) {
+                      setState(() {
+                        _selectedSegment = value;
+                      });
+                    },
+                    groupValue: _selectedSegment,
+                  ),
+                ),
+                SizedBox(width: 10),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    _showFilterPopup(context);
+                  },
+                  child: Icon(CupertinoIcons.search),
+                ),
+              ],
+            ),
+          ),
+          child: _isLoading
+              ? Center(child: CupertinoActivityIndicator()) // Mostrar un indicador de carga mientras los datos están cargando
+              : SafeArea(
+            child: ListView.builder(
+              key: PageStorageKey<String>('listView$_selectedSegment'),
+              itemCount: _currentList.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (index >= _currentList.length) {
+                  return SizedBox.shrink();
+                }
+                final item = _currentList[index];
+
+                return Card(
+                  child: ListTile(
+                    leading: item['avatar_url'] != null && item['avatar_url'].isNotEmpty
+                        ? Image.network(
+                      item['avatar_url'],
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
+                        : Icon(CupertinoIcons.photo, size: 50),
+                    title: Text(
+                      item['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Nombre no disponible',
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${widget.translations['entities']?['address'] ?? 'Dirección'}: ${item['address']}',
+                        ),
+                        Text(
+                          '${widget.translations['entities']?['phone'] ?? 'Teléfono'}: ${item['phone']}',
+                        ),
+                      ],
+                    ),
+                    trailing: const Icon(CupertinoIcons.chevron_forward),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => EntityDetailScreen(
+                            title: item['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Nombre no disponible',
+                            address: item['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Dirección no disponible',
+                            phone: item['phone'] ?? widget.translations['entities']?['noPhone'] ?? 'Teléfono no disponible',
+                            imageUrl: item['avatar_url'] ?? '',
+                            email: item['email'] ?? widget.translations['entities']?['noEmail'] ?? 'Correo no disponible',
+                            city: item['city'] ?? widget.translations['entities']?['noCity'] ?? 'Ciudad no disponible',
+                            description: item['description'] ?? widget.translations['entities']?['noDescription'] ?? 'Descripción no disponible',
+                            backgroundImage: item['background_image'] ?? '',
+                            fotosUrls: item['fotos_urls'] != null && item['fotos_urls'] is List
+                                ? List<String>.from(item['fotos_urls'].where((url) => url is String))
+                                : [],
+                            translations: widget.translations,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   List<Map<String, dynamic>> get _currentList {
@@ -81,30 +196,30 @@ class _Tab2State extends State<Tab2> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: Text(widget.translations['filterOptions'] ?? 'Opciones de Filtro'),
+          title: Text(widget.translations['filter']?['options'] ?? 'Opciones de Filtro'),
           message: Column(
             children: [
               CupertinoActionSheetAction(
-                child: Text(widget.translations['filterByCategory'] ?? 'Filtrar por categoría'),
+                child: Text(widget.translations['filter']?['category'] ?? 'Filtrar por categoría'),
                 onPressed: () {
                   _showCategoryFilter(context);
                 },
               ),
               CupertinoActionSheetAction(
-                child: Text(widget.translations['filterByLocation'] ?? 'Filtrar por ubicación'),
+                child: Text(widget.translations['filter']?['location'] ?? 'Filtrar por ubicación'),
                 onPressed: () {
                   _showLocationFilter(context);
                 },
               ),
               CupertinoActionSheetAction(
-                child: Text(widget.translations['filterByOpenNow'] ?? 'Solo mostrar abiertos'),
+                child: Text(widget.translations['filter']?['openNow'] ?? 'Solo mostrar abiertos'),
                 onPressed: () {
                   _applyOpenNowFilter();
                   Navigator.pop(context);
                 },
               ),
               CupertinoActionSheetAction(
-                child: Text(widget.translations['filterByRating'] ?? 'Filtrar por puntuación'),
+                child: Text(widget.translations['filter']?['rating'] ?? 'Filtrar por puntuación'),
                 onPressed: () {
                   _showRatingFilter(context);
                 },
@@ -112,7 +227,7 @@ class _Tab2State extends State<Tab2> {
             ],
           ),
           cancelButton: CupertinoActionSheetAction(
-            child: Text(widget.translations['close'] ?? 'Cerrar'),
+            child: Text(widget.translations['common']?['close'] ?? 'Cerrar'),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -142,93 +257,5 @@ class _Tab2State extends State<Tab2> {
 
   void _showRatingFilter(BuildContext context) {
     // Lógica para filtrar por puntuación
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoTabView(
-      builder: (context) {
-        return CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            middle: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: CupertinoSegmentedControl<int>(
-                    children: {
-                      0: Text(widget.translations['comercios'] ?? 'Comercios'),
-                      1: Text(widget.translations['instituciones'] ?? 'Instituciones'),
-                    },
-                    onValueChanged: (int value) {
-                      setState(() {
-                        _selectedSegment = value;
-                      });
-                    },
-                    groupValue: _selectedSegment,
-                  ),
-                ),
-                SizedBox(width: 10),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    _showFilterPopup(context);
-                  },
-                  child: Icon(CupertinoIcons.search),
-                ),
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: ListView.builder(
-              key: PageStorageKey<String>('listView$_selectedSegment'),
-              itemCount: _currentList.length,
-              itemBuilder: (BuildContext context, int index) {
-                final item = _currentList[index];
-                return Card(
-                  child: ListTile(
-                    leading: item['avatar_url'] != null && item['avatar_url'].isNotEmpty
-                        ? Image.network(
-                      item['avatar_url'],
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    )
-                        : Icon(CupertinoIcons.photo, size: 50),
-                    title: Text(item['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${widget.translations['address'] ?? 'Dirección'}: ${item['address']}'),
-                        Text('${widget.translations['phone'] ?? 'Teléfono'}: ${item['phone']}'),
-                      ],
-                    ),
-                    trailing: const Icon(CupertinoIcons.chevron_forward),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => EntityDetailScreen(
-                            title: item['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible',
-                            address: item['address'] ?? widget.translations['noDataAvailable'] ?? 'Dirección no disponible',
-                            phone: item['phone'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible',
-                            imageUrl: item['avatar_url'] ?? '',
-                            email: item['email'] ?? widget.translations['noDataAvailable'] ?? 'Correo no disponible',
-                            city: item['city'] ?? widget.translations['noDataAvailable'] ?? 'Ciudad no disponible',
-                            description: item['description'] ?? widget.translations['noDataAvailable'] ?? 'Descripción no disponible',
-                            backgroundImage: item['background_image'] ?? '',
-                            fotosUrls: List<String>.from(item['fotos_urls'] ?? []),
-                            translations: widget.translations, // Asegúrate de pasar las traducciones aquí
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 }

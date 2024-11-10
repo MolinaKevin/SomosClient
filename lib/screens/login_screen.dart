@@ -7,7 +7,7 @@ import '../main.dart';
 class LoginScreen extends StatefulWidget {
   final Function(Locale) onChangeLanguage;
   final Locale currentLocale;
-  final Map<String, String> translations; // Se agrega translations
+  final Map<String, dynamic> translations; // Se agrega translations
 
   const LoginScreen({
     super.key,

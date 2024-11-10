@@ -19,9 +19,6 @@ class InstitutionService {
 
     final response = await http.get(url, headers: headers);
 
-    print('Response status Ins: ${response.statusCode}');
-    print('Response body Ins: ${response.body}');
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
 

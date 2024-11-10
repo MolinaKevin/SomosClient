@@ -13,18 +13,17 @@ class AppLocalizations {
 
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
-  late Map<String, String> _localizedStrings;
+  late Map<String, dynamic> _localizedStrings;
 
   Future<bool> load() async {
     String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
 
-    _localizedStrings = jsonMap.map((key, value) {
-      return MapEntry(key, value.toString());
-    });
+    _localizedStrings = jsonMap; // Mantener la estructura original del mapa
 
     return true;
   }
+
 
   String translate(String key) {
     return _localizedStrings[key] ?? key;
@@ -50,11 +49,12 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
-Future<Map<String, String>> loadTranslations(Locale locale) async {
+
+Future<Map<String, dynamic>> loadTranslations(Locale locale) async {
   try {
     final String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
-    return jsonMap.map((key, value) => MapEntry(key, value.toString()));
+    return jsonMap; // Devuelve el mapa sin modificar los valores
   } catch (e) {
     print('Error loading JSON file: $e');
     throw e;

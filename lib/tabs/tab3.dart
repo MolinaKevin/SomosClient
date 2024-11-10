@@ -4,7 +4,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 import '../screens/points_screen.dart'; // Asegúrate de importar la pantalla de puntos
 
 class Tab3 extends StatefulWidget {
-  final Map<String, String> translations;
+  final Map<String, dynamic> translations;
   final Function(Locale) onChangeLanguage;
 
   const Tab3({super.key, required this.translations, required this.onChangeLanguage});

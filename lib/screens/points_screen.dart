@@ -4,7 +4,7 @@ import 'referral_screen.dart';
 import '../services/auth_service.dart';
 
 class PointsScreen extends StatefulWidget {
-  final Map<String, String> translations;
+  final Map<String, dynamic> translations;
 
   const PointsScreen({super.key, required this.translations});
 

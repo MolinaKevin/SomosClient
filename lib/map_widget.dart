@@ -14,7 +14,7 @@ import 'screens/entity_detail_screen.dart';
 class MyMapWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isAuthenticated;
-  final Map<String, String> translations; // Añadido para traducciones
+  final Map<String, dynamic> translations; // Añadido para traducciones
 
   const MyMapWidget({required this.scaffoldKey, required this.isAuthenticated, required this.translations});
 

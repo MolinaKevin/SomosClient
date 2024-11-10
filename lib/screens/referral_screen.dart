@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
 class ReferralScreen extends StatefulWidget {
-  final Map<String, String> translations;
+  final Map<String, dynamic> translations;
 
   const ReferralScreen({super.key, required this.translations});
 
