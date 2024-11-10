@@ -53,7 +53,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.translations['user']['viewReferrals'] ?? 'View Referrals'),
+        middle: Text(widget.translations['referrals']['view'] ?? 'View Referrals'),
       ),
       child: SafeArea(
         child: Padding(

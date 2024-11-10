@@ -24,7 +24,7 @@
     "pass": "Somos Pass",
     "referrer_pass": "Referrer pass",
     "totalReferrals": "Referrers insgesamt",
-    "totalPoints": "Gesamtpunkte",
+    "totalPoints": "Punkte",
     "firstLevelReferrals": "Erste Ebene",
     "lowerLevelReferrals": "Untere Ebenen",
     "description": "Beschreibung"
@@ -57,6 +57,7 @@
     "comercios": "Geschäfte",
     "instituciones": "Institutionen",
     "address": "Adresse",
+    "phone": "Telefon",
     "noAddress": "Adresse nicht verfügbar",
     "noPhone": "Telefon nicht verfügbar",
     "noEmail": "E-Mail nicht verfügbar",
@@ -80,8 +81,8 @@
     "restrictedAccessMessage": "Eingeschränkter Zugang"
   },
   "referrals": {
-    "view": "Empfehlungen anzeigen",
-    "hierarchy": "Empfehlungshierarchie",
+    "view": "Referrers anzeigen",
+    "hierarchy": "Referrershierarchie",
     "firstLevel": "Erste Ebene",
     "secondLevel": "Zweite Ebene",
     "thirdLevel": "Dritte Ebene",

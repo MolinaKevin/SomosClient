@@ -60,7 +60,7 @@ class _Tab3State extends State<Tab3> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['nfc']['waitingForDevice'] ?? 'Waiting for device'),
+          title: Text(widget.translations['transaction']['waitingForDevice'] ?? 'Waiting for device'),
           content: const CupertinoActivityIndicator(),
           actions: [
             CupertinoDialogAction(

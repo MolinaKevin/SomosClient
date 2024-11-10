@@ -23,7 +23,7 @@
     "pass": "Somos Pass",
     "referrer_pass": "Pass de referido",
     "totalReferrals": "Referidos",
-    "totalPoints": "Total de Puntos",
+    "totalPoints": "Puntos",
     "firstLevelReferrals": "Primer Nivel",
     "lowerLevelReferrals": "Niveles Inferiores",
     "description": "Descripción"
@@ -53,6 +53,7 @@
     "rating": "Filtrar por puntuación"
   },
   "entities": {
+    "phone": "Teléfono",
     "comercios": "Comercios",
     "instituciones": "Instituciones",
     "address": "Dirección",
