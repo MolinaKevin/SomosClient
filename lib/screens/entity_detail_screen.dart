@@ -44,7 +44,6 @@ class EntityDetailScreen extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  // Asegúrate de que la URL de la imagen es válida
                   if (backgroundImage.isNotEmpty)
                     Container(
                       width: double.infinity,
@@ -121,7 +120,6 @@ class EntityDetailScreen extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         itemCount: allFotos.length,
                         itemBuilder: (context, index) {
-                          // Validamos que 'index' sea un entero y esté dentro de los límites
                           if (index < allFotos.length) {
                             return GestureDetector(
                               onTap: () {
@@ -147,7 +145,7 @@ class EntityDetailScreen extends StatelessWidget {
                               ),
                             );
                           } else {
-                            return const SizedBox.shrink(); // Retorna un widget vacío si el índice no es válido
+                            return const SizedBox.shrink();
                           }
                         },
                       ),
@@ -177,7 +175,6 @@ class EntityDetailScreen extends StatelessWidget {
                 controller: pageController,
                 itemCount: allFotos.length,
                 itemBuilder: (context, index) {
-                  // Asegúrate de que el índice es válido
                   if (index < allFotos.length) {
                     return GestureDetector(
                       onTap: () => Navigator.pop(context),
@@ -196,7 +193,7 @@ class EntityDetailScreen extends StatelessWidget {
                       ),
                     );
                   } else {
-                    return const SizedBox.shrink();  // Retorna un widget vacío si el índice no es válido
+                    return const SizedBox.shrink();
                   }
                 },
               ),

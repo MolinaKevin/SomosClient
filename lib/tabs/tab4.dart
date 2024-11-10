@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Importa el paquete image_picker
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../screens/login_screen.dart';
 import '../providers/user_data_provider.dart';
@@ -12,11 +12,11 @@ class Tab4 extends StatefulWidget {
   final Locale currentLocale;
 
   const Tab4({
-    super.key,
+    Key? key,
     required this.translations,
     required this.onChangeLanguage,
     required this.currentLocale,
-  });
+  }) : super(key: key);
 
   @override
   _Tab4State createState() => _Tab4State();
@@ -24,33 +24,44 @@ class Tab4 extends StatefulWidget {
 
 class _Tab4State extends State<Tab4> {
   bool _isEditing = false;
-  bool _avatarUpdated = false; // Flag para saber si se ha cambiado el avatar
+  bool _avatarUpdated = false;
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
   late TextEditingController _passController;
   late TextEditingController _referrerPassController;
   late Locale _selectedLocale;
-  File? _image; // Archivo de imagen seleccionado
+  File? _image;
 
-  final ImagePicker _picker = ImagePicker(); // Instancia del ImagePicker
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
 
-    // Inicializa _selectedLocale con el valor del idioma en userData
-    final userData = Provider.of<UserDataProvider>(context, listen: false);
-    _selectedLocale = Locale(userData.language ?? 'en'); // Si no hay idioma, asigna 'en' por defecto.
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+    _passController = TextEditingController();
+    _referrerPassController = TextEditingController();
+  }
 
-    // Inicializar los controladores con los valores de userData
-    _nameController = TextEditingController(text: userData.name != 'Nombre no disponible' ? userData.name : '');
-    _emailController = TextEditingController(text: userData.email != 'Email no disponible' ? userData.email : '');
-    _phoneController = TextEditingController(text: userData.phone != 'Teléfono no disponible' ? userData.phone : '');
-    _passController = TextEditingController(text: userData.pass != 'No disponible' ? userData.pass : '');
-    _referrerPassController = TextEditingController(text: userData.referrerPass != 'No disponible' ? userData.referrerPass : '');
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    print('User data initialized: name = ${userData.name}, email = ${userData.email}, phone = ${userData.phone}, language = ${userData.language}, pass = ${userData.pass}, referrerPass = ${userData.referrerPass}');
+    final userData = Provider.of<UserDataProvider>(context);
+    _selectedLocale = Locale(userData.language ?? 'en');
+
+    if (!_isEditing) {
+      _nameController.text = userData.name != 'Name not available' ? userData.name : '';
+      _emailController.text = userData.email != 'Email not available' ? userData.email : '';
+      _phoneController.text = userData.phone != 'Phone not available' ? userData.phone : '';
+      _passController.text = userData.pass != 'Not available' ? userData.pass : '';
+      _referrerPassController.text = userData.referrerPass != 'Not available' ? userData.referrerPass : '';
+    }
+
+    print('User data updated: name = ${userData.name}, email = ${userData.email}, phone = ${userData.phone}, language = ${userData.language}, pass = ${userData.pass}, referrerPass = ${userData.referrerPass}');
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -58,11 +69,11 @@ class _Tab4State extends State<Tab4> {
 
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path); // Guarda la imagen seleccionada
-        _avatarUpdated = true; // Marca que el avatar ha sido actualizado
-        _isEditing = true; // Activa el modo de edición automáticamente
+        _image = File(pickedFile.path);
+        _avatarUpdated = true;
+        _isEditing = true;
       });
-      _showSuccessPopup(); // Muestra el popup de éxito
+      _showSuccessPopup();
     }
   }
 
@@ -71,19 +82,18 @@ class _Tab4State extends State<Tab4> {
 
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path); // Guarda la imagen tomada con la cámara
-        _avatarUpdated = true; // Marca que el avatar ha sido actualizado
-        _isEditing = true; // Activa el modo de edición automáticamente
+        _image = File(pickedFile.path);
+        _avatarUpdated = true;
+        _isEditing = true;
       });
-      _showSuccessPopup(); // Muestra el popup de éxito
+      _showSuccessPopup();
     }
   }
 
   Future<void> _uploadAvatar(UserDataProvider userData) async {
     if (_avatarUpdated && _image != null) {
-      // Si se cambió el avatar, subimos la nueva imagen al servidor
       await userData.uploadAvatar(_image!);
-      _avatarUpdated = false; // Reiniciar el flag después de subir la imagen
+      _avatarUpdated = false;
     }
   }
 
@@ -92,13 +102,13 @@ class _Tab4State extends State<Tab4> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['success'] ?? 'Éxito'),
-          content: Text(widget.translations['imageUploaded'] ?? 'La imagen se ha cargado exitosamente.'),
+          title: Text(widget.translations['common']['success'] ?? 'Success'),
+          content: Text(widget.translations['common']['imageUploaded'] ?? 'Image uploaded successfully.'),
           actions: [
             CupertinoDialogAction(
-              child: Text(widget.translations['ok'] ?? 'Aceptar'),
+              child: Text(widget.translations['common']['ok'] ?? 'OK'),
               onPressed: () {
-                Navigator.of(context).pop(); // Cierra el popup
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -114,34 +124,30 @@ class _Tab4State extends State<Tab4> {
     });
 
     if (!_isEditing) {
-      // Almacenar los datos solo cuando se haya completado la edición
       print('Saving user data: name = ${_nameController.text}, email = ${_emailController.text}, phone = ${_phoneController.text}, language = ${_selectedLocale.languageCode}, pass = ${_passController.text}, referrerPass = ${_referrerPassController.text}');
 
-      // Usar el valor actual de userData si los campos están vacíos
       final updatedName = _nameController.text.isNotEmpty ? _nameController.text : userData.name;
       final updatedEmail = _emailController.text.isNotEmpty ? _emailController.text : userData.email;
       final updatedPhone = _phoneController.text.isNotEmpty ? _phoneController.text : userData.phone;
       final updatedPass = _passController.text.isNotEmpty ? _passController.text : userData.pass;
       final updatedReferrerPass = _referrerPassController.text.isNotEmpty ? _referrerPassController.text : userData.referrerPass;
 
-      // Guarda los datos del usuario
       userData.saveUserData(
         updatedName,
         updatedEmail,
         updatedPhone,
-        _selectedLocale.languageCode, // Envía el código de idioma seleccionado
+        _selectedLocale.languageCode,
         updatedPass,
         updatedReferrerPass,
       );
 
-      // Subir el nuevo avatar si ha sido actualizado
       _uploadAvatar(userData);
     }
   }
 
   void _changePassword(BuildContext context) {
     print('Change password pressed');
-    // Lógica para cambiar la contraseña
+    // Logic to change password
   }
 
   Future<void> _logout(UserDataProvider userData) async {
@@ -151,7 +157,7 @@ class _Tab4State extends State<Tab4> {
       builder: (context) => LoginScreen(
         onChangeLanguage: widget.onChangeLanguage,
         currentLocale: widget.currentLocale,
-        translations: widget.translations, // Asegúrate de pasar las traducciones adecuadas
+        translations: widget.translations,
       ),
     ));
   }
@@ -159,147 +165,143 @@ class _Tab4State extends State<Tab4> {
   @override
   Widget build(BuildContext context) {
     final userData = Provider.of<UserDataProvider>(context);
-    print('Building Tab4 screen');
+    print('Building Tab4 screen, _isEditing=$_isEditing');
 
     return CupertinoTabView(
       builder: (context) {
         return CupertinoPageScaffold(
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${widget.translations['name'] ?? 'Nombre'}:',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            _isEditing
-                                ? CupertinoTextField(
-                              controller: _nameController,
-                              placeholder: userData.name, // Mostrar el nombre actual como placeholder
-                            )
-                                : Text(
-                              userData.name,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              '${widget.translations['email'] ?? 'Correo electrónico'}:',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            _isEditing
-                                ? CupertinoTextField(
-                              controller: _emailController,
-                              placeholder: userData.email, // Mostrar el email actual como placeholder
-                            )
-                                : Text(
-                              userData.email,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              '${widget.translations['phone'] ?? 'Teléfono'}:',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            _isEditing
-                                ? CupertinoTextField(
-                              controller: _phoneController,
-                              placeholder: userData.phone, // Mostrar el teléfono actual como placeholder
-                            )
-                                : Text(
-                              userData.phone,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              '${widget.translations['language'] ?? 'Idioma'}:',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            _isEditing
-                                ? CupertinoButton(
-                              onPressed: () => _showLanguageSelector(context),
-                              child: Text(_selectedLocale.languageCode),
-                            )
-                                : Text(
-                              _selectedLocale.languageCode,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(height: 20),
-                            // Somos Pass no editable
-                            Text(
-                              '${widget.translations['pass'] ?? 'Somos Pass'}:',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              userData.pass ?? widget.translations['noDataAvailable'] ?? 'No disponible',
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(height: 20),
-
-                            // Referrer Pass no editable
-                            Text(
-                              '${widget.translations['referrer_pass'] ?? 'Pass de referido'}:',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              userData.referrerPass ?? widget.translations['noDataAvailable'] ?? 'No disponible',
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ],
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${widget.translations['user']['name'] ?? 'Name'}:',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              _isEditing
+                                  ? CupertinoTextField(
+                                controller: _nameController,
+                              )
+                                  : Text(
+                                userData.name,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '${widget.translations['user']['email'] ?? 'Email'}:',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              _isEditing
+                                  ? CupertinoTextField(
+                                controller: _emailController,
+                              )
+                                  : Text(
+                                userData.email,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '${widget.translations['user']['phone'] ?? 'Phone'}:',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              _isEditing
+                                  ? CupertinoTextField(
+                                controller: _phoneController,
+                              )
+                                  : Text(
+                                userData.phone,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '${widget.translations['common']['language'] ?? 'Language'}:',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              _isEditing
+                                  ? CupertinoButton(
+                                onPressed: () => _showLanguageSelector(context),
+                                child: Text(_selectedLocale.languageCode),
+                              )
+                                  : Text(
+                                _selectedLocale.languageCode,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '${widget.translations['user']['pass'] ?? 'Somos Pass'}:',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                userData.pass ?? widget.translations['common']['noDataAvailable'] ?? 'Not available',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '${widget.translations['user']['referrer_pass'] ?? 'Referrer Pass'}:',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                userData.referrerPass ?? widget.translations['common']['noDataAvailable'] ?? 'Not available',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        GestureDetector(
+                          onTap: () => _showAvatarOptions(context),
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage: _image != null
+                                ? FileImage(_image!)
+                                : (userData.profilePhotoUrl.isNotEmpty
+                                ? NetworkImage(userData.profilePhotoUrl)
+                                : const NetworkImage('https://via.placeholder.com/150')) as ImageProvider,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: CupertinoButton(
+                        color: CupertinoColors.activeBlue,
+                        onPressed: () => _toggleEdit(userData),
+                        child: Text(
+                          _isEditing
+                              ? widget.translations['common']['save'] ?? 'Save'
+                              : widget.translations['user']['modifyProfile'] ?? 'Edit Profile',
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      GestureDetector(
-                        onTap: () => _showAvatarOptions(context),
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: _image != null
-                              ? FileImage(_image!) // Si hay una imagen seleccionada localmente, la muestra
-                              : (userData.profilePhotoUrl.isNotEmpty
-                              ? NetworkImage(userData.profilePhotoUrl) // Si no hay imagen seleccionada, muestra la que viene del servidor
-                              : const NetworkImage('https://via.placeholder.com/150')) as ImageProvider, // Placeholder en caso de que no haya avatar
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: CupertinoButton(
-                      color: CupertinoColors.activeBlue,
-                      onPressed: () => _toggleEdit(userData),
-                      child: Text(
-                        _isEditing
-                            ? widget.translations['save'] ?? 'Guardar'
-                            : widget.translations['modifyProfile'] ?? 'Modificar perfil',
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: CupertinoButton(
+                        color: CupertinoColors.activeBlue,
+                        onPressed: () => _changePassword(context),
+                        child: Text(widget.translations['user']['changePassword'] ?? 'Change Password'),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: CupertinoButton(
-                      color: CupertinoColors.activeBlue,
-                      onPressed: () => _changePassword(context),
-                      child: Text(widget.translations['changePassword'] ?? 'Cambiar Contraseña'),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: CupertinoButton(
+                        color: CupertinoColors.destructiveRed,
+                        onPressed: () => _logout(userData),
+                        child: Text(widget.translations['common']['logout'] ?? 'Logout'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: CupertinoButton(
-                      color: CupertinoColors.destructiveRed,
-                      onPressed: () => _logout(userData),
-                      child: Text(widget.translations['logout'] ?? 'Cerrar sesión'),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -308,30 +310,29 @@ class _Tab4State extends State<Tab4> {
     );
   }
 
-  // Función para mostrar opciones de subir avatar desde galería o cámara
   void _showAvatarOptions(BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
-        title: Text(widget.translations['avatarOptions'] ?? 'Opciones de Avatar'),
+        title: Text(widget.translations['user']['avatarOptions'] ?? 'Avatar Options'),
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text(widget.translations['uploadFromGallery'] ?? 'Subir desde galería'),
+            child: Text(widget.translations['user']['uploadFromGallery'] ?? 'Upload from Gallery'),
             onPressed: () {
               Navigator.pop(context);
-              _pickImageFromGallery(); // Llama a la función para seleccionar desde galería
+              _pickImageFromGallery();
             },
           ),
           CupertinoActionSheetAction(
-            child: Text(widget.translations['uploadFromCamera'] ?? 'Subir desde cámara'),
+            child: Text(widget.translations['user']['uploadFromCamera'] ?? 'Upload from Camera'),
             onPressed: () {
               Navigator.pop(context);
-              _pickImageFromCamera(); // Llama a la función para seleccionar desde la cámara
+              _pickImageFromCamera();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text(widget.translations['close'] ?? 'Cerrar'),
+          child: Text(widget.translations['common']['close'] ?? 'Close'),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -346,7 +347,7 @@ class _Tab4State extends State<Tab4> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: Text(widget.translations['selectLanguage'] ?? 'Seleccionar idioma'),
+          title: Text(widget.translations['common']['selectLanguage'] ?? 'Select Language'),
           actions: [
             CupertinoActionSheetAction(
               child: const Text('English'),
@@ -389,7 +390,7 @@ class _Tab4State extends State<Tab4> {
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(widget.translations['close'] ?? 'Cerrar'),
+            child: Text(widget.translations['common']['close'] ?? 'Close'),
             onPressed: () {
               print('Language selector closed');
               Navigator.pop(context);

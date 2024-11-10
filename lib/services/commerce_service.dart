@@ -11,7 +11,6 @@ class CommerceService {
       return _cachedCommerces!;
     }
 
-    // Obtén el baseUrl desde EnvironmentConfig
     final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/commerces');
 

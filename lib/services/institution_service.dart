@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../config/environment_config.dart'; // Importa EnvironmentConfig
+import '../config/environment_config.dart';
 
 class InstitutionService {
   List<Map<String, dynamic>>? _cachedInstitutions;
@@ -10,7 +10,7 @@ class InstitutionService {
       return _cachedInstitutions!;
     }
 
-    final baseUrl = await EnvironmentConfig.getBaseUrl(); // Obtiene la URL base
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/nros');
 
     final headers = {

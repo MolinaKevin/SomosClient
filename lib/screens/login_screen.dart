@@ -7,14 +7,14 @@ import '../main.dart';
 class LoginScreen extends StatefulWidget {
   final Function(Locale) onChangeLanguage;
   final Locale currentLocale;
-  final Map<String, dynamic> translations; // Se agrega translations
+  final Map<String, dynamic> translations;
 
   const LoginScreen({
-    super.key,
+    Key? key,
     required this.onChangeLanguage,
     required this.currentLocale,
-    required this.translations, // Required translations
-  });
+    required this.translations,
+  }) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final AuthService authService = AuthService();
-  bool _isLogin = true; // Variable para controlar si estamos en la pantalla de login o de registro
+  bool _isLogin = true;
 
   Future<void> _login() async {
     final email = _emailController.text;
@@ -36,42 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final result = await authService.login(email, password);
 
       if (result['success']) {
-        final user = result['user'];
-
-        // Aquí eliminamos la carga de las traducciones, ya que ya las recibimos como parámetro
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => MyHomePage(
-            translations: widget.translations, // Usamos las traducciones ya proporcionadas
-            onChangeLanguage: widget.onChangeLanguage,
-            currentLocale: widget.currentLocale,
-            initialIndex: 0,
-            isAuthenticated: true,
-          ),
-        ));
-      } else {
-        _showErrorMessage(result['error']);
-      }
-    } else {
-      _showErrorMessage({'error': widget.translations['enterCredentials'] ?? 'Please enter credentials'});
-    }
-  }
-
-  Future<void> _register() async {
-    final name = _nameController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-    final email = _emailController.text;
-
-    if (name.isNotEmpty && password.isNotEmpty && email.isNotEmpty && password == confirmPassword) {
-      final result = await authService.register(name, email, password, confirmPassword);
-
-      if (result['success']) {
-        final user = result['user'];
-
-        // Eliminamos la carga de las traducciones
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => MyHomePage(
-            translations: widget.translations, // Usamos las traducciones ya proporcionadas
+            translations: widget.translations,
             onChangeLanguage: widget.onChangeLanguage,
             currentLocale: widget.currentLocale,
             initialIndex: 0,
@@ -83,7 +50,40 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } else {
       _showErrorMessage({
-        'error': widget.translations['enterAllFields'] ?? 'Please enter all fields and ensure passwords match'
+        'error': widget.translations['auth']['enterCredentials'] ?? 'Please enter your credentials'
+      });
+    }
+  }
+
+  Future<void> _register() async {
+    final name = _nameController.text;
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    final email = _emailController.text;
+
+    if (name.isNotEmpty &&
+        password.isNotEmpty &&
+        email.isNotEmpty &&
+        password == confirmPassword) {
+      final result = await authService.register(name, email, password, confirmPassword);
+
+      if (result['success']) {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => MyHomePage(
+            translations: widget.translations,
+            onChangeLanguage: widget.onChangeLanguage,
+            currentLocale: widget.currentLocale,
+            initialIndex: 0,
+            isAuthenticated: true,
+          ),
+        ));
+      } else {
+        _showErrorMessage(result['error']);
+      }
+    } else {
+      _showErrorMessage({
+        'error': widget.translations['auth']['enterAllFields'] ??
+            'Please fill in all fields and ensure passwords match'
       });
     }
   }
@@ -91,11 +91,11 @@ class _LoginScreenState extends State<LoginScreen> {
   void _skipLogin() {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (context) => MyHomePage(
-        translations: {}, // Deberías cargar las traducciones aquí
+        translations: widget.translations,
         onChangeLanguage: widget.onChangeLanguage,
         currentLocale: widget.currentLocale,
         initialIndex: 0,
-        isAuthenticated: false, // Añade este parámetro
+        isAuthenticated: false,
       ),
     ));
   }
@@ -119,19 +119,19 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: widget.translations['fullName'] ?? 'Full Name',
+                  labelText: widget.translations['auth']['fullName'] ?? 'Full Name',
                 ),
               ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: widget.translations['email'] ?? 'Email',
+                labelText: widget.translations['user']['email'] ?? 'Email',
               ),
             ),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(
-                labelText: widget.translations['password'] ?? 'Password',
+                labelText: widget.translations['auth']['password'] ?? 'Password',
               ),
               obscureText: true,
             ),
@@ -139,17 +139,17 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _confirmPasswordController,
                 decoration: InputDecoration(
-                  labelText: widget.translations['confirmPassword'] ?? 'Confirm Password',
+                  labelText: widget.translations['auth']['confirmPassword'] ?? 'Confirm Password',
                 ),
                 obscureText: true,
               ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _isLogin ? _login : _register,
               child: Text(
                 _isLogin
-                    ? widget.translations['login'] ?? 'Login'
-                    : widget.translations['register'] ?? 'Register',
+                    ? widget.translations['auth']['login'] ?? 'Login'
+                    : widget.translations['auth']['register'] ?? 'Register',
               ),
             ),
             TextButton(
@@ -160,13 +160,13 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               child: Text(
                 _isLogin
-                    ? widget.translations['register'] ?? 'Register'
-                    : widget.translations['login'] ?? 'Login',
+                    ? widget.translations['auth']['register'] ?? 'Register'
+                    : widget.translations['auth']['login'] ?? 'Login',
               ),
             ),
             TextButton(
               onPressed: _skipLogin,
-              child: Text(widget.translations['skipLogin'] ?? 'Skip Login'),
+              child: Text(widget.translations['auth']['skipLogin'] ?? 'Skip Login'),
             ),
           ],
         ),

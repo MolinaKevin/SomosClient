@@ -20,30 +20,26 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        // Delegados de localización
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        // Idiomas soportados
         supportedLocales: const [
           Locale('en', ''),
           Locale('es', ''),
           Locale('de', ''),
         ],
-        // Determina el idioma inicial de la app
         localeResolutionCallback: (locale, supportedLocales) {
-          // Asegura que el idioma sea uno soportado
           for (var supportedLocale in supportedLocales) {
             if (supportedLocale.languageCode == locale?.languageCode) {
               return supportedLocale;
             }
           }
-          return supportedLocales.first; // Si no coincide, usar el primero (en este caso, inglés)
+          return supportedLocales.first;
         },
-        home: SplashScreen(), // Pantalla inicial de tu app
+        home: SplashScreen(),
       ),
     );
   }

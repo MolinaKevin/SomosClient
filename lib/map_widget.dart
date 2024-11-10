@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:async'; // Para el debounce con Timer
-import 'dart:convert'; // Para decodificar JSON
-import 'package:http/http.dart' as http; // Para hacer solicitudes HTTP
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'services/commerce_service.dart';
 import 'services/institution_service.dart';
 import 'services/auth_service.dart';
@@ -14,9 +14,14 @@ import 'screens/entity_detail_screen.dart';
 class MyMapWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isAuthenticated;
-  final Map<String, dynamic> translations; // Añadido para traducciones
+  final Map<String, dynamic> translations;
 
-  const MyMapWidget({required this.scaffoldKey, required this.isAuthenticated, required this.translations});
+  const MyMapWidget({
+    Key? key,
+    required this.scaffoldKey,
+    required this.isAuthenticated,
+    required this.translations,
+  }) : super(key: key);
 
   @override
   _MyMapWidgetState createState() => _MyMapWidgetState();
@@ -67,7 +72,9 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       markerData = [
         ...commerces.map((commerce) => {
           'id': commerce['id'],
-          'name': commerce['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible',
+          'name': commerce['name'] ??
+              widget.translations['common']['noDataAvailable'] ??
+              'Name not available',
           'latitude': double.tryParse(commerce['latitude'] ?? '') ?? 0.0,
           'longitude': double.tryParse(commerce['longitude'] ?? '') ?? 0.0,
           'is_open': commerce['is_open'] ?? false,
@@ -78,12 +85,24 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         }).toList(),
         ...institutions.map((institution) => {
           'id': institution['id'],
-          'name': institution['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible',
-          'address': institution['address'] ?? widget.translations['noAddress'] ?? 'Dirección no disponible',
-          'phone': institution['phone_number'] ?? widget.translations['noPhone'] ?? 'Teléfono no disponible',
-          'email': institution['email'] ?? widget.translations['noEmail'] ?? 'Correo no disponible',
-          'city': institution['city'] ?? widget.translations['noCity'] ?? 'Ciudad no disponible',
-          'description': institution['description'] ?? widget.translations['noDescription'] ?? 'Descripción no disponible',
+          'name': institution['name'] ??
+              widget.translations['common']['noDataAvailable'] ??
+              'Name not available',
+          'address': institution['address'] ??
+              widget.translations['entities']['noAddress'] ??
+              'Address not available',
+          'phone': institution['phone_number'] ??
+              widget.translations['entities']['noPhone'] ??
+              'Phone not available',
+          'email': institution['email'] ??
+              widget.translations['entities']['noEmail'] ??
+              'Email not available',
+          'city': institution['city'] ??
+              widget.translations['entities']['noCity'] ??
+              'City not available',
+          'description': institution['description'] ??
+              widget.translations['entities']['noDescription'] ??
+              'Description not available',
           'latitude': double.tryParse(institution['latitude'] ?? '') ?? 0.0,
           'longitude': double.tryParse(institution['longitude'] ?? '') ?? 0.0,
           'is_open': institution['is_open'] ?? false,
@@ -131,7 +150,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           _searchSuggestions = results;
         });
       } else {
-        print('Error al obtener sugerencias de búsqueda');
+        print('Error fetching search suggestions');
       }
       setState(() {
         _isLoading = false;
@@ -158,7 +177,8 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+                urlTemplate:
+                'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
               ),
               MarkerLayer(
                 markers: markers,
@@ -231,11 +251,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                               children: [
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
                                     child: TextField(
                                       controller: _searchController,
                                       decoration: InputDecoration(
-                                        hintText: widget.translations['search'] ?? 'Buscar...',
+                                        hintText: widget
+                                            .translations['entities']['search'] ??
+                                            'Search...',
                                         border: InputBorder.none,
                                       ),
                                       onChanged: _onSearchChanged,
@@ -269,8 +292,10 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                                   return ListTile(
                                     title: Text(suggestion['display_name']),
                                     onTap: () {
-                                      double lat = double.parse(suggestion['lat']);
-                                      double lon = double.parse(suggestion['lon']);
+                                      double lat =
+                                      double.parse(suggestion['lat']);
+                                      double lon =
+                                      double.parse(suggestion['lon']);
                                       mapController.move(LatLng(lat, lon), 15.0);
                                       _toggleSearch();
                                     },
@@ -310,11 +335,13 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               child: Column(
                 children: [
                   Text(
-                    widget.translations['points'] ?? "Puntos",
+                    widget.translations['user']['totalPoints'] ?? "Points",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: widget.isAuthenticated ? CupertinoColors.activeGreen : CupertinoColors.destructiveRed,
+                      color: widget.isAuthenticated
+                          ? CupertinoColors.activeGreen
+                          : CupertinoColors.destructiveRed,
                     ),
                   ),
                   Text(
@@ -322,7 +349,9 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: widget.isAuthenticated ? CupertinoColors.activeGreen : CupertinoColors.destructiveRed,
+                      color: widget.isAuthenticated
+                          ? CupertinoColors.activeGreen
+                          : CupertinoColors.destructiveRed,
                     ),
                   ),
                 ],
@@ -334,7 +363,8 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     );
   }
 
-  List<Marker> createMarkers(BuildContext context, List<Map<String, dynamic>> markerData) {
+  List<Marker> createMarkers(
+      BuildContext context, List<Map<String, dynamic>> markerData) {
     return markerData.map((data) {
       double latitude = double.tryParse(data['latitude'].toString()) ?? 0.0;
       double longitude = double.tryParse(data['longitude'].toString()) ?? 0.0;
@@ -346,7 +376,9 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         child: GestureDetector(
           onTap: () => _showInfoCard(context, data),
           child: Image.asset(
-            activeMarker == data['id'].toString() ? 'assets/images/active_marker.png' : 'assets/images/map_marker.png',
+            activeMarker == data['id'].toString()
+                ? 'assets/images/active_marker.png'
+                : 'assets/images/map_marker.png',
             width: 40,
             height: 40,
           ),
@@ -364,9 +396,11 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierLabel:
+      MaterialLocalizations.of(context).modalBarrierDismissLabel,
       transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      pageBuilder: (BuildContext buildContext, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
         return Padding(
           padding: EdgeInsets.only(
             left: 10.0,
@@ -384,20 +418,32 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                     context,
                     CupertinoPageRoute(
                       builder: (context) => EntityDetailScreen(
-                        title: data['name'] ?? widget.translations['noDataAvailable'] ?? 'No disponible',
-                        address: data['address'] ?? widget.translations['noAddress'] ?? 'No disponible',
-                        phone: data['phone'] ?? widget.translations['noPhone'] ?? 'No disponible',
-                        email: data['email'] ?? widget.translations['noEmail'] ?? 'Correo no disponible',
-                        city: data['city'] ?? widget.translations['noCity'] ?? 'Ciudad no disponible',
-                        description: data['description'] ?? widget.translations['noDescription'] ?? 'Descripción no disponible',
+                        title: data['name'] ??
+                            widget.translations['common']['noDataAvailable'] ??
+                            'Not available',
+                        address: data['address'] ??
+                            widget.translations['entities']['noAddress'] ??
+                            'Address not available',
+                        phone: data['phone'] ??
+                            widget.translations['entities']['noPhone'] ??
+                            'Phone not available',
+                        email: data['email'] ??
+                            widget.translations['entities']['noEmail'] ??
+                            'Email not available',
+                        city: data['city'] ??
+                            widget.translations['entities']['noCity'] ??
+                            'City not available',
+                        description: data['description'] ??
+                            widget.translations['entities']['noDescription'] ??
+                            'Description not available',
                         imageUrl: data['avatar_url'] ?? '',
                         backgroundImage: data['background_image'] ?? '',
-                        fotosUrls: List<String>.from(data['fotos_urls'] ?? []),
-                        translations: widget.translations,  // Asegúrate de pasar las traducciones aquí
+                        fotosUrls:
+                        List<String>.from(data['fotos_urls'] ?? []),
+                        translations: widget.translations,
                       ),
                     ),
                   );
-
                 },
                 child: Container(
                   padding: const EdgeInsets.all(0),
@@ -423,46 +469,64 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                         children: [
                           Container(
                             width: double.infinity,
-                            height: MediaQuery.of(context).size.height * 0.2 * 0.9,
+                            height:
+                            MediaQuery.of(context).size.height * 0.2 * 0.9,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: NetworkImage(data['background_image'] ?? ''),
+                                image:
+                                NetworkImage(data['background_image'] ?? ''),
                                 fit: BoxFit.cover,
                               ),
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16.0)),
                             ),
                           ),
                           Center(
                             child: Container(
-                              margin: EdgeInsets.only(bottom: 0, top: 100),
+                              margin:
+                              EdgeInsets.only(bottom: 0, top: 100),
                               width: 80,
                               height: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                  image: NetworkImage(data['avatar_url'] ?? ''),
+                                  image:
+                                  NetworkImage(data['avatar_url'] ?? ''),
                                   fit: BoxFit.cover,
                                 ),
-                                border: Border.all(color: Colors.white, width: 3),
+                                border:
+                                Border.all(color: Colors.white, width: 3),
                               ),
                             ),
                           ),
                         ],
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 16.0, top: 0),
+                        padding:
+                        const EdgeInsets.only(left: 16.0, top: 0),
                         child: Row(
                           children: [
                             Icon(
-                              data['is_open'] == true ? Icons.check : Icons.close,
-                              color: data['is_open'] == true ? Colors.green : Colors.red,
+                              data['is_open'] == true
+                                  ? Icons.check
+                                  : Icons.close,
+                              color: data['is_open'] == true
+                                  ? Colors.green
+                                  : Colors.red,
                               size: 18,
                             ),
                             SizedBox(width: 5),
                             Text(
-                              data['is_open'] == true ? widget.translations['open'] ?? 'Abierto' : widget.translations['closed'] ?? 'Cerrado',
+                              data['is_open'] == true
+                                  ? widget.translations['entities']['open'] ??
+                                  'Open'
+                                  : widget.translations['entities']
+                              ['closed'] ??
+                                  'Closed',
                               style: TextStyle(
-                                color: data['is_open'] == true ? Colors.green : Colors.red,
+                                color: data['is_open'] == true
+                                    ? Colors.green
+                                    : Colors.red,
                                 fontSize: 17,
                               ),
                             ),
@@ -470,10 +534,15 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 16.0, bottom: 10.0),
+                        padding: const EdgeInsets.only(
+                            left: 16.0, bottom: 10.0),
                         child: Text(
-                          data['name'] ?? widget.translations['noDataAvailable'] ?? 'No disponible',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          data['name'] ??
+                              widget.translations['common']
+                              ['noDataAvailable'] ??
+                              'Not available',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -484,7 +553,8 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           ),
         );
       },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
+      transitionBuilder:
+          (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: CurvedAnimation(
             parent: animation,

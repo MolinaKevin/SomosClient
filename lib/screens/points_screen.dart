@@ -6,7 +6,7 @@ import '../services/auth_service.dart';
 class PointsScreen extends StatefulWidget {
   final Map<String, dynamic> translations;
 
-  const PointsScreen({super.key, required this.translations});
+  const PointsScreen({Key? key, required this.translations}) : super(key: key);
 
   @override
   _PointsScreenState createState() => _PointsScreenState();
@@ -56,7 +56,7 @@ class _PointsScreenState extends State<PointsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.translations['viewPoints'] ?? 'Ver Puntos'),
+        middle: Text(widget.translations['transaction']['viewPoints'] ?? 'View Points'),
       ),
       child: SafeArea(
         child: Padding(
@@ -69,11 +69,11 @@ class _PointsScreenState extends State<PointsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  widget.translations['failedToLoadData'] ?? 'Error al cargar datos',
-                  style: TextStyle(color: CupertinoColors.destructiveRed, fontSize: 18),
+                  widget.translations['common']['failedToLoadData'] ?? 'Failed to load data',
+                  style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 18),
                 ),
                 CupertinoButton(
-                  child: Text(widget.translations['retry'] ?? 'Reintentar'),
+                  child: Text(widget.translations['common']['retry'] ?? 'Retry'),
                   onPressed: _fetchUserData,
                 ),
               ],
@@ -85,54 +85,54 @@ class _PointsScreenState extends State<PointsScreen> {
               const SizedBox(height: 20),
               Center(
                 child: Text(
-                  '${widget.translations['totalPoints'] ?? 'Total de Puntos'}:',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  '${widget.translations['user']['totalPoints'] ?? 'Total Points'}:',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
               Center(
                 child: Text(
-                  '$_points', // Muestra los puntos dinámicos
-                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: Text(
-                  '${widget.translations['referrals'] ?? 'Referidos'}:',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  '$_points',
+                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
                 ),
               ),
               const SizedBox(height: 20),
               Center(
                 child: Text(
-                  '${widget.translations['firstLevelReferrals'] ?? 'Primer Nivel'}:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Center(
-                child: Text(
-                  '$_firstLevelReferrals', // Muestra los referidos de primer nivel
-                  style: TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
+                  '${widget.translations['user']['referrals'] ?? 'Referrals'}:',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 20),
               Center(
                 child: Text(
-                  '${widget.translations['lowerLevelReferrals'] ?? 'Niveles Inferiores'}:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  '${widget.translations['user']['firstLevelReferrals'] ?? 'First Level'}:',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               Center(
                 child: Text(
-                  '$_lowerLevelReferrals', // Muestra los referidos de niveles inferiores
-                  style: TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
+                  '$_firstLevelReferrals',
+                  style: const TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  '${widget.translations['user']['lowerLevelReferrals'] ?? 'Lower Levels'}:',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Center(
+                child: Text(
+                  '$_lowerLevelReferrals',
+                  style: const TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
                 ),
               ),
               const SizedBox(height: 40),
               Center(
                 child: CupertinoButton.filled(
                   onPressed: () => _navigateToReferralScreen(context),
-                  child: Text(widget.translations['viewReferrals'] ?? 'Ver'),
+                  child: Text(widget.translations['user']['viewReferrals'] ?? 'View'),
                 ),
               ),
             ],

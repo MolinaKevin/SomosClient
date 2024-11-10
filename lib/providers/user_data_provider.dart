@@ -23,13 +23,8 @@ class UserDataProvider extends ChangeNotifier {
   }
 
   Future<void> loadUserData() async {
-    // Obtener todos los datos almacenados de manera simultánea
     Map<String, String?> allData = await _secureStorage.readAll();
 
-    // Imprimir todo el objeto tal como se recupera de FlutterSecureStorage
-    print('Datos completos cargados desde secureStorage: $allData');
-
-    // Asignar los valores a las variables correspondientes
     name = allData['user_name'] ?? 'Nombre no disponible';
     email = allData['user_email'] ?? 'Email no disponible';
     phone = allData['user_phone'] ?? 'Teléfono no disponible';
@@ -52,7 +47,7 @@ class UserDataProvider extends ChangeNotifier {
     print('Idioma: $language');
     print('Avatar URL: $profilePhotoUrl');
 
-    notifyListeners(); // Notificar a los oyentes de los cambios
+    notifyListeners();
   }
 
 

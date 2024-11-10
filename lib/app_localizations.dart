@@ -19,7 +19,7 @@ class AppLocalizations {
     String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
 
-    _localizedStrings = jsonMap; // Mantener la estructura original del mapa
+    _localizedStrings = jsonMap;
 
     return true;
   }
@@ -54,7 +54,7 @@ Future<Map<String, dynamic>> loadTranslations(Locale locale) async {
   try {
     final String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
-    return jsonMap; // Devuelve el mapa sin modificar los valores
+    return jsonMap;
   } catch (e) {
     print('Error loading JSON file: $e');
     throw e;

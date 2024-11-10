@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
-import '../screens/points_screen.dart'; // Asegúrate de importar la pantalla de puntos
+import '../screens/points_screen.dart';
 
 class Tab3 extends StatefulWidget {
   final Map<String, dynamic> translations;
   final Function(Locale) onChangeLanguage;
 
-  const Tab3({super.key, required this.translations, required this.onChangeLanguage});
+  const Tab3({Key? key, required this.translations, required this.onChangeLanguage}) : super(key: key);
 
   @override
   _Tab3State createState() => _Tab3State();
@@ -16,7 +16,7 @@ class Tab3 extends StatefulWidget {
 class _Tab3State extends State<Tab3> {
   final TextEditingController _amountController = TextEditingController();
   final ValueNotifier<bool> _isAmountValid = ValueNotifier<bool>(false);
-  bool _isWaitingForNFC = false; // Estado para el popup de espera
+  bool _isWaitingForNFC = false;
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _Tab3State extends State<Tab3> {
     if (text.isEmpty || text == '€') {
       return false;
     }
-    final amount = text.substring(1); // Remove €
+    final amount = text.substring(1);
     return double.tryParse(amount) != null && double.parse(amount) > 0;
   }
 
@@ -51,7 +51,6 @@ class _Tab3State extends State<Tab3> {
     }
   }
 
-  // Mostrar popup de espera con botón de cancelar
   void _showWaitingPopup(BuildContext context) {
     setState(() {
       _isWaitingForNFC = true;
@@ -61,14 +60,14 @@ class _Tab3State extends State<Tab3> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['waitingForDevice'] ?? 'Esperando aceptación'),
-          content: CupertinoActivityIndicator(), // Animación de carga
+          title: Text(widget.translations['nfc']['waitingForDevice'] ?? 'Waiting for device'),
+          content: const CupertinoActivityIndicator(),
           actions: [
             CupertinoDialogAction(
-              child: Text(widget.translations['cancel'] ?? 'Cancelar'),
+              child: Text(widget.translations['common']['cancel'] ?? 'Cancel'),
               onPressed: () {
                 _cancelTransaction();
-                Navigator.of(context).pop(); // Cierra el popup
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -77,38 +76,36 @@ class _Tab3State extends State<Tab3> {
     );
   }
 
-  // Inicia la transacción NFC
   Future<void> _initiateNFC() async {
     try {
-      _showWaitingPopup(context); // Mostrar el popup de espera
+      _showWaitingPopup(context);
 
       NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
         print('NFC Tag discovered: ${tag.data}');
-        Navigator.of(context).pop(); // Cierra el popup
+        Navigator.of(context).pop();
         setState(() {
           _isWaitingForNFC = false;
         });
-        NfcManager.instance.stopSession(); // Detener la sesión NFC después de la transacción
+        NfcManager.instance.stopSession();
       });
     } catch (e) {
-      print('Error al iniciar NFC: $e');
+      print('Error initiating NFC: $e');
       _showNFCErrorDialog(context);
     }
   }
 
-  // Mostrar un diálogo si NFC no está habilitado
   void _showNFCErrorDialog(BuildContext context) {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['nfcDisabled'] ?? 'NFC deshabilitado'),
-          content: Text(widget.translations['enableNFC'] ?? 'Por favor, habilita NFC para continuar.'),
+          title: Text(widget.translations['nfc']['nfcDisabled'] ?? 'NFC disabled'),
+          content: Text(widget.translations['nfc']['enableNFC'] ?? 'Please enable NFC to continue.'),
           actions: [
             CupertinoDialogAction(
-              child: Text(widget.translations['ok'] ?? 'Aceptar'),
+              child: Text(widget.translations['common']['ok'] ?? 'OK'),
               onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -117,13 +114,12 @@ class _Tab3State extends State<Tab3> {
     );
   }
 
-  // Lógica para cancelar la transacción NFC
   void _cancelTransaction() {
-    print('Transacción NFC cancelada');
+    print('NFC transaction cancelled');
     setState(() {
       _isWaitingForNFC = false;
     });
-    NfcManager.instance.stopSession(); // Detener la sesión NFC si se cancela
+    NfcManager.instance.stopSession();
   }
 
   void _navigateToPointsScreen(BuildContext context) {
@@ -139,7 +135,7 @@ class _Tab3State extends State<Tab3> {
       builder: (context) {
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            middle: Text(widget.translations['generateTransaction'] ?? 'Generar Transacción'),
+            middle: Text(widget.translations['transaction']['generate'] ?? 'Generate Transaction'),
           ),
           child: SafeArea(
             child: SingleChildScrollView(
@@ -151,15 +147,15 @@ class _Tab3State extends State<Tab3> {
                     const SizedBox(height: 20),
                     CupertinoTextField(
                       controller: _amountController,
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
+                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
                       decoration: BoxDecoration(
                         border: Border.all(color: CupertinoColors.systemGrey, width: 1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       placeholder: '€0.00',
-                      placeholderStyle: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.inactiveGray),
+                      placeholderStyle: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.inactiveGray),
                     ),
                     const SizedBox(height: 20),
                     ValueListenableBuilder<bool>(
@@ -167,14 +163,14 @@ class _Tab3State extends State<Tab3> {
                       builder: (context, isValid, child) {
                         return CupertinoButton.filled(
                           onPressed: isValid ? _initiateNFC : null,
-                          child: Text(widget.translations['initiateTransaction'] ?? 'Iniciar Transacción'),
+                          child: Text(widget.translations['transaction']['initiateTransaction'] ?? 'Initiate Transaction'),
                         );
                       },
                     ),
                     const SizedBox(height: 20),
                     CupertinoButton.filled(
                       onPressed: () => _navigateToPointsScreen(context),
-                      child: Text(widget.translations['viewPoints'] ?? 'Ver Puntos'),
+                      child: Text(widget.translations['user']['viewPoints'] ?? 'View Points'),
                     ),
                   ],
                 ),

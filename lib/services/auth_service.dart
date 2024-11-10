@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../config/environment_config.dart'; // Importa EnvironmentConfig
+import '../config/environment_config.dart';
 
 class AuthService {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final baseUrl = await EnvironmentConfig.getBaseUrl(); // Obtiene la URL base
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/login');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({'email': email, 'password': password});
@@ -25,14 +25,13 @@ class AuthService {
 
       print('Login successful. Token: $token, User: $user');
 
-      // Almacenar la información del usuario, incluyendo pass y referrer_pass
       await _secureStorage.write(key: 'auth_token', value: token);
       await _secureStorage.write(key: 'user_name', value: user['name']);
       await _secureStorage.write(key: 'user_email', value: user['email']);
       await _secureStorage.write(key: 'user_phone', value: user['phone_number'] ?? '');
       await _secureStorage.write(key: 'profile_photo_url', value: user['profile_photo_url'] ?? '');
-      await _secureStorage.write(key: 'user_pass', value: user['pass'] ?? ''); // Guardar pass
-      await _secureStorage.write(key: 'user_referrer_pass', value: user['referrer_pass'] ?? ''); // Guardar referrer_pass
+      await _secureStorage.write(key: 'user_pass', value: user['pass'] ?? '');
+      await _secureStorage.write(key: 'user_referrer_pass', value: user['referrer_pass'] ?? '');
 
       return {'success': true, 'user': user};
     } else {
@@ -43,7 +42,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> register(String name, String email, String password, String confirmPassword) async {
-    final baseUrl = await EnvironmentConfig.getBaseUrl(); // Obtiene la URL base
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/register');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
@@ -66,14 +65,13 @@ class AuthService {
 
       print('Registration successful. Token: $token, User: $user');
 
-      // Almacenar la información del usuario, incluyendo pass y referrer_pass
       await _secureStorage.write(key: 'auth_token', value: token);
       await _secureStorage.write(key: 'user_name', value: user['name']);
       await _secureStorage.write(key: 'user_email', value: user['email']);
       await _secureStorage.write(key: 'user_phone', value: user['phone_number'] ?? '');
       await _secureStorage.write(key: 'profile_photo_url', value: user['profile_photo_url'] ?? '');
-      await _secureStorage.write(key: 'user_pass', value: user['pass'] ?? ''); // Guardar pass
-      await _secureStorage.write(key: 'user_referrer_pass', value: user['referrer_pass'] ?? ''); // Guardar referrer_pass
+      await _secureStorage.write(key: 'user_pass', value: user['pass'] ?? '');
+      await _secureStorage.write(key: 'user_referrer_pass', value: user['referrer_pass'] ?? '');
 
       return {'success': true, 'user': user};
     } else {
@@ -85,7 +83,7 @@ class AuthService {
 
   Future<Map<String, dynamic>> fetchUserDetails() async {
     final token = await _secureStorage.read(key: 'auth_token');
-    final baseUrl = await EnvironmentConfig.getBaseUrl(); // Obtiene la URL base
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/user');
     final headers = {
       'Content-Type': 'application/json',
@@ -103,13 +101,12 @@ class AuthService {
       final data = jsonDecode(response.body);
       print('User details received: $data');
 
-      // Almacena los nuevos datos que lleguen del endpoint /user
       await _secureStorage.write(key: 'user_name', value: data['name']);
       await _secureStorage.write(key: 'user_email', value: data['email']);
       await _secureStorage.write(key: 'user_phone', value: data['phone'] ?? '');
       await _secureStorage.write(key: 'profile_photo_url', value: data['profile_photo_url'] ?? '');
-      await _secureStorage.write(key: 'user_pass', value: data['pass'] ?? ''); // Guardar pass
-      await _secureStorage.write(key: 'user_referrer_pass', value: data['referrer_pass'] ?? ''); // Guardar referrer_pass
+      await _secureStorage.write(key: 'user_pass', value: data['pass'] ?? '');
+      await _secureStorage.write(key: 'user_referrer_pass', value: data['referrer_pass'] ?? '');
 
       return {
         'name': data['name'],
@@ -128,7 +125,7 @@ class AuthService {
 
   Future<Map<String, dynamic>> fetchUserData() async {
     final token = await _secureStorage.read(key: 'auth_token');
-    final baseUrl = await EnvironmentConfig.getBaseUrl(); // Obtiene la URL base
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/user/data');
     final headers = {
       'Content-Type': 'application/json',
@@ -147,7 +144,6 @@ class AuthService {
       print('User data received: $data');
 
       int points = data['points'] ?? 0;
-
       final referrals = data['referrals'] ?? {};
 
       int level1 = referrals['level_1'] ?? 0;
@@ -161,12 +157,12 @@ class AuthService {
       int totalReferrals = level1 + level2 + level3 + level4 + level5 + level6 + level7;
       int lowerLevelReferrals = data['lowlevelrefs'] ?? 0;
 
-      String name = data['name'] ?? await _secureStorage.read(key: 'user_name') ?? 'Nombre no disponible';
-      String email = data['email'] ?? await _secureStorage.read(key: 'user_email') ?? 'Email no disponible';
-      String phone = data['phone'] ?? await _secureStorage.read(key: 'user_phone') ?? 'Teléfono no disponible';
+      String name = data['name'] ?? await _secureStorage.read(key: 'user_name') ?? 'Name not available';
+      String email = data['email'] ?? await _secureStorage.read(key: 'user_email') ?? 'Email not available';
+      String phone = data['phone'] ?? await _secureStorage.read(key: 'user_phone') ?? 'Phone not available';
       String profilePhotoUrl = data['profile_photo_url'] ?? await _secureStorage.read(key: 'profile_photo_url') ?? '';
-      String pass = data['pass'] ?? await _secureStorage.read(key: 'user_pass') ?? 'No disponible';
-      String referrerPass = data['referrer_pass'] ?? await _secureStorage.read(key: 'user_referrer_pass') ?? 'No disponible';
+      String pass = data['pass'] ?? await _secureStorage.read(key: 'user_pass') ?? 'Not available';
+      String referrerPass = data['referrer_pass'] ?? await _secureStorage.read(key: 'user_referrer_pass') ?? 'Not available';
 
       return {
         'name': name,

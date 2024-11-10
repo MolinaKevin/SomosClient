@@ -70,7 +70,6 @@ class _SplashScreenState extends State<SplashScreen> {
     });
     await _secureStorage.write(key: 'user_language', value: newLocale.languageCode);
 
-    // Recargar las traducciones y navegar a la pantalla principal
     final translations = await loadTranslations(newLocale);
     _navigateToNextScreen();
   }

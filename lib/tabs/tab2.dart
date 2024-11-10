@@ -7,7 +7,7 @@ import '../screens/entity_detail_screen.dart';
 class Tab2 extends StatefulWidget {
   final Map<String, dynamic> translations;
 
-  const Tab2({super.key, required this.translations});
+  const Tab2({Key? key, required this.translations}) : super(key: key);
 
   @override
   _Tab2State createState() => _Tab2State();
@@ -15,7 +15,7 @@ class Tab2 extends StatefulWidget {
 
 class _Tab2State extends State<Tab2> {
   int _selectedSegment = 0;
-  bool _isLoading = true; // Indicador de carga
+  bool _isLoading = true;
   final CommerceService commerceService = CommerceService();
   final InstitutionService institutionService = InstitutionService();
   List<Map<String, dynamic>> _comercios = [];
@@ -36,9 +36,9 @@ class _Tab2State extends State<Tab2> {
         _comercios = commerceData.map((commerce) {
           return {
             'id': commerce['id'],
-            'name': commerce['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible',
-            'address': commerce['address'] ?? widget.translations['noDataAvailable'] ?? 'Dirección no disponible',
-            'phone': commerce['phone_number'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible',
+            'name': commerce['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Not available',
+            'address': commerce['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Address not available',
+            'phone': commerce['phone_number'] ?? widget.translations['entities']?['noPhone'] ?? 'Phone not available',
             'latitude': double.tryParse(commerce['latitude'] ?? '') ?? 0.0,
             'longitude': double.tryParse(commerce['longitude'] ?? '') ?? 0.0,
             'is_open': commerce['is_open'] ?? false,
@@ -47,19 +47,19 @@ class _Tab2State extends State<Tab2> {
             'background_image': commerce['background_image'] ?? '',
             'fotos_urls': (commerce['fotos_urls'] != null && commerce['fotos_urls'] is List)
                 ? List<String>.from(commerce['fotos_urls'].where((url) => url is String))
-                : [], // Asegurarse de que es una lista de Strings
+                : [],
           };
         }).toList();
 
         _instituciones = institutionData.map((institution) {
           return {
             'id': institution['id'],
-            'name': institution['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Nombre no disponible',
-            'address': institution['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Dirección no disponible',
-            'phone': institution['phone_number'] ?? widget.translations['entities']?['noPhone'] ?? 'Teléfono no disponible',
-            'email': institution['email'] ?? widget.translations['entities']?['noEmail'] ?? 'Correo no disponible',
-            'city': institution['city'] ?? widget.translations['entities']?['noCity'] ?? 'Ciudad no disponible',
-            'description': institution['description'] ?? widget.translations['entities']?['noDescription'] ?? 'Descripción no disponible',
+            'name': institution['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Not available',
+            'address': institution['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Address not available',
+            'phone': institution['phone_number'] ?? widget.translations['entities']?['noPhone'] ?? 'Phone not available',
+            'email': institution['email'] ?? widget.translations['entities']?['noEmail'] ?? 'Email not available',
+            'city': institution['city'] ?? widget.translations['entities']?['noCity'] ?? 'City not available',
+            'description': institution['description'] ?? widget.translations['entities']?['noDescription'] ?? 'Description not available',
             'latitude': double.tryParse(institution['latitude'] ?? '') ?? 0.0,
             'longitude': double.tryParse(institution['longitude'] ?? '') ?? 0.0,
             'is_open': institution['is_open'] ?? false,
@@ -68,15 +68,15 @@ class _Tab2State extends State<Tab2> {
             'background_image': institution['background_image'] ?? '',
             'fotos_urls': (institution['fotos_urls'] != null && institution['fotos_urls'] is List)
                 ? List<String>.from(institution['fotos_urls'].where((url) => url is String))
-                : [], // Asegurarse de que es una lista de Strings
+                : [],
           };
         }).toList();
-        _isLoading = false; // Detenemos el indicador de carga
+        _isLoading = false;
       });
     } catch (e) {
       print('Error fetching data: $e');
       setState(() {
-        _isLoading = false; // Detenemos el indicador de carga en caso de error
+        _isLoading = false;
       });
     }
   }
@@ -97,7 +97,7 @@ class _Tab2State extends State<Tab2> {
                         widget.translations['entities']?['comercios'] ?? 'Comercios',
                       ),
                       1: Text(
-                        widget.translations['entities']?['instituciones'] ?? 'Instituciones',
+                        widget.translations['entities']?['instituciones'] ?? 'Institutions',
                       ),
                     },
                     onValueChanged: (int value) {
@@ -108,26 +108,26 @@ class _Tab2State extends State<Tab2> {
                     groupValue: _selectedSegment,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   onPressed: () {
                     _showFilterPopup(context);
                   },
-                  child: Icon(CupertinoIcons.search),
+                  child: const Icon(CupertinoIcons.search),
                 ),
               ],
             ),
           ),
           child: _isLoading
-              ? Center(child: CupertinoActivityIndicator()) // Mostrar un indicador de carga mientras los datos están cargando
+              ? const Center(child: CupertinoActivityIndicator())
               : SafeArea(
             child: ListView.builder(
               key: PageStorageKey<String>('listView$_selectedSegment'),
               itemCount: _currentList.length,
               itemBuilder: (BuildContext context, int index) {
                 if (index >= _currentList.length) {
-                  return SizedBox.shrink();
+                  return const SizedBox.shrink();
                 }
                 final item = _currentList[index];
 
@@ -140,18 +140,18 @@ class _Tab2State extends State<Tab2> {
                       height: 50,
                       fit: BoxFit.cover,
                     )
-                        : Icon(CupertinoIcons.photo, size: 50),
+                        : const Icon(CupertinoIcons.photo, size: 50),
                     title: Text(
-                      item['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Nombre no disponible',
+                      item['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Not available',
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${widget.translations['entities']?['address'] ?? 'Dirección'}: ${item['address']}',
+                          '${widget.translations['entities']?['address'] ?? 'Address'}: ${item['address']}',
                         ),
                         Text(
-                          '${widget.translations['entities']?['phone'] ?? 'Teléfono'}: ${item['phone']}',
+                          '${widget.translations['entities']?['phone'] ?? 'Phone'}: ${item['phone']}',
                         ),
                       ],
                     ),
@@ -161,13 +161,13 @@ class _Tab2State extends State<Tab2> {
                         context,
                         CupertinoPageRoute(
                           builder: (context) => EntityDetailScreen(
-                            title: item['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Nombre no disponible',
-                            address: item['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Dirección no disponible',
-                            phone: item['phone'] ?? widget.translations['entities']?['noPhone'] ?? 'Teléfono no disponible',
+                            title: item['name'] ?? widget.translations['common']?['noDataAvailable'] ?? 'Not available',
+                            address: item['address'] ?? widget.translations['entities']?['noAddress'] ?? 'Address not available',
+                            phone: item['phone'] ?? widget.translations['entities']?['noPhone'] ?? 'Phone not available',
                             imageUrl: item['avatar_url'] ?? '',
-                            email: item['email'] ?? widget.translations['entities']?['noEmail'] ?? 'Correo no disponible',
-                            city: item['city'] ?? widget.translations['entities']?['noCity'] ?? 'Ciudad no disponible',
-                            description: item['description'] ?? widget.translations['entities']?['noDescription'] ?? 'Descripción no disponible',
+                            email: item['email'] ?? widget.translations['entities']?['noEmail'] ?? 'Email not available',
+                            city: item['city'] ?? widget.translations['entities']?['noCity'] ?? 'City not available',
+                            description: item['description'] ?? widget.translations['entities']?['noDescription'] ?? 'Description not available',
                             backgroundImage: item['background_image'] ?? '',
                             fotosUrls: item['fotos_urls'] != null && item['fotos_urls'] is List
                                 ? List<String>.from(item['fotos_urls'].where((url) => url is String))
@@ -196,38 +196,36 @@ class _Tab2State extends State<Tab2> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: Text(widget.translations['filter']?['options'] ?? 'Opciones de Filtro'),
-          message: Column(
-            children: [
-              CupertinoActionSheetAction(
-                child: Text(widget.translations['filter']?['category'] ?? 'Filtrar por categoría'),
-                onPressed: () {
-                  _showCategoryFilter(context);
-                },
-              ),
-              CupertinoActionSheetAction(
-                child: Text(widget.translations['filter']?['location'] ?? 'Filtrar por ubicación'),
-                onPressed: () {
-                  _showLocationFilter(context);
-                },
-              ),
-              CupertinoActionSheetAction(
-                child: Text(widget.translations['filter']?['openNow'] ?? 'Solo mostrar abiertos'),
-                onPressed: () {
-                  _applyOpenNowFilter();
-                  Navigator.pop(context);
-                },
-              ),
-              CupertinoActionSheetAction(
-                child: Text(widget.translations['filter']?['rating'] ?? 'Filtrar por puntuación'),
-                onPressed: () {
-                  _showRatingFilter(context);
-                },
-              ),
-            ],
-          ),
+          title: Text(widget.translations['filter']?['options'] ?? 'Filter Options'),
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text(widget.translations['filter']?['category'] ?? 'Filter by category'),
+              onPressed: () {
+                _showCategoryFilter(context);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text(widget.translations['filter']?['location'] ?? 'Filter by location'),
+              onPressed: () {
+                _showLocationFilter(context);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text(widget.translations['filter']?['openNow'] ?? 'Show only open'),
+              onPressed: () {
+                _applyOpenNowFilter();
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text(widget.translations['filter']?['rating'] ?? 'Filter by rating'),
+              onPressed: () {
+                _showRatingFilter(context);
+              },
+            ),
+          ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(widget.translations['common']?['close'] ?? 'Cerrar'),
+            child: Text(widget.translations['common']?['close'] ?? 'Close'),
             onPressed: () {
               Navigator.pop(context);
             },

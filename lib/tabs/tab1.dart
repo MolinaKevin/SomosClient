@@ -5,21 +5,21 @@ import '../map_widget.dart';
 class Tab1 extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isAuthenticated;
-  final Map<String, dynamic> translations; // Agregar el parámetro translations
+  final Map<String, dynamic> translations;
 
   const Tab1({
-    super.key,
+    Key? key,
     required this.scaffoldKey,
     required this.isAuthenticated,
-    required this.translations, // Añadir translations como requerido
-  });
+    required this.translations,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MyMapWidget(
       scaffoldKey: scaffoldKey,
       isAuthenticated: isAuthenticated,
-      translations: translations, // Pasar translations a MyMapWidget
+      translations: translations,
     );
   }
 }

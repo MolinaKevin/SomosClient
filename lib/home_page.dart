@@ -15,13 +15,13 @@ class MyHomePage extends StatefulWidget {
   final bool isAuthenticated;
 
   const MyHomePage({
-    super.key,
+    Key? key,
     required this.translations,
     required this.onChangeLanguage,
     required this.currentLocale,
     this.initialIndex = 0,
     required this.isAuthenticated,
-  });
+  }) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -32,9 +32,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final AuthService _authService = AuthService();
 
-  String name = 'Nombre no disponible';
-  String email = 'Email no disponible';
-  String phone = 'Teléfono no disponible';
+  String name = 'Name not available';
+  String email = 'Email not available';
+  String phone = 'Phone not available';
   String profilePhotoUrl = '';
   int points = 0;
   int totalReferrals = 0;
@@ -42,9 +42,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    print('Idioma actual al inicializar MyHomePage: ${widget.currentLocale.languageCode}');
+    print('Current language code in MyHomePage: ${widget.currentLocale.languageCode}');
     if (widget.isAuthenticated) {
-      _fetchUserDetails(); // Llamamos a la nueva función para cargar todos los datos del usuario
+      _fetchUserDetails();
     } else {
       _performLogin();
     }
@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final loginData = await _authService.login('usuario@example.com', 'password');
 
       if (loginData['success']) {
-        _fetchUserDetails(); // Una vez autenticado, cargamos los datos
+        _fetchUserDetails();
       } else {
         _navigateToLogin();
       }
@@ -66,16 +66,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _fetchUserDetails() async {
     try {
-      // Cargar detalles del usuario desde /user
       final userDetails = await _authService.fetchUserDetails();
       setState(() {
-        name = userDetails['name'] ?? widget.translations['noDataAvailable'] ?? 'Nombre no disponible';
-        email = userDetails['email'] ?? widget.translations['noDataAvailable'] ?? 'Email no disponible';
-        phone = userDetails['phone'] ?? widget.translations['noDataAvailable'] ?? 'Teléfono no disponible';
+        name = userDetails['name'] ?? widget.translations['common']['noDataAvailable'] ?? 'Name not available';
+        email = userDetails['email'] ?? widget.translations['common']['noDataAvailable'] ?? 'Email not available';
+        phone = userDetails['phone'] ?? widget.translations['common']['noDataAvailable'] ?? 'Phone not available';
         profilePhotoUrl = userDetails['profile_photo_url'] ?? '';
       });
 
-      // Cargar puntos y referidos desde /user/data
       final userData = await _authService.fetchUserData();
       setState(() {
         points = userData['points'] ?? 0;
@@ -92,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (context) => LoginScreen(
           onChangeLanguage: widget.onChangeLanguage,
           currentLocale: widget.currentLocale,
-          translations: widget.translations, // Asegúrate de pasar las traducciones correctas
+          translations: widget.translations,
         ),
       ),
     );
@@ -115,20 +113,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final List<String> _tabTitles = [
-      widget.translations['map'] ?? 'Mapa',
-      widget.translations['list'] ?? 'Lista',
-      widget.translations['pointsTab'] ?? 'Puntos',
-      widget.translations['profile'] ?? 'Perfil',
+      widget.translations['navigation']['map'] ?? 'Map',
+      widget.translations['navigation']['list'] ?? 'List',
+      widget.translations['navigation']['pointsTab'] ?? 'Points',
+      widget.translations['navigation']['profile'] ?? 'Profile',
     ];
 
     List<Widget> tabs = [
-      Tab1(scaffoldKey: _scaffoldKey, isAuthenticated: widget.isAuthenticated, translations: widget.translations), // Pasar translations
+      Tab1(
+        scaffoldKey: _scaffoldKey,
+        isAuthenticated: widget.isAuthenticated,
+        translations: widget.translations,
+      ),
       Tab2(translations: widget.translations),
       widget.isAuthenticated
-          ? Tab3(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage)
+          ? Tab3(
+        translations: widget.translations,
+        onChangeLanguage: widget.onChangeLanguage,
+      )
           : _buildRestrictedAccess(),
       widget.isAuthenticated
-          ? Tab4(translations: widget.translations, onChangeLanguage: widget.onChangeLanguage, currentLocale: widget.currentLocale)
+          ? Tab4(
+        translations: widget.translations,
+        onChangeLanguage: widget.onChangeLanguage,
+        currentLocale: widget.currentLocale,
+      )
           : _buildRestrictedAccess(),
     ];
 
@@ -163,19 +172,19 @@ class _MyHomePageState extends State<MyHomePage> {
               items: [
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.map),
-                  label: widget.translations['map'] ?? 'Mapa',
+                  label: widget.translations['navigation']['map'] ?? 'Map',
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.phone),
-                  label: widget.translations['list'] ?? 'Lista',
+                  label: widget.translations['navigation']['list'] ?? 'List',
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.bitcoin),
-                  label: widget.translations['pointsTab'] ?? 'Puntos',
+                  label: widget.translations['navigation']['pointsTab'] ?? 'Points',
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(CupertinoIcons.profile_circled),
-                  label: widget.translations['profile'] ?? 'Perfil',
+                  label: widget.translations['navigation']['profile'] ?? 'Profile',
                 ),
               ],
               currentIndex: _currentIndex,
@@ -193,9 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
         drawer: Drawer(
           child: SafeArea(
             child: SingleChildScrollView(
-              child: widget.isAuthenticated
-                  ? _buildProfileInfo()
-                  : _buildLoginButton(),
+              child: widget.isAuthenticated ? _buildProfileInfo() : _buildLoginButton(),
             ),
           ),
         ),
@@ -204,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Text('Información del marcador'),
+                  Text('Marker Information'),
                 ],
               ),
             ),
@@ -216,23 +223,38 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildProfileInfo() {
     return CupertinoActionSheet(
-      title: Text(widget.translations['userProfile'] ?? 'Perfil de usuario'),
+      title: Text(widget.translations['user']['profile'] ?? 'User Profile'),
       message: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${widget.translations['name'] ?? 'Nombre'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            '${widget.translations['user']['name'] ?? 'Name'}:',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text(name, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 20),
-          Text('${widget.translations['email'] ?? 'Correo electrónico'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            '${widget.translations['user']['email'] ?? 'Email'}:',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text(email, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 20),
-          Text('${widget.translations['phone'] ?? 'Teléfono'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            '${widget.translations['user']['phone'] ?? 'Phone'}:',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text(phone, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 20),
-          Text('${widget.translations['points'] ?? 'Puntos'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            '${widget.translations['user']['totalPoints'] ?? 'Points'}:',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text(points.toString(), style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 20),
-          Text('${widget.translations['totalReferrals'] ?? 'Referidos'}:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            '${widget.translations['user']['totalReferrals'] ?? 'Total Referrals'}:',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text(totalReferrals.toString(), style: const TextStyle(fontSize: 18)),
           if (profilePhotoUrl.isNotEmpty)
             Padding(
@@ -246,16 +268,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       actions: [
         CupertinoActionSheetAction(
-          child: Text(widget.translations['generateTransaction'] ?? 'Generar Transacción'),
+          child: Text(widget.translations['transaction']['generate'] ?? 'Generate Transaction'),
           onPressed: _navigateToTransactionTab,
         ),
         CupertinoActionSheetAction(
-          child: Text(widget.translations['userProfile'] ?? 'Perfil de usuario'),
+          child: Text(widget.translations['user']['modifyProfile'] ?? 'Modify Profile'),
           onPressed: _navigateToProfileTab,
         ),
       ],
       cancelButton: CupertinoActionSheetAction(
-        child: Text(widget.translations['close'] ?? 'Cerrar'),
+        child: Text(widget.translations['common']['close'] ?? 'Close'),
         onPressed: () {
           Navigator.pop(context);
         },
@@ -267,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Center(
       child: ElevatedButton(
         onPressed: _navigateToLogin,
-        child: Text(widget.translations['login'] ?? 'Iniciar sesión'),
+        child: Text(widget.translations['auth']['login'] ?? 'Login'),
       ),
     );
   }
@@ -278,14 +300,14 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            widget.translations['restricted_access_message'] ?? 'Acceso restringido',
+            widget.translations['auth']['restrictedAccessMessage'] ?? 'Restricted Access',
             style: const TextStyle(fontSize: 18),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _navigateToLogin,
-            child: Text(widget.translations['login'] ?? 'Iniciar sesión'),
+            child: Text(widget.translations['auth']['login'] ?? 'Login'),
           ),
         ],
       ),
