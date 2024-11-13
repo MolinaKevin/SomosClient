@@ -35,7 +35,11 @@
     "waitingForDevice": "Waiting for Acceptance",
     "nfcDisabled": "NFC Disabled",
     "enableNFC": "Please enable NFC to continue.",
-    "buy": "Buy"
+    "buy": "Buy",
+    "viewTransactions": "View Transactions",
+    "noTransactions": "No transactions found.",
+    "purchase": "Purchase",
+    "pointPurchase": "Point Purchase"
   },
   "common": {
     "close": "Close",
@@ -43,14 +47,18 @@
     "cancel": "Cancel",
     "noDataAvailable": "Not Available",
     "failedToLoadData": "Failed to load data",
-    "retry": "Retry"
+    "retry": "Retry",
+    "unknown": "Unknown"
   },
   "filter": {
     "options": "Filter Options",
     "category": "Filter by Category",
     "location": "Filter by Location",
     "openNow": "Show Only Open",
-    "rating": "Filter by Rating"
+    "rating": "Filter by Rating",
+    "rating.all": "All Ratings",
+    "location.all": "All locations",
+    "location.kilometers": "km"
   },
   "entities": {
     "comercios": "Shops",

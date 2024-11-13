@@ -32,7 +32,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   String activeMarker = '';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   bool _isAuthenticated = false;
-  int _points = 0;
+  double _points = 0.0;
   List<Map<String, dynamic>> markerData = [];
   final CommerceService commerceService = CommerceService();
   final InstitutionService institutionService = InstitutionService();
@@ -113,7 +113,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         }).toList(),
       ];
 
-      _points = userData['points'] ?? 0;
+      _points = userData['points'] ?? 0.0;
     });
   }
 

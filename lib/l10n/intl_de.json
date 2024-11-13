@@ -36,7 +36,11 @@
     "waitingForDevice": "Warten auf Akzeptanz",
     "nfcDisabled": "NFC deaktiviert",
     "enableNFC": "Bitte NFC aktivieren, um fortzufahren.",
-    "buy": "Kaufen"
+    "buy": "Kaufen",
+    "viewTransactions": "Transaktionen anzeigen",
+    "noTransactions": "Keine Transaktionen gefunden.",
+    "purchase": "Kauf",
+    "pointPurchase": "Punktkauf"
   },
   "common": {
     "close": "Schließen",
@@ -44,14 +48,18 @@
     "cancel": "Abbrechen",
     "noDataAvailable": "Nicht verfügbar",
     "failedToLoadData": "Fehler beim Laden der Daten",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "unknown": "Unbekannt"
   },
   "filter": {
     "options": "Filteroptionen",
     "category": "Nach Kategorie filtern",
     "location": "Nach Standort filtern",
     "openNow": "Nur offene anzeigen",
-    "rating": "Nach Bewertung filtern"
+    "rating": "Nach Bewertung filtern",
+    "rating.all": "Alle Bewertungen",
+    "location.all": "Alle Standorte",
+    "location.kilometers": "km"
   },
   "entities": {
     "comercios": "Geschäfte",

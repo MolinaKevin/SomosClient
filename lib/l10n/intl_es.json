@@ -35,7 +35,12 @@
     "waitingForDevice": "Esperando aceptación",
     "nfcDisabled": "NFC deshabilitado",
     "enableNFC": "Por favor, habilita NFC para continuar.",
-    "buy": "Comprar"
+    "buy": "Comprar",
+    "viewTransactions": "Ver Transacciones",
+    "noTransactions": "No se encontraron transacciones.",
+    "purchase": "Compra",
+    "purchaseAt": "Compra en",
+    "pointPurchase": "Compra con puntos"
   },
   "common": {
     "close": "Cerrar",
@@ -43,14 +48,18 @@
     "cancel": "Cancelar",
     "noDataAvailable": "No disponible",
     "failedToLoadData": "Error al cargar datos",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "unknown": "Desconocido"
   },
   "filter": {
     "options": "Opciones de Filtro",
     "category": "Filtrar por categoría",
     "location": "Filtrar por ubicación",
     "openNow": "Solo mostrar abiertos",
-    "rating": "Filtrar por puntuación"
+    "rating": "Filtrar por puntuación",
+    "rating.all": "Todas las puntuaciones",
+    "location.all": "Todas las ubicaciones",
+    "location.kilometers": "km"
   },
   "entities": {
     "phone": "Teléfono",
