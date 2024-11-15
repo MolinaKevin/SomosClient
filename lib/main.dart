@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'app_localizations.dart';
 import 'splash_screen.dart';
 import 'providers/user_data_provider.dart';
+import 'services/translation_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,30 +17,47 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UserDataProvider()),
+        Provider<TranslationService>(create: (_) => TranslationService()), // Proveer TranslationService
+        ChangeNotifierProvider(
+          create: (context) {
+            final translationService = Provider.of<TranslationService>(context, listen: false);
+            final provider = UserDataProvider(translationService);
+            provider.initialize(); // Inicializar UserDataProvider al inicio
+            return provider;
+          },
+        ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en', ''),
-          Locale('es', ''),
-          Locale('de', ''),
-        ],
-        localeResolutionCallback: (locale, supportedLocales) {
-          for (var supportedLocale in supportedLocales) {
-            if (supportedLocale.languageCode == locale?.languageCode) {
-              return supportedLocale;
-            }
-          }
-          return supportedLocales.first;
+      child: Consumer<UserDataProvider>(
+        builder: (context, userDataProvider, _) {
+          // Proporciona locales por defecto si availableLocales aún no está disponible
+          final locales = userDataProvider.availableLocales.isNotEmpty
+              ? userDataProvider.availableLocales
+              : const [
+            Locale('en', ''),
+            Locale('es', ''),
+            Locale('de', ''),
+          ];
+
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: locales,
+            localeResolutionCallback: (locale, supportedLocales) {
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale?.languageCode) {
+                  return supportedLocale;
+                }
+              }
+              return supportedLocales.first;
+            },
+            home: SplashScreen(),
+          );
         },
-        home: SplashScreen(),
       ),
     );
   }

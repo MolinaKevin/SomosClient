@@ -16,14 +16,17 @@ class AppLocalizations {
   late Map<String, dynamic> _localizedStrings;
 
   Future<bool> load() async {
-    String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
-    Map<String, dynamic> jsonMap = json.decode(jsonString);
-
-    _localizedStrings = jsonMap;
-
-    return true;
+    try {
+      String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+      _localizedStrings = jsonMap;
+      return true;
+    } catch (e) {
+      print('Error loading JSON file for locale ${locale.languageCode}: $e');
+      _localizedStrings = {};
+      return false;
+    }
   }
-
 
   String translate(String key) {
     return _localizedStrings[key] ?? key;
@@ -35,7 +38,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
   @override
   bool isSupported(Locale locale) {
-    return ['en', 'es', 'de'].contains(locale.languageCode);
+    // Aquí se deja la lógica de soporte dinámica, delegando el control a `supportedLocales` en el MaterialApp
+    return true;
   }
 
   @override
@@ -49,14 +53,13 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
-
 Future<Map<String, dynamic>> loadTranslations(Locale locale) async {
   try {
     final String jsonString = await rootBundle.loadString('lib/l10n/intl_${locale.languageCode}.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
     return jsonMap;
   } catch (e) {
-    print('Error loading JSON file: $e');
-    throw e;
+    print('Error loading JSON file for locale ${locale.languageCode}: $e');
+    return {};
   }
 }

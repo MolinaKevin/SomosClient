@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import 'home_page.dart';
+import 'providers/user_data_provider.dart';
 import 'screens/login_screen.dart';
-import 'app_localizations.dart'; // Importa las traducciones
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -11,52 +12,44 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-  Locale _userLocale = const Locale('en'); // Idioma por defecto
 
   @override
   void initState() {
     super.initState();
-    _loadUserPreferences();
+    _initializeApp();
   }
 
-  Future<void> _loadUserPreferences() async {
-    await Future.delayed(const Duration(seconds: 2)); // Simular la carga de splash
+  Future<void> _initializeApp() async {
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-    // Cargar el idioma desde almacenamiento seguro si existe
-    String? storedLocale = await _secureStorage.read(key: 'user_language');
-    if (storedLocale != null) {
-      _userLocale = Locale(storedLocale);
-    }
+    await userDataProvider.fetchAvailableLocales();
+    await userDataProvider.loadUserData();
+    await userDataProvider.loadTranslations();
 
-    // Navegar a la pantalla principal con las traducciones correctas
     _navigateToNextScreen();
   }
 
   void _navigateToNextScreen() async {
     final authToken = await _secureStorage.read(key: 'auth_token');
-
-    // Obtener las traducciones utilizando `AppLocalizations`
-    final translations = await loadTranslations(_userLocale);
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
     if (authToken == null) {
-      // Ir a la pantalla de login si no hay token
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => LoginScreen(
-            translations: translations,
+            translations: userDataProvider.translations,
             onChangeLanguage: _changeLanguage,
-            currentLocale: _userLocale,
+            currentLocale: Locale(userDataProvider.language),
           ),
         ),
       );
     } else {
-      // Ir a la pantalla principal si el usuario ya está autenticado
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => MyHomePage(
-            translations: translations,
+            translations: userDataProvider.translations,
             onChangeLanguage: _changeLanguage,
-            currentLocale: _userLocale,
+            currentLocale: Locale(userDataProvider.language),
             isAuthenticated: true,
           ),
         ),
@@ -65,12 +58,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _changeLanguage(Locale newLocale) async {
-    setState(() {
-      _userLocale = newLocale;
-    });
-    await _secureStorage.write(key: 'user_language', value: newLocale.languageCode);
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    await userDataProvider.saveUserData(
+      userDataProvider.name,
+      userDataProvider.email,
+      userDataProvider.phone,
+      newLocale.languageCode,
+      userDataProvider.pass,
+      userDataProvider.referrerPass,
+    );
 
-    final translations = await loadTranslations(newLocale);
+    await userDataProvider.loadTranslations();
     _navigateToNextScreen();
   }
 

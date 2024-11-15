@@ -343,51 +343,36 @@ class _Tab4State extends State<Tab4> {
 
   void _showLanguageSelector(BuildContext context) {
     print('Showing language selector');
+    final userData = Provider.of<UserDataProvider>(context, listen: false);
+
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
           title: Text(widget.translations['common']['selectLanguage'] ?? 'Select Language'),
           actions: [
-            CupertinoActionSheetAction(
-              child: const Text('English'),
-              onPressed: () {
-                setState(() {
-                  _selectedLocale = const Locale('en');
-                });
-                print('Selected language: English');
-                widget.onChangeLanguage(_selectedLocale);
-                Provider.of<UserDataProvider>(context, listen: false).saveUserData(
-                    _nameController.text, _emailController.text, _phoneController.text, 'en', _passController.text, _referrerPassController.text);
-                Navigator.pop(context);
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: const Text('Español'),
-              onPressed: () {
-                setState(() {
-                  _selectedLocale = const Locale('es');
-                });
-                print('Selected language: Español');
-                widget.onChangeLanguage(_selectedLocale);
-                Provider.of<UserDataProvider>(context, listen: false).saveUserData(
-                    _nameController.text, _emailController.text, _phoneController.text, 'es', _passController.text, _referrerPassController.text);
-                Navigator.pop(context);
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: const Text('Deutsch'),
-              onPressed: () {
-                setState(() {
-                  _selectedLocale = const Locale('de');
-                });
-                print('Selected language: Deutsch');
-                widget.onChangeLanguage(_selectedLocale);
-                Provider.of<UserDataProvider>(context, listen: false).saveUserData(
-                    _nameController.text, _emailController.text, _phoneController.text, 'de', _passController.text, _referrerPassController.text);
-                Navigator.pop(context);
-              },
-            ),
+            for (Locale locale in userData.availableLocales) // Iterar sobre los locales disponibles
+              CupertinoActionSheetAction(
+                child: Text(
+                  widget.translations['languages'][locale.languageCode] ?? locale.languageCode,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _selectedLocale = locale;
+                  });
+                  print('Selected language: ${locale.languageCode}');
+                  widget.onChangeLanguage(_selectedLocale);
+                  userData.saveUserData(
+                    _nameController.text,
+                    _emailController.text,
+                    _phoneController.text,
+                    locale.languageCode,
+                    _passController.text,
+                    _referrerPassController.text,
+                  );
+                  Navigator.pop(context);
+                },
+              ),
           ],
           cancelButton: CupertinoActionSheetAction(
             child: Text(widget.translations['common']['close'] ?? 'Close'),

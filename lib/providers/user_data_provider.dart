@@ -1,9 +1,10 @@
 import 'dart:convert';
-import 'dart:io'; // Importa File para manejar archivos
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../config/environment_config.dart'; // Importa EnvironmentConfig para obtener la URL base
+import '../config/environment_config.dart';
+import '../services/translation_service.dart';
 
 class UserDataProvider extends ChangeNotifier {
   String name = 'Nombre no disponible';
@@ -11,15 +12,24 @@ class UserDataProvider extends ChangeNotifier {
   String phone = 'Teléfono no disponible';
   int points = 0;
   int totalReferrals = 0;
-  String pass = 'No disponible'; // Somos Pass
-  String referrerPass = 'No disponible'; // Pass de referido
-  String language = 'es'; // Idioma predeterminado
-  String profilePhotoUrl = ''; // URL del avatar del usuario
+  String pass = 'No disponible';
+  String referrerPass = 'No disponible';
+  String language = 'es';
+  String profilePhotoUrl = '';
+  Map<String, dynamic> translations = {};
+  List<Locale> availableLocales = [];
 
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final TranslationService _translationService;
 
-  UserDataProvider() {
-    loadUserData();
+  UserDataProvider(this._translationService) {
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    await loadUserData();
+    await fetchAvailableLocales();
+    await loadTranslations();
   }
 
   Future<void> loadUserData() async {
@@ -35,134 +45,104 @@ class UserDataProvider extends ChangeNotifier {
     language = allData['user_language'] ?? 'es';
     profilePhotoUrl = allData['profile_photo_url'] ?? '';
 
-    // Imprimir los datos cargados individualmente
-    print('Datos cargados:');
-    print('Nombre: $name');
-    print('Email: $email');
-    print('Teléfono: $phone');
-    print('Puntos: $points');
-    print('Total Referidos: $totalReferrals');
-    print('Somos Pass: $pass');
-    print('Pass de referido: $referrerPass');
-    print('Idioma: $language');
-    print('Avatar URL: $profilePhotoUrl');
-
+    print('Datos cargados del almacenamiento seguro.');
     notifyListeners();
   }
 
+  Future<void> loadTranslations() async {
+    try {
+      translations = await _translationService.fetchTranslations(language);
+      print('Traducciones cargadas para el idioma: $language');
+    } catch (e) {
+      print('Error al obtener las traducciones: $e');
+      translations = {}; // Asegura que translations no sea null
+    }
+    notifyListeners();
+  }
+
+  Future<void> fetchAvailableLocales() async {
+    try {
+      availableLocales = await _translationService.fetchAvailableLocales();
+      print('Locales disponibles: $availableLocales');
+    } catch (e) {
+      print('Error al obtener locales disponibles: $e');
+    }
+    notifyListeners();
+  }
 
   Future<void> saveUserData(String newName, String newEmail, String newPhone, String newLanguage, String newPass, String newReferrerPass) async {
-    // Actualizar datos localmente antes de hacer la petición al servidor
-    name = newName ?? name;
-    email = newEmail ?? email;
-    phone = newPhone ?? phone;
-    language = newLanguage ?? language;
-    pass = newPass ?? pass;
-    referrerPass = newReferrerPass ?? referrerPass;
+    name = newName;
+    email = newEmail;
+    phone = newPhone;
+    language = newLanguage;
+    pass = newPass;
+    referrerPass = newReferrerPass;
 
-    // Enviar los datos actualizados al servidor
     try {
       final response = await _sendUserDataToServer(name, email, phone, language, pass, referrerPass);
-
       if (response.statusCode == 200) {
-        // Si la respuesta es exitosa, guardar los datos localmente
         await _secureStorage.write(key: 'user_name', value: name);
         await _secureStorage.write(key: 'user_email', value: email);
         await _secureStorage.write(key: 'user_phone', value: phone);
-        await _secureStorage.write(key: 'user_language', value: language); // Guardar el idioma
-        await _secureStorage.write(key: 'user_pass', value: pass); // Guardar Somos Pass
-        await _secureStorage.write(key: 'user_referrer_pass', value: referrerPass); // Guardar Pass de referido
+        await _secureStorage.write(key: 'user_language', value: language);
+        await _secureStorage.write(key: 'user_pass', value: pass);
+        await _secureStorage.write(key: 'user_referrer_pass', value: referrerPass);
 
-        notifyListeners(); // Notificar a los oyentes de los cambios
-        print('Datos guardados correctamente en el servidor y localmente.');
+        await loadTranslations();
+
+        notifyListeners();
+        print('Datos guardados en el servidor y almacenamiento local.');
       } else {
-        print('Error en la solicitud al servidor: ${response.body}');
+        print('Error al guardar los datos en el servidor: ${response.body}');
       }
     } catch (e) {
       print('Error al enviar los datos al servidor: $e');
     }
   }
 
-  // Función para hacer la solicitud al servidor utilizando baseUrl
   Future<http.Response> _sendUserDataToServer(String name, String email, String phone, String language, String pass, String referrerPass) async {
-    // Obtén el baseUrl desde EnvironmentConfig
     final baseUrl = await EnvironmentConfig.getBaseUrl();
-    final url = Uri.parse('$baseUrl/user'); // Asegúrate de que este sea tu endpoint correcto
-
-    // Obtén el token de autenticación almacenado
+    final url = Uri.parse('$baseUrl/user');
     final token = await _secureStorage.read(key: 'auth_token');
 
-    if (token == null) {
-      throw Exception('No se encontró el token de autenticación');
-    }
+    if (token == null) throw Exception('Token de autenticación no encontrado');
 
-    // Cuerpo de la solicitud con los datos del usuario
     final Map<String, String> body = {
       'name': name,
       'email': email,
       'phone': phone,
-      'language': language, // Se envía también el idioma
-      'pass': pass, // Enviar Somos Pass
-      'referrer_pass': referrerPass, // Enviar Pass de referido
+      'language': language,
+      'pass': pass,
+      'referrer_pass': referrerPass,
     };
 
-    // Encabezados que incluyen el token de autenticación
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token', // Agrega el token de autenticación
+      'Authorization': 'Bearer $token',
     };
 
-    print('Enviando datos al servidor con el token: $token');
-    print('URL: $url');
-    print('Body: $body');
-
-    // Realiza la solicitud PUT
-    final response = await http.put(
-      url,
-      headers: headers,
-      body: jsonEncode(body),
-    );
-
-    // Imprime la respuesta del servidor
-    print('Código de respuesta del servidor: ${response.statusCode}');
-    print('Respuesta del servidor: ${response.body}');
-
-    return response;
+    return await http.put(url, headers: headers, body: jsonEncode(body));
   }
 
-  // Función para subir el avatar
   Future<void> uploadAvatar(File imageFile) async {
-    // Obtén el baseUrl desde EnvironmentConfig
     final baseUrl = await EnvironmentConfig.getBaseUrl();
-    final url = Uri.parse('$baseUrl/user/upload-avatar'); // Endpoint para subir avatar
-
-    // Obtén el token de autenticación almacenado
+    final url = Uri.parse('$baseUrl/user/upload-avatar');
     final token = await _secureStorage.read(key: 'auth_token');
 
-    if (token == null) {
-      throw Exception('No se encontró el token de autenticación');
-    }
+    if (token == null) throw Exception('Token de autenticación no encontrado');
 
-    // Crear la solicitud de multipart para subir el archivo
-    var request = http.MultipartRequest('POST', url);
-    request.headers['Authorization'] = 'Bearer $token';
-    request.files.add(await http.MultipartFile.fromPath('avatar', imageFile.path));
+    var request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(await http.MultipartFile.fromPath('avatar', imageFile.path));
 
-    print('Subiendo avatar al servidor con el token: $token');
-    print('URL: $url');
-
-    // Enviar la solicitud
-    var response = await request.send();
+    final response = await request.send();
 
     if (response.statusCode == 200) {
-      print('Avatar subido correctamente.');
-      // Guardar la nueva URL del avatar
       final responseBody = await http.Response.fromStream(response);
       final jsonResponse = jsonDecode(responseBody.body);
-      profilePhotoUrl = jsonResponse['profile_photo_url']; // Asumimos que la respuesta incluye la URL del nuevo avatar
+      profilePhotoUrl = jsonResponse['profile_photo_url'];
       await _secureStorage.write(key: 'profile_photo_url', value: profilePhotoUrl);
-
-      notifyListeners(); // Notificar a los oyentes del cambio de avatar
+      notifyListeners();
     } else {
       print('Error al subir el avatar: ${response.statusCode}');
     }
@@ -175,11 +155,13 @@ class UserDataProvider extends ChangeNotifier {
     phone = 'Teléfono no disponible';
     points = 0;
     totalReferrals = 0;
-    pass = 'No disponible'; // Limpiar Somos Pass
-    referrerPass = 'No disponible'; // Limpiar Pass de referido
-    language = 'es'; // Restablecer el idioma a 'es'
-    profilePhotoUrl = ''; // Limpiar la URL del avatar
+    pass = 'No disponible';
+    referrerPass = 'No disponible';
+    language = 'es';
+    profilePhotoUrl = '';
+    translations = {};
+    availableLocales = [];
 
-    notifyListeners(); // Notificar a los oyentes de los cambios
+    notifyListeners();
   }
 }
