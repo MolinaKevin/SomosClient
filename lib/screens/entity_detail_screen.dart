@@ -85,32 +85,32 @@ class EntityDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['entities']['address'] ?? 'Dirección'}: $address',
+                      '${translations['entities']?['address'] ?? 'Dirección'}: $address',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['entities']['phone'] ?? 'Teléfono'}: $phone',
+                      '${translations['entities']?['phone'] ?? 'Teléfono'}: $phone',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['entities']['email'] ?? 'Correo electrónico'}: $email',
+                      '${translations['entities']?['email'] ?? 'Correo electrónico'}: $email',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['entities']['city'] ?? 'Ciudad'}: $city',
+                      '${translations['entities']?['city'] ?? 'Ciudad'}: $city',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${translations['entities']['description'] ?? 'Descripción'}: $description',
+                      '${translations['entities']?['description'] ?? 'Descripción'}: $description',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      translations['entities']['gallery'] ?? 'Galería:',
+                      translations['entities']?['gallery'] ?? 'Galería:',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),

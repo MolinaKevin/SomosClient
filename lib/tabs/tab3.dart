@@ -135,7 +135,7 @@ class _Tab3State extends State<Tab3> {
       builder: (context) {
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            middle: Text(widget.translations['transaction']['generate'] ?? 'Generate Transaction'),
+            middle: Text(widget.translations['transaction']?['generate'] ?? 'Generate Transaction'),
           ),
           child: SafeArea(
             child: SingleChildScrollView(
@@ -163,14 +163,14 @@ class _Tab3State extends State<Tab3> {
                       builder: (context, isValid, child) {
                         return CupertinoButton.filled(
                           onPressed: isValid ? _initiateNFC : null,
-                          child: Text(widget.translations['transaction']['initiateTransaction'] ?? 'Initiate Transaction'),
+                          child: Text(widget.translations['transaction']?['initiateTransaction'] ?? 'Initiate Transaction'),
                         );
                       },
                     ),
                     const SizedBox(height: 20),
                     CupertinoButton.filled(
                       onPressed: () => _navigateToPointsScreen(context),
-                      child: Text(widget.translations['user']['viewPoints'] ?? 'View Points'),
+                      child: Text(widget.translations['user']?['viewPoints'] ?? 'View Points'),
                     ),
                   ],
                 ),

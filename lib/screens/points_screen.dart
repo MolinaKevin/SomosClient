@@ -98,7 +98,7 @@ class _PointsScreenState extends State<PointsScreen> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    '${widget.translations['user']['totalPoints'] ?? 'Total Points'}:',
+                    '${widget.translations['user']?['totalPoints'] ?? 'Total Points'}:',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),

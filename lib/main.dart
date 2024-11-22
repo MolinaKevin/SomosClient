@@ -17,19 +17,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<TranslationService>(create: (_) => TranslationService()), // Proveer TranslationService
+        Provider<TranslationService>(create: (_) => TranslationService()),
         ChangeNotifierProvider(
           create: (context) {
             final translationService = Provider.of<TranslationService>(context, listen: false);
             final provider = UserDataProvider(translationService);
-            provider.initialize(); // Inicializar UserDataProvider al inicio
+            provider.initialize();
             return provider;
           },
         ),
       ],
       child: Consumer<UserDataProvider>(
         builder: (context, userDataProvider, _) {
-          // Proporciona locales por defecto si availableLocales aún no está disponible
           final locales = userDataProvider.availableLocales.isNotEmpty
               ? userDataProvider.availableLocales
               : const [

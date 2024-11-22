@@ -89,19 +89,19 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               widget.translations['common']['noDataAvailable'] ??
               'Name not available',
           'address': institution['address'] ??
-              widget.translations['entities']['noAddress'] ??
+              widget.translations['entities']?['noAddress'] ??
               'Address not available',
           'phone': institution['phone_number'] ??
-              widget.translations['entities']['noPhone'] ??
+              widget.translations['entities']?['noPhone'] ??
               'Phone not available',
           'email': institution['email'] ??
-              widget.translations['entities']['noEmail'] ??
+              widget.translations['entities']?['noEmail'] ??
               'Email not available',
           'city': institution['city'] ??
-              widget.translations['entities']['noCity'] ??
+              widget.translations['entities']?['noCity'] ??
               'City not available',
           'description': institution['description'] ??
-              widget.translations['entities']['noDescription'] ??
+              widget.translations['entities']?['noDescription'] ??
               'Description not available',
           'latitude': double.tryParse(institution['latitude'] ?? '') ?? 0.0,
           'longitude': double.tryParse(institution['longitude'] ?? '') ?? 0.0,
@@ -335,7 +335,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               child: Column(
                 children: [
                   Text(
-                    widget.translations['user']['totalPoints'] ?? "Points",
+                    widget.translations['user']?['totalPoints'] ?? "Points",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -422,19 +422,19 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                             widget.translations['common']['noDataAvailable'] ??
                             'Not available',
                         address: data['address'] ??
-                            widget.translations['entities']['noAddress'] ??
+                            widget.translations['entities']?['noAddress'] ??
                             'Address not available',
                         phone: data['phone'] ??
-                            widget.translations['entities']['noPhone'] ??
+                            widget.translations['entities']?['noPhone'] ??
                             'Phone not available',
                         email: data['email'] ??
-                            widget.translations['entities']['noEmail'] ??
+                            widget.translations['entities']?['noEmail'] ??
                             'Email not available',
                         city: data['city'] ??
-                            widget.translations['entities']['noCity'] ??
+                            widget.translations['entities']?['noCity'] ??
                             'City not available',
                         description: data['description'] ??
-                            widget.translations['entities']['noDescription'] ??
+                            widget.translations['entities']?['noDescription'] ??
                             'Description not available',
                         imageUrl: data['avatar_url'] ?? '',
                         backgroundImage: data['background_image'] ?? '',
