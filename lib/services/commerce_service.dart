@@ -1,6 +1,6 @@
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:latlong2/latlong.dart';
 import '../config/environment_config.dart';
 
 class CommerceService {
@@ -20,26 +20,51 @@ class CommerceService {
 
     final response = await http.get(url, headers: headers);
 
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
-      _cachedCommerces = data.map<Map<String, dynamic>>((commerce) {
-        return {
-          'id': commerce['id'],
-          'name': commerce['name'],
-          'address': commerce['address'],
-          'phone_number': commerce['phone_number'],
-          'avatar_url': commerce['avatar_url'],
-          'background_image': commerce['background_image'],
-          'is_open': commerce['is_open'],
-          'latitude': commerce['latitude'],
-          'longitude': commerce['longitude'],
-          'fotos_urls': commerce['fotos_urls'],
-        };
-      }).toList();
+      _cachedCommerces = _parseCommerces(data);
       return _cachedCommerces!;
     } else {
       throw Exception('Failed to load commerces');
     }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCommercesByCategories(List<int> categoryIds) async {
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
+    final url = Uri.parse('$baseUrl/commerces/filter-by-categories');
+
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final body = jsonEncode({
+      'category_ids': categoryIds,
+    });
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'];
+      return _parseCommerces(data);
+    } else {
+      throw Exception('Failed to load filtered commerces');
+    }
+  }
+
+  List<Map<String, dynamic>> _parseCommerces(List<dynamic> data) {
+    return data.map<Map<String, dynamic>>((commerce) {
+      return {
+        'id': commerce['id'],
+        'name': commerce['name'],
+        'address': commerce['address'],
+        'phone_number': commerce['phone_number'],
+        'avatar_url': commerce['avatar_url'],
+        'background_image': commerce['background_image'],
+        'is_open': commerce['is_open'],
+        'latitude': commerce['latitude'],
+        'longitude': commerce['longitude'],
+        'fotos_urls': commerce['fotos_urls'],
+      };
+    }).toList();
   }
 }

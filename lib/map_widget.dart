@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'services/commerce_service.dart';
-import 'services/institution_service.dart';
-import 'services/auth_service.dart';
-import 'screens/entity_detail_screen.dart';
+import 'controllers/map_controller.dart';
+import 'widgets/map_controls_widget.dart';
+import 'popups/popup_categories.dart';
+import 'widgets/marker_widget.dart';
+import 'popups/popup_info_card.dart';
 
 class MyMapWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -31,19 +29,11 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   late final MapController mapController;
   String activeMarker = '';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-  bool _isAuthenticated = false;
-  double _points = 0.0;
-  List<Map<String, dynamic>> markerData = [];
-  final CommerceService commerceService = CommerceService();
-  final InstitutionService institutionService = InstitutionService();
-  final AuthService authService = AuthService();
+  final MapDataController dataController = MapDataController();
 
-  bool _isSearching = false;
-  bool _isLoading = false;
-  final TextEditingController _searchController = TextEditingController();
-  List<dynamic> _searchSuggestions = [];
+  List<Map<String, dynamic>> selectedCategories = [];
 
-  Timer? _debounce;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -52,119 +42,106 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     _initializeData();
   }
 
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
-
   Future<void> _initializeData() async {
-    await _fetchData();
+    await dataController.initializeData(translations: widget.translations);
     setState(() {});
   }
 
-  Future<void> _fetchData({bool forceRefresh = false}) async {
-    final commerces = await commerceService.fetchCommerces(forceRefresh: forceRefresh);
-    final institutions = await institutionService.fetchInstitutions(forceRefresh: forceRefresh);
-    final userData = await authService.fetchUserData();
+  void _showFilterPopup() {
+    PopupCategories.show(
+      context: context,
+      translations: widget.translations,
+      categories: dataController.categories,
+      onCategorySelected: selectCategory,
+      selectedCategories: selectedCategories,
+    );
+  }
 
+  void applyFilters() async {
     setState(() {
-      markerData = [
-        ...commerces.map((commerce) => {
-          'id': commerce['id'],
-          'name': commerce['name'] ??
-              widget.translations['common']['noDataAvailable'] ??
-              'Name not available',
-          'latitude': double.tryParse(commerce['latitude'] ?? '') ?? 0.0,
-          'longitude': double.tryParse(commerce['longitude'] ?? '') ?? 0.0,
-          'is_open': commerce['is_open'] ?? false,
-          'avatar': commerce['avatar'],
-          'avatar_url': commerce['avatar_url'],
-          'background_image': commerce['background_image'] ?? '',
-          'fotos_urls': commerce['fotos_urls'] ?? [],
-        }).toList(),
-        ...institutions.map((institution) => {
-          'id': institution['id'],
-          'name': institution['name'] ??
-              widget.translations['common']['noDataAvailable'] ??
-              'Name not available',
-          'address': institution['address'] ??
-              widget.translations['entities']?['noAddress'] ??
-              'Address not available',
-          'phone': institution['phone_number'] ??
-              widget.translations['entities']?['noPhone'] ??
-              'Phone not available',
-          'email': institution['email'] ??
-              widget.translations['entities']?['noEmail'] ??
-              'Email not available',
-          'city': institution['city'] ??
-              widget.translations['entities']?['noCity'] ??
-              'City not available',
-          'description': institution['description'] ??
-              widget.translations['entities']?['noDescription'] ??
-              'Description not available',
-          'latitude': double.tryParse(institution['latitude'] ?? '') ?? 0.0,
-          'longitude': double.tryParse(institution['longitude'] ?? '') ?? 0.0,
-          'is_open': institution['is_open'] ?? false,
-          'avatar': institution['avatar'],
-          'avatar_url': institution['avatar_url'],
-          'background_image': institution['background_image'] ?? '',
-          'fotos_urls': institution['fotos_urls'] ?? [],
-        }).toList(),
-      ];
-
-      _points = userData['points'] ?? 0.0;
+      isLoading = true;
     });
-  }
 
-  void _toggleSearch() {
-    setState(() {
-      _isSearching = !_isSearching;
-      if (!_isSearching) {
-        _searchController.clear();
-        _searchSuggestions.clear();
-      }
-    });
-  }
-
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-
-    _debounce = Timer(Duration(milliseconds: 500), () {
-      _updateSearchSuggestions(query);
-    });
-  }
-
-  Future<void> _updateSearchSuggestions(String query) async {
-    if (query.isNotEmpty) {
-      setState(() {
-        _isLoading = true;
-      });
-      final url = Uri.parse(
-          'https://nominatim.openstreetmap.org/search?q=$query&format=json&addressdetails=1&limit=5');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> results = json.decode(response.body);
-        setState(() {
-          _searchSuggestions = results;
-        });
+    try {
+      if (selectedCategories.isEmpty) {
+        // Si no hay categorías seleccionadas, cargamos todos los comercios
+        await dataController.fetchData(
+            translations: widget.translations, forceRefresh: true);
       } else {
-        print('Error fetching search suggestions');
+        // Obtener los marcadores filtrados
+        await dataController.fetchFilteredMarkers(
+            selectedCategories, translations: widget.translations);
       }
+
       setState(() {
-        _isLoading = false;
+        // Actualizamos los marcadores en el mapa
       });
-    } else {
+    } catch (e) {
+      // Manejar errores
+      print('Error fetching filtered commerces: $e');
+      // Mostrar mensaje de error al usuario
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to apply filters. Please try again later.'),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
       setState(() {
-        _searchSuggestions.clear();
+        isLoading = false;
       });
     }
   }
 
+  void selectCategory(Map<String, dynamic> category) {
+    setState(() {
+      int index = selectedCategories.indexWhere((c) => c['id'] == category['id']);
+      if (index >= 0) {
+        selectedCategories.removeAt(index);
+      } else {
+        selectedCategories.add(category);
+      }
+    });
+    applyFilters();
+  }
+
+
+  void _onMarkerTap(BuildContext context, Map<String, dynamic> data) {
+    setState(() {
+      activeMarker = data['id'].toString();
+    });
+
+    InfoCardPopup.show(
+      context: context,
+      data: data,
+      translations: widget.translations,
+      onDismiss: () {
+        setState(() {
+          activeMarker = '';
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final markers = createMarkers(context, markerData);
+    final markers = MarkerWidget.createMarkers(
+      context: context,
+      markerData: dataController.markerData,
+      activeMarker: activeMarker,
+      onMarkerTap: _onMarkerTap,
+    );
 
     return CupertinoPageScaffold(
       child: Stack(
@@ -185,138 +162,54 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               ),
             ],
           ),
+          // Agregamos el Row de categorías seleccionadas
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,
-            right: 180,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
+            right: 10,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: selectedCategories.map((category) {
+                  return GestureDetector(
+                    onTap: () {
+                      selectCategory(category);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4.0),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.search, color: Colors.black),
-                        onPressed: _toggleSearch,
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.zoom_in, color: Colors.green),
-                        onPressed: () {
-                          mapController.move(
-                              mapController.center, mapController.zoom + 1);
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.zoom_out, color: Colors.red),
-                        onPressed: () {
-                          mapController.move(
-                              mapController.center, mapController.zoom - 1);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                if (_isSearching)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Column(
+                      child: Row(
                         children: [
-                          Container(
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                    child: TextField(
-                                      controller: _searchController,
-                                      decoration: InputDecoration(
-                                        hintText: widget
-                                            .translations['entities']['search'] ??
-                                            'Search...',
-                                        border: InputBorder.none,
-                                      ),
-                                      onChanged: _onSearchChanged,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.close, color: Colors.black),
-                                  onPressed: _toggleSearch,
-                                ),
-                              ],
-                            ),
+                          Text(
+                            category['name'],
+                            style: TextStyle(color: Colors.white),
                           ),
-                          if (_searchSuggestions.isNotEmpty)
-                            Container(
-                              margin: const EdgeInsets.only(top: 8),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: _searchSuggestions.map((suggestion) {
-                                  return ListTile(
-                                    title: Text(suggestion['display_name']),
-                                    onTap: () {
-                                      double lat =
-                                      double.parse(suggestion['lat']);
-                                      double lon =
-                                      double.parse(suggestion['lon']);
-                                      mapController.move(LatLng(lat, lon), 15.0);
-                                      _toggleSearch();
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          if (_isLoading)
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(),
-                            ),
+                          SizedBox(width: 4),
+                          Icon(Icons.close, color: Colors.white, size: 16),
                         ],
                       ),
                     ),
-                  ),
-              ],
+                  );
+                }).toList(),
+              ),
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: MediaQuery.of(context).padding.top + 50,
+            left: 10,
+            right: 180,
+            child: MapControlsWidget(
+              mapController: mapController,
+              translations: widget.translations,
+              showFilterPopup: _showFilterPopup,
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 50,
             right: 10,
             width: 150,
             child: Container(
@@ -345,7 +238,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                     ),
                   ),
                   Text(
-                    _points.toString(),
+                    dataController.points.toString(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -361,215 +254,5 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         ],
       ),
     );
-  }
-
-  List<Marker> createMarkers(
-      BuildContext context, List<Map<String, dynamic>> markerData) {
-    return markerData.map((data) {
-      double latitude = double.tryParse(data['latitude'].toString()) ?? 0.0;
-      double longitude = double.tryParse(data['longitude'].toString()) ?? 0.0;
-
-      return Marker(
-        point: LatLng(latitude, longitude),
-        width: 40,
-        height: 40,
-        child: GestureDetector(
-          onTap: () => _showInfoCard(context, data),
-          child: Image.asset(
-            activeMarker == data['id'].toString()
-                ? 'assets/images/active_marker.png'
-                : 'assets/images/map_marker.png',
-            width: 40,
-            height: 40,
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  void _showInfoCard(BuildContext context, Map<String, dynamic> data) {
-    setState(() {
-      activeMarker = data['id'].toString();
-    });
-
-    showGeneralDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: true,
-      barrierLabel:
-      MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation<double> animation,
-          Animation<double> secondaryAnimation) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 10.0,
-            right: 10.0,
-            bottom: MediaQuery.of(context).size.height * 0.1 * 0.7,
-          ),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Material(
-              color: Colors.transparent,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => EntityDetailScreen(
-                        title: data['name'] ??
-                            widget.translations['common']['noDataAvailable'] ??
-                            'Not available',
-                        address: data['address'] ??
-                            widget.translations['entities']?['noAddress'] ??
-                            'Address not available',
-                        phone: data['phone'] ??
-                            widget.translations['entities']?['noPhone'] ??
-                            'Phone not available',
-                        email: data['email'] ??
-                            widget.translations['entities']?['noEmail'] ??
-                            'Email not available',
-                        city: data['city'] ??
-                            widget.translations['entities']?['noCity'] ??
-                            'City not available',
-                        description: data['description'] ??
-                            widget.translations['entities']?['noDescription'] ??
-                            'Description not available',
-                        imageUrl: data['avatar_url'] ?? '',
-                        backgroundImage: data['background_image'] ?? '',
-                        fotosUrls:
-                        List<String>.from(data['fotos_urls'] ?? []),
-                        translations: widget.translations,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.3,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height:
-                            MediaQuery.of(context).size.height * 0.2 * 0.9,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image:
-                                NetworkImage(data['background_image'] ?? ''),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(16.0)),
-                            ),
-                          ),
-                          Center(
-                            child: Container(
-                              margin:
-                              EdgeInsets.only(bottom: 0, top: 100),
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image:
-                                  NetworkImage(data['avatar_url'] ?? ''),
-                                  fit: BoxFit.cover,
-                                ),
-                                border:
-                                Border.all(color: Colors.white, width: 3),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding:
-                        const EdgeInsets.only(left: 16.0, top: 0),
-                        child: Row(
-                          children: [
-                            Icon(
-                              data['is_open'] == true
-                                  ? Icons.check
-                                  : Icons.close,
-                              color: data['is_open'] == true
-                                  ? Colors.green
-                                  : Colors.red,
-                              size: 18,
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              data['is_open'] == true
-                                  ? widget.translations['entities']['open'] ??
-                                  'Open'
-                                  : widget.translations['entities']
-                              ['closed'] ??
-                                  'Closed',
-                              style: TextStyle(
-                                color: data['is_open'] == true
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16.0, bottom: 10.0),
-                        child: Text(
-                          data['name'] ??
-                              widget.translations['common']
-                              ['noDataAvailable'] ??
-                              'Not available',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-      transitionBuilder:
-          (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOut,
-          ).drive(Tween<Offset>(
-            begin: Offset(0, 1),
-            end: Offset(0, 0),
-          )),
-          child: child,
-        );
-      },
-    ).then((_) {
-      setState(() {
-        activeMarker = '';
-      });
-    });
   }
 }

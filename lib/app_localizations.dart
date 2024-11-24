@@ -38,7 +38,6 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
   @override
   bool isSupported(Locale locale) {
-    // Aquí se deja la lógica de soporte dinámica, delegando el control a `supportedLocales` en el MaterialApp
     return true;
   }
 

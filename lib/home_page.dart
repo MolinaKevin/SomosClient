@@ -115,7 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Validación temprana
     if (widget.translations == null) {
       return Center(child: Text('Translations not loaded'));
     }
