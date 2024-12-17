@@ -55,7 +55,7 @@ class UserDataProvider extends ChangeNotifier {
       print('Traducciones cargadas para el idioma: $language');
     } catch (e) {
       print('Error al obtener las traducciones: $e');
-      translations = {}; // Asegura que translations no sea null
+      translations = {};
     }
     notifyListeners();
   }

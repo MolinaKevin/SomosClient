@@ -5,21 +5,25 @@ import '../services/commerce_service.dart';
 import '../services/institution_service.dart';
 import '../services/auth_service.dart';
 import '../services/category_service.dart';
+import '../services/seal_service.dart';
 
 class MapDataController {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   List<Map<String, dynamic>> markerData = [];
   List<Map<String, dynamic>> categories = [];
+  List<Map<String, dynamic>> seals = [];
   final CommerceService commerceService = CommerceService();
   final InstitutionService institutionService = InstitutionService();
   final AuthService authService = AuthService();
   final CategoryService categoryService = CategoryService();
+  final SealService sealService = SealService();
 
   double points = 0.0;
 
   Future<void> initializeData({required Map<String, dynamic> translations}) async {
     await fetchData(translations: translations);
     await fetchCategories();
+    await fetchSeals();
   }
 
   Future<void> fetchData({required Map<String, dynamic> translations, bool forceRefresh = false}) async {
@@ -43,6 +47,7 @@ class MapDataController {
         'avatar_url': commerce['avatar_url'],
         'background_image': commerce['background_image'] ?? '',
         'fotos_urls': commerce['fotos_urls'] ?? [],
+        'seals_with_state': commerce['seals_with_state'] ?? [],
       }).toList(),
       ...institutions.map((institution) => {
         'id': institution['id'],
@@ -59,6 +64,7 @@ class MapDataController {
         'avatar_url': institution['avatar_url'],
         'background_image': institution['background_image'] ?? '',
         'fotos_urls': institution['fotos_urls'] ?? [],
+        'seals_with_state': [],
       }).toList(),
     ];
 
@@ -74,11 +80,29 @@ class MapDataController {
     }
   }
 
-  Future<void> fetchFilteredMarkers(List<Map<String, dynamic>> selectedCategories, {required Map<String, dynamic> translations}) async {
+  Future<void> fetchSeals() async {
     try {
-      List<int> categoryIds = selectedCategories.map((category) => category['id'] as int).toList();
-      final commerces = await commerceService.fetchCommercesByCategories(categoryIds);
-      final institutions = await institutionService.fetchInstitutions(); // Ajusta esto si las instituciones también pueden ser filtradas
+      final fetchedSeals = await sealService.fetchSeals();
+      seals = fetchedSeals;
+    } catch (e) {
+      print('Error fetching seals: $e');
+    }
+  }
+
+  Future<void> fetchFilteredMarkers(
+      Map<String, List<Map<String, dynamic>>> filters, {
+        required Map<String, dynamic> translations,
+      }) async {
+    try {
+      final List<int> categoryIds = filters['categories']?.map((category) => category['id'] as int).toList() ?? [];
+      final List<Map<String, dynamic>> seals = filters['seals'] ?? [];
+
+      final commerces = await commerceService.fetchCommercesByFilters(
+        categoryIds: categoryIds,
+        seals: seals,
+      );
+
+      final institutions = await institutionService.fetchInstitutions();
 
       markerData = [
         ...commerces.map((commerce) => {
@@ -96,6 +120,7 @@ class MapDataController {
           'avatar_url': commerce['avatar_url'],
           'background_image': commerce['background_image'] ?? '',
           'fotos_urls': commerce['fotos_urls'] ?? [],
+          'seals_with_state': commerce['seals_with_state'] ?? [],
         }).toList(),
         ...institutions.map((institution) => {
           'id': institution['id'],
@@ -114,6 +139,8 @@ class MapDataController {
           'fotos_urls': institution['fotos_urls'] ?? [],
         }).toList(),
       ];
+
+      print('Applied Seals: $seals');
     } catch (e) {
       print('Error fetching filtered markers: $e');
       rethrow;

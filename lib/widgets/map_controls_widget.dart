@@ -10,12 +10,14 @@ class MapControlsWidget extends StatefulWidget {
   final MapController mapController;
   final Map<String, dynamic> translations;
   final VoidCallback showFilterPopup;
+  final VoidCallback showSealPopup;
 
   const MapControlsWidget({
     Key? key,
     required this.mapController,
     required this.translations,
     required this.showFilterPopup,
+    required this.showSealPopup,
   }) : super(key: key);
 
   @override
@@ -123,6 +125,10 @@ class _MapControlsWidgetState extends State<MapControlsWidget> {
               IconButton(
                 icon: const Icon(Icons.filter_alt, color: Colors.blue),
                 onPressed: widget.showFilterPopup,
+              ),
+              IconButton(
+                icon: const Icon(Icons.circle, color: Colors.yellow),
+                onPressed: widget.showSealPopup,
               ),
             ],
           ),

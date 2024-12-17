@@ -20,6 +20,7 @@ class CommerceService {
 
     final response = await http.get(url, headers: headers);
 
+    print('Commerces wachin: ${response.body}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
       _cachedCommerces = _parseCommerces(data);
@@ -64,7 +65,40 @@ class CommerceService {
         'latitude': commerce['latitude'],
         'longitude': commerce['longitude'],
         'fotos_urls': commerce['fotos_urls'],
+        'seals_with_state': commerce['seals_with_state'],
       };
     }).toList();
   }
+
+  Future<List<Map<String, dynamic>>> fetchCommercesByFilters({
+    required List<int> categoryIds,
+    required List<Map<String, dynamic>> seals,
+  }) async {
+    final baseUrl = await EnvironmentConfig.getBaseUrl();
+    final url = Uri.parse('$baseUrl/commerces/filter-by-filters');
+
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final body = jsonEncode({
+      'category_ids': categoryIds,
+      'seals': seals.map((seal) => {
+        'id': seal['id'],
+        'state': seal['state'],
+      }).toList(),
+    });
+
+    print('enviadoooo: ${body}');
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'];
+      return _parseCommerces(data);
+    } else {
+      throw Exception('Failed to load filtered commerces');
+    }
+  }
+
 }

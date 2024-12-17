@@ -128,7 +128,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               final transaction = _transactions[index];
               final type = transaction['type'] ?? 'unknown';
 
-              // Datos de la transacción
               final commerce = transaction['commerce'];
               final commerceName = commerce != null && commerce.containsKey('name')
                   ? commerce['name']
@@ -141,7 +140,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   : transaction['points']?.toDouble()) ?? 0.0;
               final date = transaction['date'] ?? 'No Date';
 
-              // Placeholder para donación y descripción del referido
               final donationPlaceholder = widget.translations['transaction']['donationFor'] ?? 'Donation for';
               final donationNames = 'Placeholder Name';
               final referralDescription = widget.translations['transaction']['referralPurchase'] ??

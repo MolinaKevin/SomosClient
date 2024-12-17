@@ -8,7 +8,6 @@ class TransactionService {
   List<Map<String, dynamic>>? _cachedPointPurchases;
   List<Map<String, dynamic>>? _cachedReferralPoints;
 
-  // Helper to retrieve the token from AuthService
   Future<String?> _getAuthToken() async {
     return await AuthService().getToken();
   }
@@ -89,7 +88,6 @@ class TransactionService {
     }
   }
 
-  // Fetch referral points with caching
   Future<List<Map<String, dynamic>>> fetchReferralPoints({bool forceRefresh = false}) async {
     if (_cachedReferralPoints != null && !forceRefresh) {
       return _cachedReferralPoints!;
@@ -115,9 +113,9 @@ class TransactionService {
       _cachedReferralPoints = data.map<Map<String, dynamic>>((referralPoint) {
         return {
           'id': referralPoint['purchase_id'],
-          'points': double.tryParse(referralPoint['points']) ?? 0.0, // Convertir a double
+          'points': double.tryParse(referralPoint['points']) ?? 0.0,
           'date': referralPoint['created_at'],
-          'referrer': referralPoint['referrer'], // Información del referido si está disponible
+          'referrer': referralPoint['referrer'],
         };
       }).toList();
       return _cachedReferralPoints!;
@@ -131,7 +129,6 @@ class TransactionService {
     final pointPurchases = await fetchPointPurchases(forceRefresh: forceRefresh);
     final referralPoints = await fetchReferralPoints(forceRefresh: forceRefresh);
 
-    // Add transaction type and merge the lists
     final purchasesWithType = purchases.map((transaction) {
       return {...transaction, 'type': 'purchase'};
     }).toList();
@@ -144,14 +141,12 @@ class TransactionService {
       return {...transaction, 'type': 'referralPoint'};
     }).toList();
 
-    // Combine all transactions and filter out those with points equal to 0
     final allTransactions = [
       ...purchasesWithType,
       ...pointPurchasesWithType,
       ...referralPointsWithType
     ].where((transaction) => (transaction['points'] ?? 0) > 0).toList();
 
-    // Sort transactions by date in descending order
     allTransactions.sort((a, b) {
       DateTime dateA = DateTime.parse(a['date']);
       DateTime dateB = DateTime.parse(b['date']);

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Asegúrate de que esta línea esté presente
+import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import 'referral_screen.dart';
-import 'transactions_screen.dart'; // Importa la nueva pantalla
+import 'transactions_screen.dart';
 
 class PointsScreen extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -91,7 +91,7 @@ class _PointsScreenState extends State<PointsScreen> {
               ],
             ),
           )
-              : SingleChildScrollView( // Para evitar overflow en pantallas pequeñas
+              : SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -141,14 +141,14 @@ class _PointsScreenState extends State<PointsScreen> {
                     style: const TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
                   ),
                 ),
-                const SizedBox(height: 20), // Espacio adicional
+                const SizedBox(height: 20),
                 Center(
                   child: CupertinoButton.filled(
                     onPressed: () => _navigateToTransactionsScreen(context),
                     child: Text(widget.translations['transaction']['viewTransactions'] ?? 'View Transactions'),
                   ),
                 ),
-                const SizedBox(height: 20), // Espacio entre botones
+                const SizedBox(height: 20),
                 Center(
                   child: CupertinoButton.filled(
                     onPressed: () => _navigateToReferralScreen(context),

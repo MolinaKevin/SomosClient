@@ -7,6 +7,7 @@ import '../screens/entity_detail_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
+import '../widgets/seal_icon_widget.dart';
 
 class Tab2 extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -25,11 +26,10 @@ class _Tab2State extends State<Tab2> {
   List<Map<String, dynamic>> _comercios = [];
   List<Map<String, dynamic>> _instituciones = [];
 
-  // Filter variables
   String _selectedCategory = 'All';
   double _selectedRating = 0.0;
   bool _showOnlyOpen = false;
-  double? _selectedDistance; // In meters
+  double? _selectedDistance;
   Position? _currentPosition;
 
   @override
@@ -41,7 +41,6 @@ class _Tab2State extends State<Tab2> {
   }
 
   Future<void> _getCurrentLocation() async {
-    // Check if platform supports geolocation
     if (!(Platform.isAndroid || Platform.isIOS || Platform.isMacOS || Platform.isWindows || kIsWeb)) {
       print('Geolocation is not supported on this platform.');
       setState(() {
@@ -98,7 +97,6 @@ class _Tab2State extends State<Tab2> {
           double latitude = double.tryParse(commerce['latitude'] ?? '') ?? 0.0;
           double longitude = double.tryParse(commerce['longitude'] ?? '') ?? 0.0;
 
-          // Calculate distance if current position is available
           double? distance;
           if (_currentPosition != null) {
             try {
@@ -135,6 +133,7 @@ class _Tab2State extends State<Tab2> {
             'location': commerce['location'] ?? 'Unknown',
             'rating': double.tryParse(commerce['rating']?.toString() ?? '') ?? 0.0,
             'distance': distance,
+            'seals_with_state': commerce['seals_with_state'] ?? [],
           };
         }).toList();
 
@@ -196,7 +195,6 @@ class _Tab2State extends State<Tab2> {
   List<Map<String, dynamic>> get _currentList {
     List<Map<String, dynamic>> list = _selectedSegment == 0 ? _comercios : _instituciones;
 
-    // Apply filters
     return list.where((item) {
       bool matchesCategory = _selectedCategory == 'All' || item['category'] == _selectedCategory;
       bool matchesRating = _selectedRating == 0.0 || (item['rating'] != null && item['rating'] >= _selectedRating);
@@ -465,8 +463,38 @@ class _Tab2State extends State<Tab2> {
                           ),
                       ],
                     ),
-                    trailing: const Icon(CupertinoIcons.chevron_forward),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (item['seals_with_state'] != null &&
+                            (item['seals_with_state'] as List).isNotEmpty)
+                          ...List<Map<String, dynamic>>.from(item['seals_with_state'])
+                              .where((seal) => seal['state'] == 'partial' || seal['state'] == 'full')
+                              .take(3)
+                              .map((seal) {
+                            print('el itemnazo: ${item}');
+                            print('Seal encontrado: $seal');
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: SealIconWidget(seal: seal),
+                            );
+                          })
+                        else ...[
+                          (() {
+                            print('No hay seals_with_state o no cumplen las condiciones');
+                            print('el itemnazo: ${item}');
+                            return const SizedBox();
+                          })(),
+                        ],
+
+
+                        const Icon(CupertinoIcons.chevron_forward),
+                      ],
+                    ),
+
+
                     onTap: () {
+                      print('Navegando a detalles de: ${item['name']}');
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
@@ -481,6 +509,11 @@ class _Tab2State extends State<Tab2> {
                             backgroundImage: item['background_image'] ?? '',
                             fotosUrls: item['fotos_urls'] != null && item['fotos_urls'] is List
                                 ? List<String>.from(item['fotos_urls'].whereType<String>())
+                                : [],
+                            seals: item['seals_with_state'] != null
+                                ? List<Map<String, dynamic>>.from(item['seals_with_state']).where(
+                                  (seal) => seal['state'] == 'partial' || seal['state'] == 'full',
+                            ).toList()
                                 : [],
                             translations: widget.translations,
                           ),

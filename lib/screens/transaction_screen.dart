@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class TransactionScreen extends StatefulWidget {
   final Map<String, String> translations;
-  final Function(BuildContext) onNavigateToPointsScreen;  // Cambia el nombre de la función según la pantalla deseada
+  final Function(BuildContext) onNavigateToPointsScreen;
 
   const TransactionScreen({super.key, required this.translations, required this.onNavigateToPointsScreen});
 
@@ -31,7 +31,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   void _initiateNFC() {
-    // Lógica para iniciar NFC
     print('Iniciando NFC para $_amount€');
   }
 
@@ -89,7 +88,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 ),
                 const SizedBox(height: 20),
                 CupertinoButton.filled(
-                  onPressed: () => widget.onNavigateToPointsScreen(context),  // Cambia aquí para la función adecuada
+                  onPressed: () => widget.onNavigateToPointsScreen(context),
                   child: Text(widget.translations['viewPoints'] ?? 'Ver Puntos'),
                 ),
               ],

@@ -24,7 +24,6 @@ class CategoryService {
     print('Response status code: ${response.statusCode}');
     print('Raw categories response: ${response.body}');
     if (response.statusCode == 200) {
-      // Ajustar para reflejar que la respuesta es una lista
       final data = jsonDecode(response.body) as List<dynamic>;
       print('Parsed categories data: $data');
       _cachedCategories = _buildCategoryHierarchy(data);
@@ -42,7 +41,6 @@ class CategoryService {
 
     print('Building category hierarchy...');
     for (var category in categories) {
-      // Verificar y convertir 'id' y 'parent_id'
       final id = category['id'] is int ? category['id'] : int.tryParse(category['id'].toString());
       final parentId = category['parent_id'] is int
           ? category['parent_id']
@@ -52,7 +50,7 @@ class CategoryService {
 
       if (id == null) {
         print('Error: Invalid ID in category: $category');
-        continue; // Ignorar categorías con ID no válido
+        continue;
       }
 
       categoryMap[id] = {

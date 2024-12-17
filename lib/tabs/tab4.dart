@@ -147,7 +147,6 @@ class _Tab4State extends State<Tab4> {
 
   void _changePassword(BuildContext context) {
     print('Change password pressed');
-    // Logic to change password
   }
 
   Future<void> _logout(UserDataProvider userData) async {
@@ -351,7 +350,7 @@ class _Tab4State extends State<Tab4> {
         return CupertinoActionSheet(
           title: Text(widget.translations['common']['selectLanguage'] ?? 'Select Language'),
           actions: [
-            for (Locale locale in userData.availableLocales) // Iterar sobre los locales disponibles
+            for (Locale locale in userData.availableLocales)
               CupertinoActionSheetAction(
                 child: Text(
                   widget.translations['languages'][locale.languageCode] ?? locale.languageCode,

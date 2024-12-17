@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'controllers/map_controller.dart';
 import 'widgets/map_controls_widget.dart';
 import 'popups/popup_categories.dart';
+import 'popups/popup_seals.dart';
 import 'widgets/marker_widget.dart';
 import 'popups/popup_info_card.dart';
 
@@ -31,6 +32,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   final MapDataController dataController = MapDataController();
 
+  List<Map<String, dynamic>> selectedSeals = [];
   List<Map<String, dynamic>> selectedCategories = [];
 
   bool isLoading = false;
@@ -47,39 +49,48 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     setState(() {});
   }
 
-  void _showFilterPopup() {
-    PopupCategories.show(
-      context: context,
-      translations: widget.translations,
-      categories: dataController.categories,
-      onCategorySelected: selectCategory,
-      selectedCategories: selectedCategories,
-    );
-  }
-
   void applyFilters() async {
     setState(() {
       isLoading = true;
     });
 
     try {
-      if (selectedCategories.isEmpty) {
-        // Si no hay categorías seleccionadas, cargamos todos los comercios
+      if (selectedSeals.isEmpty && selectedCategories.isEmpty) {
         await dataController.fetchData(
-            translations: widget.translations, forceRefresh: true);
+          translations: widget.translations,
+          forceRefresh: true,
+        );
       } else {
-        // Obtener los marcadores filtrados
+        final selectedItems = [...selectedSeals, ...selectedCategories];
+
+        List<Map<String, dynamic>> seals = [];
+        List<Map<String, dynamic>> categories = [];
+
+        for (var item in selectedItems) {
+          if (item.containsKey('state')) {
+            seals.add(item);
+          } else if (item.containsKey('slug') || item.containsKey('children')) {
+            categories.add(item);
+          }
+        }
+
+        print('Filtered Seals: $seals');
+        print('Filtered Categories: $categories');
+
+        final combinedFilters = {
+          'seals': seals,
+          'categories': categories,
+        };
+
         await dataController.fetchFilteredMarkers(
-            selectedCategories, translations: widget.translations);
+          combinedFilters,
+          translations: widget.translations,
+        );
       }
 
-      setState(() {
-        // Actualizamos los marcadores en el mapa
-      });
+      setState(() {});
     } catch (e) {
-      // Manejar errores
-      print('Error fetching filtered commerces: $e');
-      // Mostrar mensaje de error al usuario
+      print('Error applying filters: $e');
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -104,7 +115,54 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     }
   }
 
-  void selectCategory(Map<String, dynamic> category) {
+  void _selectSeal(Map<String, dynamic> seal) {
+    setState(() {
+      int index = selectedSeals.indexWhere((s) => s['id'] == seal['id']);
+      if (index >= 0) {
+        selectedSeals.removeAt(index);
+      } else {
+        selectedSeals.add(seal);
+      }
+    });
+    applyFilters();
+  }
+
+  void _showFilterPopup() {
+    PopupCategories.show(
+      context: context,
+      translations: widget.translations,
+      categories: dataController.categories,
+      selectedCategories: selectedCategories,
+      onItemSelected: (item, type) {
+        if (type == 'category') {
+          _selectCategory(item);
+        }
+      },
+    );
+  }
+
+  void _showSealPopup() {
+    PopupSeals.show(
+      context: context,
+      seals: dataController.seals,
+      selectedSeals: selectedSeals,
+      onSealStateChanged: (updatedSeals) {
+        setState(() {
+          selectedSeals = updatedSeals
+              .where((seal) => seal['state'] != 'none')
+              .map((seal) => {
+            'id': seal['id'],
+            'name': seal['name'],
+            'state': seal['state'],
+          })
+              .toList();
+        });
+        applyFilters();
+      },
+    );
+  }
+
+  void _selectCategory(Map<String, dynamic> category) {
     setState(() {
       int index = selectedCategories.indexWhere((c) => c['id'] == category['id']);
       if (index >= 0) {
@@ -116,7 +174,6 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     applyFilters();
   }
 
-
   void _onMarkerTap(BuildContext context, Map<String, dynamic> data) {
     setState(() {
       activeMarker = data['id'].toString();
@@ -126,6 +183,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       context: context,
       data: data,
       translations: widget.translations,
+      allSeals: dataController.seals,
       onDismiss: () {
         setState(() {
           activeMarker = '';
@@ -162,7 +220,6 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               ),
             ],
           ),
-          // Agregamos el Row de categorías seleccionadas
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,
@@ -170,31 +227,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: selectedCategories.map((category) {
-                  return GestureDetector(
-                    onTap: () {
-                      selectCategory(category);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4.0),
-                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            category['name'],
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(Icons.close, color: Colors.white, size: 16),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+                children: [
+                  ...selectedSeals.map((seal) {
+                    return _buildSelectedItem(seal, 'seal');
+                  }).toList(),
+                  ...selectedCategories.map((category) {
+                    return _buildSelectedItem(category, 'category');
+                  }).toList(),
+                ],
               ),
             ),
           ),
@@ -206,6 +246,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               mapController: mapController,
               translations: widget.translations,
               showFilterPopup: _showFilterPopup,
+              showSealPopup: _showSealPopup,
             ),
           ),
           Positioned(
@@ -252,6 +293,38 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSelectedItem(Map<String, dynamic> item, String type) {
+    return GestureDetector(
+      onTap: () {
+        if (type == 'seal') {
+          _selectSeal(item);
+        } else if (type == 'category') {
+          _selectCategory(item);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        decoration: BoxDecoration(
+          color: Colors.blueAccent,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Row(
+          children: [
+            Text(
+              type == 'seal'
+                  ? "${item['name']}: ${item['state']}"
+                  : item['name'],
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.close, color: Colors.white, size: 16),
+          ],
+        ),
       ),
     );
   }

@@ -6,7 +6,6 @@ import '../config/environment_config.dart';
 class AuthService {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-  // Helper to save user data in secure storage
   Future<void> _saveUserData(String token, Map<String, dynamic> user) async {
     await _secureStorage.write(key: 'auth_token', value: token);
     await _secureStorage.write(key: 'user_name', value: user['name']);
@@ -17,12 +16,10 @@ class AuthService {
     await _secureStorage.write(key: 'user_referrer_pass', value: user['referrer_pass'] ?? '');
   }
 
-  // Helper to get token
   Future<String?> getToken() async {
     return await _secureStorage.read(key: 'auth_token');
   }
 
-  // Login method
   Future<Map<String, dynamic>> login(String email, String password) async {
     final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/login');
@@ -51,7 +48,6 @@ class AuthService {
     }
   }
 
-  // Register method
   Future<Map<String, dynamic>> register(String name, String email, String password, String confirmPassword) async {
     final baseUrl = await EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/register');
@@ -85,7 +81,6 @@ class AuthService {
     }
   }
 
-  // Fetch user details
   Future<Map<String, dynamic>> fetchUserDetails() async {
     final token = await getToken();
     if (token == null) throw Exception('Token not found');
@@ -115,7 +110,6 @@ class AuthService {
     }
   }
 
-  // Fetch user data and referrals
   Future<Map<String, dynamic>> fetchUserData() async {
     final token = await getToken();
     if (token == null) throw Exception('Token not found');
@@ -137,7 +131,6 @@ class AuthService {
       final data = jsonDecode(response.body);
       print('User data received: $data');
 
-      // Extracting referral data
       final referrals = data['referrals'] ?? {};
       final totalReferrals = referrals.values.fold(0, (sum, level) => sum + (level ?? 0));
 
@@ -158,7 +151,6 @@ class AuthService {
     }
   }
 
-  // Logout and clear storage
   Future<void> logout() async {
     print('Logging out, clearing all secure storage.');
     await _secureStorage.deleteAll();
