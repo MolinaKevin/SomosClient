@@ -66,6 +66,7 @@ class CommerceService {
         'longitude': commerce['longitude'],
         'fotos_urls': commerce['fotos_urls'],
         'seals_with_state': commerce['seals_with_state'],
+        'category_ids': commerce['category_ids'],
       };
     }).toList();
   }
