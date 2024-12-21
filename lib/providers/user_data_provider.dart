@@ -7,14 +7,14 @@ import '../config/environment_config.dart';
 import '../services/translation_service.dart';
 
 class UserDataProvider extends ChangeNotifier {
-  String name = 'Nombre no disponible';
-  String email = 'Email no disponible';
-  String phone = 'Teléfono no disponible';
-  int points = 0;
+  String name = 'Name not available';
+  String email = 'Email not available';
+  String phone = 'Telephone not available';
+  double points = 0.0;
   int totalReferrals = 0;
-  String pass = 'No disponible';
-  String referrerPass = 'No disponible';
-  String language = 'es';
+  String pass = 'Not available';
+  String referrerPass = 'Not available';
+  String language = 'en';
   String profilePhotoUrl = '';
   Map<String, dynamic> translations = {};
   List<Locale> availableLocales = [];
@@ -28,8 +28,55 @@ class UserDataProvider extends ChangeNotifier {
 
   Future<void> initialize() async {
     await loadUserData();
+    await fetchUserDataFromServer().catchError((e) {
+      print('Error al sincronizar en segundo plano: $e');
+    });
     await fetchAvailableLocales();
     await loadTranslations();
+  }
+
+
+  Future<void> fetchUserDataFromServer() async {
+    try {
+      final baseUrl = await EnvironmentConfig.getBaseUrl();
+      final url = Uri.parse('$baseUrl/user');
+      final token = await _secureStorage.read(key: 'auth_token');
+
+      if (token == null) throw Exception('Token de autenticación no encontrado');
+
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+
+        name = userData['name'] ?? 'Nombre no disponible';
+        email = userData['email'] ?? 'Email no disponible';
+        phone = userData['phone'] ?? 'Teléfono no disponible';
+        points = userData['points'] ?? 0.0;
+        totalReferrals = userData['total_referrals'] ?? 0;
+        pass = userData['pass'] ?? 'No disponible';
+        referrerPass = userData['referrer_pass'] ?? 'No disponible';
+        language = userData['language'] ?? 'es';
+        profilePhotoUrl = userData['profile_photo_url'] ?? '';
+
+        print('Actualizando almacenamiento seguro con pass: $pass');
+
+        await _secureStorage.write(key: 'user_pass', value: pass);
+        print('Pass escrito en almacenamiento seguro.');
+
+        final writtenPass = await _secureStorage.read(key: 'user_pass');
+        print('Pass leído tras la escritura: $writtenPass');
+
+        notifyListeners();
+      } else {
+        print('Error al sincronizar con el servidor: ${response.body}');
+      }
+    } catch (e) {
+      print('Error al obtener los datos del servidor: $e');
+      throw e;
+    }
   }
 
   Future<void> loadUserData() async {
@@ -38,7 +85,7 @@ class UserDataProvider extends ChangeNotifier {
     name = allData['user_name'] ?? 'Nombre no disponible';
     email = allData['user_email'] ?? 'Email no disponible';
     phone = allData['user_phone'] ?? 'Teléfono no disponible';
-    points = int.tryParse(allData['user_points'] ?? '0') ?? 0;
+    points = double.tryParse(allData['user_points'] ?? '0') ?? 0.0;
     totalReferrals = int.tryParse(allData['user_total_referrals'] ?? '0') ?? 0;
     pass = allData['user_pass'] ?? 'No disponible';
     referrerPass = allData['user_referrer_pass'] ?? 'No disponible';
@@ -46,6 +93,7 @@ class UserDataProvider extends ChangeNotifier {
     profilePhotoUrl = allData['profile_photo_url'] ?? '';
 
     print('Datos cargados del almacenamiento seguro.');
+    print('$allData');
     notifyListeners();
   }
 
@@ -86,6 +134,9 @@ class UserDataProvider extends ChangeNotifier {
         await _secureStorage.write(key: 'user_phone', value: phone);
         await _secureStorage.write(key: 'user_language', value: language);
         await _secureStorage.write(key: 'user_pass', value: pass);
+        print('Escribiendo pass en almacenamiento seguro: $pass');
+        final writtenPass = await _secureStorage.read(key: 'user_pass');
+        print('Pass leído tras la escritura: $writtenPass');
         await _secureStorage.write(key: 'user_referrer_pass', value: referrerPass);
 
         await loadTranslations();
