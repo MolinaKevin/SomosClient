@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../services/auth_service.dart';
+import '../mocking/mock_auth_service.dart';
 import '../home_page.dart';
 import '../main.dart';
 
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final AuthService authService = AuthService();
+  final MockAuthService authService = MockAuthService();
   bool _isLogin = true;
 
   Future<void> _login() async {
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } else {
       _showErrorMessage({
-        'error': widget.translations['auth']['enterCredentials'] ?? 'Please enter your credentials'
+        'error': widget.translations['auth']?['enterCredentials'] ?? 'Please enter your credentials'
       });
     }
   }
@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } else {
       _showErrorMessage({
-        'error': widget.translations['auth']['enterAllFields'] ??
+        'error': widget.translations['auth']?['enterAllFields'] ??
             'Please fill in all fields and ensure passwords match'
       });
     }
@@ -119,19 +119,19 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: widget.translations['auth']['fullName'] ?? 'Full Name',
+                  labelText: widget.translations['auth']?['fullName'] ?? 'Full Name',
                 ),
               ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: widget.translations['user']['email'] ?? 'Email',
+                labelText: widget.translations['user']?['email'] ?? 'Email',
               ),
             ),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(
-                labelText: widget.translations['auth']['password'] ?? 'Password',
+                labelText: widget.translations['auth']?['password'] ?? 'Password',
               ),
               obscureText: true,
             ),
@@ -139,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _confirmPasswordController,
                 decoration: InputDecoration(
-                  labelText: widget.translations['auth']['confirmPassword'] ?? 'Confirm Password',
+                  labelText: widget.translations['auth']?['confirmPassword'] ?? 'Confirm Password',
                 ),
                 obscureText: true,
               ),
@@ -148,8 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: _isLogin ? _login : _register,
               child: Text(
                 _isLogin
-                    ? widget.translations['auth']['login'] ?? 'Login'
-                    : widget.translations['auth']['register'] ?? 'Register',
+                    ? (widget.translations['auth']?['login']) ?? 'Login'
+                    : widget.translations['auth']?['register'] ?? 'Register',
               ),
             ),
             TextButton(
@@ -160,13 +160,13 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               child: Text(
                 _isLogin
-                    ? widget.translations['auth']['register'] ?? 'Register'
-                    : widget.translations['auth']['login'] ?? 'Login',
+                    ? (widget.translations['auth']?['register']) ?? 'Register'
+                    : widget.translations['auth']?['login'] ?? 'Login',
               ),
             ),
             TextButton(
               onPressed: _skipLogin,
-              child: Text(widget.translations['auth']['skipLogin'] ?? 'Skip Login'),
+              child: Text(widget.translations['auth']?['skipLogin'] ?? 'Skip Login'),
             ),
           ],
         ),

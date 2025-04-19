@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../mocking/mock_auth_service.dart';
 
 class ReferralScreen extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -12,7 +12,7 @@ class ReferralScreen extends StatefulWidget {
 }
 
 class _ReferralScreenState extends State<ReferralScreen> {
-  final AuthService _authService = AuthService();
+  final MockAuthService _authService = MockAuthService();
   Map<String, int> _referrals = {
     'level_1': 0,
     'level_2': 0,
@@ -53,7 +53,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.translations['referrals']['view'] ?? 'View Referrals'),
+        middle: Text(widget.translations['referrals']?['view'] ?? 'View Referrals'),
       ),
       child: SafeArea(
         child: Padding(
@@ -63,7 +63,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
             children: [
               Center(
                 child: Text(
-                  widget.translations['referrals']['hierarchy'] ?? 'Referral Hierarchy',
+                  widget.translations['referrals']?['hierarchy'] ?? 'Referral Hierarchy',
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -72,13 +72,13 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      _buildReferralLevel(context, widget.translations['referrals']['firstLevel'] ?? 'First Level', _referrals['level_1'] ?? 0),
-                      _buildReferralLevel(context, widget.translations['referrals']['secondLevel'] ?? 'Second Level', _referrals['level_2'] ?? 0),
-                      _buildReferralLevel(context, widget.translations['referrals']['thirdLevel'] ?? 'Third Level', _referrals['level_3'] ?? 0),
-                      _buildReferralLevel(context, widget.translations['referrals']['fourthLevel'] ?? 'Fourth Level', _referrals['level_4'] ?? 0),
-                      _buildReferralLevel(context, widget.translations['referrals']['fifthLevel'] ?? 'Fifth Level', _referrals['level_5'] ?? 0),
-                      _buildReferralLevel(context, widget.translations['referrals']['sixthLevel'] ?? 'Sixth Level', _referrals['level_6'] ?? 0),
-                      _buildReferralLevel(context, widget.translations['referrals']['seventhLevel'] ?? 'Seventh Level', _referrals['level_7'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['firstLevel'] ?? 'First Level', _referrals['level_1'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['secondLevel'] ?? 'Second Level', _referrals['level_2'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['thirdLevel'] ?? 'Third Level', _referrals['level_3'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['fourthLevel'] ?? 'Fourth Level', _referrals['level_4'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['fifthLevel'] ?? 'Fifth Level', _referrals['level_5'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['sixthLevel'] ?? 'Sixth Level', _referrals['level_6'] ?? 0),
+                      _buildReferralLevel(context, widget.translations['referrals']?['seventhLevel'] ?? 'Seventh Level', _referrals['level_7'] ?? 0),
                     ],
                   ),
                 ),

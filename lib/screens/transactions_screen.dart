@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../services/transaction_service.dart';
+import '../mocking/mock_transaction_service.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -18,7 +18,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   List<Map<String, dynamic>> _transactions = [];
-  final TransactionService transactionService = TransactionService();
+  final MockTransactionService transactionService = MockTransactionService();
 
   @override
   void initState() {
@@ -92,7 +92,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.translations['transaction']['viewTransactions'] ?? 'View Transactions'),
+        middle: Text(widget.translations['transaction']?['viewTransactions'] ?? 'View Transactions'),
       ),
       child: SafeArea(
         child: Padding(
@@ -105,11 +105,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  widget.translations['common']['failedToLoadData'] ?? 'Failed to load data',
+                  widget.translations['common']?['failedToLoadData'] ?? 'Failed to load data',
                   style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 18),
                 ),
                 CupertinoButton(
-                  child: Text(widget.translations['common']['retry'] ?? 'Retry'),
+                  child: Text(widget.translations['common']?['retry'] ?? 'Retry'),
                   onPressed: _retryFetching,
                 ),
               ],
@@ -118,7 +118,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               : _transactions.isEmpty
               ? Center(
             child: Text(
-              widget.translations['transaction']['noTransactions'] ?? 'No transactions found.',
+              widget.translations['transaction']?['noTransactions'] ?? 'No transactions found.',
               style: const TextStyle(fontSize: 18),
             ),
           )
@@ -129,9 +129,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               final type = transaction['type'] ?? 'unknown';
 
               final commerce = transaction['commerce'];
-              final commerceName = commerce != null && commerce.containsKey('name')
+              final commerceName = commerce is Map && commerce.containsKey('name')
                   ? commerce['name']
-                  : 'Unknown Commerce';
+                  : (commerce is String ? commerce : 'Unknown Commerce');
               final amount = (transaction['money'] is String
                   ? double.tryParse(transaction['money']) ?? 0.0
                   : transaction['money']?.toDouble()) ?? 0.0;
@@ -140,9 +140,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   : transaction['points']?.toDouble()) ?? 0.0;
               final date = transaction['date'] ?? 'No Date';
 
-              final donationPlaceholder = widget.translations['transaction']['donationFor'] ?? 'Donation for';
+              final donationPlaceholder = widget.translations['transaction']?['donationFor'] ?? 'Donation for';
               final donationNames = 'Placeholder Name';
-              final referralDescription = widget.translations['transaction']['referralPurchase'] ??
+              final referralDescription = widget.translations['transaction']?['referralPurchase'] ??
                   'Compra realizada por un referido';
 
               return Card(
@@ -157,7 +157,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       Text(
                         type == 'referralPoint'
                             ? referralDescription
-                            : '${widget.translations['transaction']['purchaseAt'] ?? 'Purchase at'} $commerceName',
+                            : '${widget.translations['transaction']?['purchaseAt'] ?? 'Purchase at'} $commerceName',
                       ),
                       const SizedBox(height: 4),
                       if (type == 'purchase')

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g id="vector">
+    <circle stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" cx="256" cy="260" r="199.03" style="fill: rgb(38, 203, 38);"/>
+    <path stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" d="M376.71,177.05c16.56,23.81,26.26,52.74,26.26,83.94,0,81.3-65.91,147.21-147.21,147.21-31.39,0-60.49-9.83-84.38-26.57l6.02-6.02,188.53-187.76,10.78-10.8Z" style="fill: rgb(255, 255, 255);"/>
+    <path stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" d="M335.7,138.29c-23.08-15.12-50.68-23.91-80.33-23.91-81.09,0-146.82,65.73-146.82,146.82,0,30.93,9.57,59.63,25.9,83.3l7.05-7.06,197.01-197.26-2.81-1.89Z" style="fill: rgb(255, 255, 255);"/>
+  </g>
+  <g id="botella">
+    <rect stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" x="194.14" y="284.91" width="126.81" height="48" rx="12" ry="12" fill="none"/>
+    <path stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" d="M206.14,332.91h102.81c6.62,0,12,5.38,12,12v28.8c0,12.81-10.4,23.2-23.2,23.2h-80.41c-12.81,0-23.2-10.4-23.2-23.2v-28.8c0-6.62,5.38-12,12-12Z" fill="none"/>
+    <rect stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" x="194.14" y="232.76" width="126.81" height="47.41" rx="12" ry="12" fill="none"/>
+    <path stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" d="M231.26,140.03v12.95s-47.79,14.3-34.94,81.26" fill="none"/>
+    <path stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" d="M281.72,140.4v12.95s47.16,12.07,34.31,79.04" fill="none"/>
+    <rect stroke-width="15px" stroke="#1d1d1b" stroke-miterlimit="10" x="219.44" y="97.65" width="72.89" height="42.38" rx="12" ry="12" fill="none"/>
+  </g>
+  <g id="color_botella">
+    <rect stroke="#1d1d1b" stroke-miterlimit="10" stroke-width="0.25px" x="223.84" y="100.38" width="65.79" height="35.21" rx="12" ry="12" style="fill: rgb(38, 203, 38);"/>
+    <polygon points="363.59 124.22 131.88 355.57 159.86 384.02 393.21 152.31 363.59 124.22" style="fill: rgb(38, 203, 38);"/>
+  </g>
+</svg>

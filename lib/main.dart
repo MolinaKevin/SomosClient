@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'app_localizations.dart';
 import 'splash_screen.dart';
 import 'providers/user_data_provider.dart';
-import 'services/translation_service.dart';
+import 'mocking/mock_translation_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,10 +17,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<TranslationService>(create: (_) => TranslationService()),
+        Provider<MockTranslationService>(create: (_) => MockTranslationService()),
         ChangeNotifierProvider(
           create: (context) {
-            final translationService = Provider.of<TranslationService>(context, listen: false);
+            final translationService = Provider.of<MockTranslationService>(context, listen: false);
             final provider = UserDataProvider(translationService);
             provider.initialize();
             return provider;

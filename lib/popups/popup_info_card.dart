@@ -94,7 +94,7 @@ class InfoCardPopup {
                             height: MediaQuery.of(context).size.height * 0.2 * 0.9,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: NetworkImage(data['background_image'] ?? ''),
+                                image: AssetImage(data['background_image'] ?? ''),
                                 fit: BoxFit.cover,
                               ),
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
@@ -108,9 +108,10 @@ class InfoCardPopup {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                  image: NetworkImage(data['avatar_url'] ?? ''),
+                                  image: AssetImage(data['avatar_url'] ?? ''),
                                   fit: BoxFit.cover,
                                 ),
+                                color: Colors.white,
                                 border: Border.all(color: Colors.white, width: 3),
                               ),
                             ),
@@ -138,8 +139,8 @@ class InfoCardPopup {
                                       const SizedBox(width: 5),
                                       Text(
                                         data['is_open'] == true
-                                            ? translations['entities']['open'] ?? 'Open'
-                                            : translations['entities']['closed'] ?? 'Closed',
+                                            ? (translations['entities']?['open']) ?? 'Open'
+                                            : (translations['entities']?['closed']) ?? 'Closed',
                                         style: TextStyle(
                                           color: data['is_open'] == true ? Colors.green : Colors.red,
                                           fontSize: 17,

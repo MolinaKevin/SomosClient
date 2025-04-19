@@ -5,7 +5,7 @@ import 'tabs/tab1.dart';
 import 'tabs/tab2.dart';
 import 'tabs/tab3.dart';
 import 'tabs/tab4.dart';
-import 'services/auth_service.dart';
+import 'mocking/mock_auth_service.dart';
 
 class MyHomePage extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final AuthService _authService = AuthService();
+  final MockAuthService _authService = MockAuthService();
 
   String name = 'Name not available';
   String email = 'Email not available';
@@ -232,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.only(top: 20),
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: NetworkImage(profilePhotoUrl),
+                backgroundImage: AssetImage(profilePhotoUrl),
               ),
             ),
         ],

@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
 
 class SealSelectionWidget extends StatefulWidget {
   final List<Map<String, dynamic>> sealsWithState;
@@ -94,10 +93,7 @@ class SealItemWidget extends StatefulWidget {
 }
 
 class _SealItemWidgetState extends State<SealItemWidget> {
-  static final Map<String, Uint8List> _imageCache = {};
-  Uint8List? _imageData;
-  bool _isLoading = false;
-  bool _error = false;
+  String? assetPath;
 
   @override
   void initState() {
@@ -111,58 +107,22 @@ class _SealItemWidgetState extends State<SealItemWidget> {
     _loadImage();
   }
 
-  Future<void> _loadImage() async {
-    final baseUrl = 'http://localhost/storage/';
+  void _loadImage() {
     final seal = widget.seal;
     final state = seal['state'] ?? 'none';
     String? imagePath = seal['image'] as String?;
+
     if (imagePath == null || imagePath.isEmpty) {
       setState(() {
-        _imageData = null;
-        _error = false;
-        _isLoading = false;
+        assetPath = null;
       });
       return;
     }
 
     imagePath = imagePath.replaceAll('::STATE::', state);
-    final imageUrl = '$baseUrl$imagePath';
-
-    if (_imageCache.containsKey(imageUrl)) {
-      setState(() {
-        _imageData = _imageCache[imageUrl]!;
-        _error = false;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = true;
-        _error = false;
-      });
-      try {
-        final data = await _fetchSvg(imageUrl);
-        _imageCache[imageUrl] = data;
-        setState(() {
-          _imageData = data;
-          _isLoading = false;
-          _error = false;
-        });
-      } catch (e) {
-        setState(() {
-          _error = true;
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<Uint8List> _fetchSvg(String url) async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      return response.bodyBytes;
-    } else {
-      throw Exception('Failed to load SVG');
-    }
+    setState(() {
+      assetPath = '$imagePath';
+    });
   }
 
   @override
@@ -175,13 +135,11 @@ class _SealItemWidgetState extends State<SealItemWidget> {
     }
 
     Widget leading;
-    if (_isLoading) {
-      leading = Icon(Icons.hourglass_empty);
-    } else if (_error || _imageData == null) {
+    if (assetPath == null) {
       leading = Icon(Icons.image_not_supported, size: 40);
     } else {
-      leading = SvgPicture.memory(
-        _imageData!,
+      leading = SvgPicture.asset(
+        assetPath!,
         width: 40,
         height: 40,
       );

@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../services/commerce_service.dart';
-import '../services/category_service.dart';
-import '../services/institution_service.dart';
+import '../mocking/mock_commerce_service.dart';
+import '../mocking/mock_category_service.dart';
+import '../mocking/mock_institution_service.dart';
 import '../widgets/entity_list_item_widget.dart';
 import '../widgets/filter_widget.dart';
 import '../screens/entity_detail_screen.dart';
@@ -22,9 +22,9 @@ class Tab2 extends StatefulWidget {
 class _Tab2State extends State<Tab2> {
   int _selectedSegment = 0;
   bool _isLoading = true;
-  final CommerceService commerceService = CommerceService();
-  final InstitutionService institutionService = InstitutionService();
-  final CategoryService categoryService = CategoryService();
+  final MockCommerceService commerceService = MockCommerceService();
+  final MockInstitutionService institutionService = MockInstitutionService();
+  final MockCategoryService categoryService = MockCategoryService();
   List<Map<String, dynamic>> _comercios = [];
   List<Map<String, dynamic>> _instituciones = [];
   List<String> _categories = ['All'];

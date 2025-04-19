@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../services/commerce_service.dart';
-import '../services/institution_service.dart';
-import '../services/auth_service.dart';
-import '../services/category_service.dart';
-import '../services/seal_service.dart';
+import '../mocking/mock_commerce_service.dart';
+import '../mocking/mock_institution_service.dart';
+import '../mocking/mock_auth_service.dart';
+import '../mocking/mock_category_service.dart';
+import '../mocking/mock_seal_service.dart';
 
 class MapDataController {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   List<Map<String, dynamic>> markerData = [];
   List<Map<String, dynamic>> categories = [];
   List<Map<String, dynamic>> seals = [];
-  final CommerceService commerceService = CommerceService();
-  final InstitutionService institutionService = InstitutionService();
-  final AuthService authService = AuthService();
-  final CategoryService categoryService = CategoryService();
-  final SealService sealService = SealService();
+  final MockCommerceService commerceService = MockCommerceService();
+  final MockInstitutionService institutionService = MockInstitutionService();
+  final MockAuthService authService = MockAuthService();
+  final MockCategoryService categoryService = MockCategoryService();
+  final MockSealService sealService = MockSealService();
 
   double points = 0.0;
 
@@ -34,7 +34,7 @@ class MapDataController {
     markerData = [
       ...commerces.map((commerce) => {
         'id': commerce['id'],
-        'name': commerce['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
+        'name': commerce['name'] ?? translations['common']?['noDataAvailable'] ?? 'Name not available',
         'address': commerce['address'] ?? translations['entities']?['noAddress'] ?? 'Address not available',
         'phone': commerce['phone_number'] ?? translations['entities']?['noPhone'] ?? 'Phone not available',
         'email': commerce['email'] ?? translations['entities']?['noEmail'] ?? 'Email not available',
@@ -51,7 +51,7 @@ class MapDataController {
       }).toList(),
       ...institutions.map((institution) => {
         'id': institution['id'],
-        'name': institution['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
+        'name': institution['name'] ?? translations['common']?['noDataAvailable'] ?? 'Name not available',
         'address': institution['address'] ?? translations['entities']?['noAddress'] ?? 'Address not available',
         'phone': institution['phone_number'] ?? translations['entities']?['noPhone'] ?? 'Phone not available',
         'email': institution['email'] ?? translations['entities']?['noEmail'] ?? 'Email not available',
@@ -107,7 +107,7 @@ class MapDataController {
       markerData = [
         ...commerces.map((commerce) => {
           'id': commerce['id'],
-          'name': commerce['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
+          'name': commerce['name'] ?? translations['common']?['noDataAvailable'] ?? 'Name not available',
           'address': commerce['address'] ?? translations['entities']?['noAddress'] ?? 'Address not available',
           'phone': commerce['phone_number'] ?? translations['entities']?['noPhone'] ?? 'Phone not available',
           'email': commerce['email'] ?? translations['entities']?['noEmail'] ?? 'Email not available',
@@ -124,7 +124,7 @@ class MapDataController {
         }).toList(),
         ...institutions.map((institution) => {
           'id': institution['id'],
-          'name': institution['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
+          'name': institution['name'] ?? translations['common']?['noDataAvailable'] ?? 'Name not available',
           'address': institution['address'] ?? translations['entities']?['noAddress'] ?? 'Address not available',
           'phone': institution['phone_number'] ?? translations['entities']?['noPhone'] ?? 'Phone not available',
           'email': institution['email'] ?? translations['entities']?['noEmail'] ?? 'Email not available',

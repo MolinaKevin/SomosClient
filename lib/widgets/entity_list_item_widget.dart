@@ -19,7 +19,7 @@ class EntityListItemWidget extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: entity['avatar_url'] != null && entity['avatar_url'].isNotEmpty
-            ? Image.network(
+            ? Image.asset(
           entity['avatar_url'],
           width: 50,
           height: 50,

@@ -60,11 +60,11 @@ class _Tab3State extends State<Tab3> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['transaction']['waitingForDevice'] ?? 'Waiting for device'),
+          title: Text(widget.translations['transaction']?['waitingForDevice'] ?? 'Waiting for device'),
           content: const CupertinoActivityIndicator(),
           actions: [
             CupertinoDialogAction(
-              child: Text(widget.translations['common']['cancel'] ?? 'Cancel'),
+              child: Text(widget.translations['common']?['cancel'] ?? 'Cancel'),
               onPressed: () {
                 _cancelTransaction();
                 Navigator.of(context).pop();
@@ -99,11 +99,11 @@ class _Tab3State extends State<Tab3> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['nfc']['nfcDisabled'] ?? 'NFC disabled'),
-          content: Text(widget.translations['nfc']['enableNFC'] ?? 'Please enable NFC to continue.'),
+          title: Text(widget.translations['nfc']?['nfcDisabled'] ?? 'NFC disabled'),
+          content: Text(widget.translations['nfc']?['enableNFC'] ?? 'Please enable NFC to continue.'),
           actions: [
             CupertinoDialogAction(
-              child: Text(widget.translations['common']['ok'] ?? 'OK'),
+              child: Text(widget.translations['common']?['ok'] ?? 'OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },

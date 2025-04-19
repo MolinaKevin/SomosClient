@@ -1,0 +1,259 @@
+{
+    "app": {
+        "information": "Informaci\u00f3n",
+        "language": "Idioma",
+        "save": "Guardar",
+        "selectLanguage": "Seleccionar idioma",
+        "title": "Mi Aplicaci\u00f3n"
+    },
+    "auth": {
+        "authError": "Error de autenticaci\u00f3n",
+        "authTokenDeleted": "Token de autenticaci\u00f3n eliminado",
+        "autoLoginSuccess": "Auto-login exitoso. Token encontrado.",
+        "confirmPassword": "Confirmar Contrase\u00f1a",
+        "email": "Email",
+        "enterAllFields": "Por favor complete todos los campos y aseg\u00farese de que las contrase\u00f1as coincidan",
+        "enterCredentials": "Por favor ingrese sus credenciales",
+        "errorCreatingBusiness": "Hubo un problema al crear el comercio.",
+        "fullName": "Nombre Completo",
+        "login": "Iniciar sesi\u00f3n",
+        "loginFailed": "No se pudo iniciar sesi\u00f3n.",
+        "logout": "Logout",
+        "noTokenFound": "No se encontr\u00f3 token. Redirigiendo a Login.",
+        "password": "Contrase\u00f1a",
+        "register": "Registrarse",
+        "restrictedAccessMessage": "Acceso restringido",
+        "skipLogin": "Omitir Inicio de Sesi\u00f3n",
+        "tokenNotFound": "No se pudo obtener el token de autenticaci\u00f3n.",
+        "tryingAutoLogin": "Intentando auto-login..."
+    },
+    "avatar": {
+        "changeAvatar": "Cambiar Avatar",
+        "enterAvatarUrl": "Ingresar URL del Avatar",
+        "enterUrl": "Ingresar URL",
+        "takePhoto": "Tomar una foto",
+        "uploadFromGallery": "Subir desde la galer\u00eda"
+    },
+    "backgroundImage": {
+        "addBackgroundImage": "Agregar Imagen de Fondo",
+        "enterBackgroundImageUrl": "Ingresar URL de la Imagen de Fondo",
+        "noImagesAvailable": "No hay im\u00e1genes disponibles"
+    },
+    "business": {
+        "activateCommerce": "Activar Comercio",
+        "businessCreated": "Comercio creado",
+        "businessCreatedSuccessfully": "El comercio ha sido creado exitosamente.",
+        "commerceUpdated": "Comercio actualizado",
+        "commerceUpdatedSuccessfully": "El comercio ha sido actualizado exitosamente",
+        "createNewBusiness": "Crear nuevo comercio",
+        "deactivateCommerce": "Desactivar Comercio",
+        "editCommerce": "Editar Comercio",
+        "saveBusiness": "Guardar Comercio"
+    },
+    "common": {
+        "cancel": "Cancelar",
+        "close": "Cerrar",
+        "failedToLoadData": "Error al cargar datos",
+        "noDataAvailable": "No disponible",
+        "ok": "Aceptar",
+        "retry": "Reintentar",
+        "unknown": "Desconocido"
+    },
+    "entities": {
+        "address": "Direcci\u00f3n",
+        "city": "Ciudad",
+        "closed": "Cerrado",
+        "comercios": "Comercios",
+        "gallery": "Galer\u00eda",
+        "instituciones": "Instituciones",
+        "noAddress": "Direcci\u00f3n no disponible",
+        "noCity": "Ciudad no disponible",
+        "noDescription": "Descripci\u00f3n no disponible",
+        "noEmail": "Correo no disponible",
+        "noPhone": "Tel\u00e9fono no disponible",
+        "open": "Abierto",
+        "phone": "Tel\u00e9fono",
+        "search": "Buscar..."
+    },
+    "entity": {
+        "businessAndInstitutions": "Comercios e Instituciones",
+        "businesses": "Comercios",
+        "institutions": "Instituciones",
+        "isNotAccepted": "a\u00fan no est\u00e1 aceptado, por favor espere.",
+        "menu": "Men\u00fa",
+        "myEntities": "Mis Entidades",
+        "notAccepted": "No aceptado",
+        "theBusiness": "El comercio"
+    },
+    "entity_fields": {
+        "address": "Direcci\u00f3n",
+        "avatarUrl": "Avatar (URL)",
+        "backgroundImageUrl": "Imagen de Fondo (URL)",
+        "city": "Ciudad",
+        "latitude": "Latitud",
+        "longitude": "Longitud",
+        "name": "Nombre",
+        "percent": "Porcentaje",
+        "phone": "Tel\u00e9fono",
+        "plz": "PLZ"
+    },
+    "errors": {
+        "authTokenError": "No se pudo obtener el token de autenticaci\u00f3n",
+        "error": "Error",
+        "fetchEntitiesError": "Error al obtener entidades del usuario:",
+        "imageUploadError": "Error al cargar la imagen desde URL",
+        "invalidDate": "Fecha inv\u00e1lida",
+        "movementsLoadError": "Error al cargar los movimientos",
+        "noDescription": "Sin descripci\u00f3n",
+        "problem": "Hubo un problema",
+        "unexpectedStructureComm": "Estructura inesperada en la respuesta (comm):",
+        "unexpectedStructureNro": "Estructura inesperada en la respuesta (nro):"
+    },
+    "filter": {
+        "category": "Filtrar por categor\u00eda",
+        "location": "Filtrar por ubicaci\u00f3n",
+        "location.all": "Todas las ubicaciones",
+        "location.kilometers": "km",
+        "openNow": "Solo mostrar abiertos",
+        "options": "Opciones de Filtro",
+        "rating": "Filtrar por puntuaci\u00f3n",
+        "rating.all": "Todas las puntuaciones"
+    },
+    "forms": {
+        "accept": "Aceptar",
+        "activate": "Activar",
+        "activating": "activar",
+        "confirm": "Confirmar",
+        "deactivate": "Desactivar",
+        "deactivating": "desactivar",
+        "delete": "Eliminar",
+        "deleting": "Eliminando",
+        "edit": "Editar",
+        "save": "Guardar",
+        "saveChanges": "Guardar Cambios"
+    },
+    "institution": {
+        "activateInstitution": "Activar Instituci\u00f3n",
+        "createNewInstitution": "Crear nueva instituci\u00f3n",
+        "deactivateInstitution": "Desactivar Instituci\u00f3n",
+        "editInstitution": "Editar Instituci\u00f3n",
+        "institutionCreated": "Instituci\u00f3n creada",
+        "institutionUpdated": "Instituci\u00f3n actualizada",
+        "institutionUpdatedSuccessfully": "La instituci\u00f3n ha sido actualizada exitosamente",
+        "pleaseSelectSomos": "Por favor selecciona una opci\u00f3n de Somos",
+        "saveInstitution": "Guardar Instituci\u00f3n",
+        "somos": "Somos"
+    },
+    "languages": {
+        "de": "Alem\u00e1n",
+        "en": "Ingl\u00e9s",
+        "es": "Espa\u00f1ol"
+    },
+    "map": {
+        "searchPlace": "Buscar lugar...",
+        "selectLocation": "Seleccionar ubicaci\u00f3n"
+    },
+    "movements": {
+        "all": "Todos",
+        "closures": "Closures",
+        "commerceMovements": "Movimientos del Comercio",
+        "contributionsMade": "Contribuciones Realizadas",
+        "contributionTo": "Contribuci\u00f3n a",
+        "donationFrom": "Donaci\u00f3n de",
+        "donations": "Donaciones",
+        "donationsReceived": "Donaciones Recibidas",
+        "donationTo": "Donaci\u00f3n a",
+        "institutionMovements": "Movimientos de la Instituci\u00f3n",
+        "movementsLoadError": "Error al cargar los movimientos",
+        "noMovements": "No hay movimientos disponibles",
+        "purchases": "Compras"
+    },
+    "navigation": {
+        "list": "Lista",
+        "logout": "Cerrar sesi\u00f3n",
+        "map": "Mapa",
+        "pointsTab": "Puntos",
+        "profile": "Perfil",
+        "referral": "Referidos"
+    },
+    "placeholders": {
+        "pleaseEnterAddress": "Por favor ingresa una direcci\u00f3n",
+        "pleaseEnterAvatarUrl": "Por favor ingresa la URL del avatar",
+        "pleaseEnterBackgroundImageUrl": "Por favor ingresa la URL de la imagen de fondo",
+        "pleaseEnterCity": "Por favor ingresa una ciudad",
+        "pleaseEnterLatitude": "Por favor ingresa la latitud",
+        "pleaseEnterLongitude": "Por favor ingresa la longitud",
+        "pleaseEnterName": "Por favor ingresa un nombre",
+        "pleaseEnterPercent": "Por favor ingresa un porcentaje",
+        "pleaseEnterPLZ": "Por favor ingresa el c\u00f3digo postal (PLZ)"
+    },
+    "points": {
+        "amount": "Monto",
+        "currentPoints": "Puntos actuales",
+        "pass": "Pass",
+        "points": "Puntos"
+    },
+    "referrals": {
+        "fifthLevel": "Quinto Nivel",
+        "firstLevel": "Primer Nivel",
+        "fourthLevel": "Cuarto Nivel",
+        "hierarchy": "Jerarqu\u00eda de Referidos",
+        "secondLevel": "Segundo Nivel",
+        "seventhLevel": "S\u00e9ptimo Nivel",
+        "sixthLevel": "Sexto Nivel",
+        "thirdLevel": "Tercer Nivel",
+        "view": "Ver Referidos"
+    },
+    "tabs": {
+        "tab1": "Tab 1",
+        "tab2": "Tab 2",
+        "tab3": "Tab 3"
+    },
+    "time": {
+        "choose": "Elegir",
+        "closingTime": "Cierre",
+        "date": "Fecha",
+        "openingTime": "Apertura",
+        "schedule": "Horario",
+        "selectClosingTime": "Selecciona hora de cierre",
+        "selectOpeningTime": "Selecciona hora de apertura",
+        "withdrawalDate": "Fecha de retiro"
+    },
+    "transaction": {
+        "buy": "Comprar",
+        "enableNFC": "Por favor, habilita NFC para continuar.",
+        "generate": "Generar Transacci\u00f3n",
+        "initiateTransaction": "Iniciar Transacci\u00f3n",
+        "nfcDisabled": "NFC deshabilitado",
+        "noTransactions": "No se encontraron transacciones.",
+        "pointPurchase": "Compra con puntos",
+        "purchase": "Compra",
+        "purchaseAt": "Compra en",
+        "viewPoints": "Ver Puntos",
+        "viewTransactions": "Ver Transacciones",
+        "waitingForDevice": "Esperando aceptaci\u00f3n"
+    },
+    "transactions": {
+        "institutionNfcTransaction": "Transacci\u00f3n Institution NFC",
+        "nfcInstitutionTransaction": "Transacci\u00f3n Insti NFC",
+        "nfcTransaction": "Transacci\u00f3n NFC",
+        "notAvailable": "Actualmente no est\u00e1 disponible.",
+        "qrInstitutionTransaction": "Transacci\u00f3n Insti por QR",
+        "qrTransaction": "Transacci\u00f3n por QR",
+        "waitingForDevice": "Esperando dispositivo..."
+    },
+    "user": {
+        "description": "Descripci\u00f3n",
+        "email": "Correo electr\u00f3nico",
+        "firstLevelReferrals": "Primer Nivel",
+        "lowerLevelReferrals": "Niveles Inferiores",
+        "modifyProfile": "Modificar perfil",
+        "name": "Nombre",
+        "pass": "Somos Pass",
+        "phone": "Tel\u00e9fono",
+        "profile": "Perfil de usuario",
+        "referrer_pass": "Pass de referido",
+        "totalPoints": "Puntos",
+        "totalReferrals": "Referidos"
+    }
+}

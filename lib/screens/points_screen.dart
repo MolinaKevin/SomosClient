@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../services/auth_service.dart';
+import '../mocking/mock_auth_service.dart';
 import 'referral_screen.dart';
 import 'transactions_screen.dart';
 
@@ -21,7 +21,7 @@ class _PointsScreenState extends State<PointsScreen> {
   int _lowerLevelReferrals = 0;
   bool _isLoading = true;
   bool _hasError = false;
-  final AuthService authService = AuthService();
+  final MockAuthService authService = MockAuthService();
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _PointsScreenState extends State<PointsScreen> {
       final data = await authService.fetchUserData();
       setState(() {
         _points = data['points'] ?? 0.0;
-        _firstLevelReferrals = data['referrals']['level_1'] ?? 0;
+        _firstLevelReferrals = data['referrals']?['level_1'] ?? 0;
         _lowerLevelReferrals = data['lowerLevelReferrals'] ?? 0;
         _isLoading = false;
         _hasError = false;
@@ -68,7 +68,7 @@ class _PointsScreenState extends State<PointsScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.translations['transaction']['viewPoints'] ?? 'View Points'),
+        middle: Text(widget.translations['transaction']?['viewPoints'] ?? 'View Points'),
       ),
       child: SafeArea(
         child: Padding(
@@ -81,11 +81,11 @@ class _PointsScreenState extends State<PointsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  widget.translations['common']['failedToLoadData'] ?? 'Failed to load data',
+                  widget.translations['common']?['failedToLoadData'] ?? 'Failed to load data',
                   style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 18),
                 ),
                 CupertinoButton(
-                  child: Text(widget.translations['common']['retry'] ?? 'Retry'),
+                  child: Text(widget.translations['common']?['retry'] ?? 'Retry'),
                   onPressed: _fetchUserData,
                 ),
               ],
@@ -111,14 +111,14 @@ class _PointsScreenState extends State<PointsScreen> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    '${widget.translations['user']['referrals'] ?? 'Referrals'}:',
+                    '${widget.translations['user']?['referrals'] ?? 'Referrals'}:',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    '${widget.translations['user']['firstLevelReferrals'] ?? 'First Level'}:',
+                    '${widget.translations['user']?['firstLevelReferrals'] ?? 'First Level'}:',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -131,7 +131,7 @@ class _PointsScreenState extends State<PointsScreen> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    '${widget.translations['user']['lowerLevelReferrals'] ?? 'Lower Levels'}:',
+                    '${widget.translations['user']?['lowerLevelReferrals'] ?? 'Lower Levels'}:',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -145,14 +145,14 @@ class _PointsScreenState extends State<PointsScreen> {
                 Center(
                   child: CupertinoButton.filled(
                     onPressed: () => _navigateToTransactionsScreen(context),
-                    child: Text(widget.translations['transaction']['viewTransactions'] ?? 'View Transactions'),
+                    child: Text(widget.translations['transaction']?['viewTransactions'] ?? 'View Transactions'),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Center(
                   child: CupertinoButton.filled(
                     onPressed: () => _navigateToReferralScreen(context),
-                    child: Text(widget.translations['user']['viewReferrals'] ?? 'View Referrals'),
+                    child: Text(widget.translations['user']?['viewReferrals'] ?? 'View Referrals'),
                   ),
                 ),
               ],

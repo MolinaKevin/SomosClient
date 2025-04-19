@@ -70,6 +70,22 @@ flutter:
     - assets/images/somos_splash.png
     - assets/images/map_marker.png
     - assets/images/active_marker.png
+    - lib/mocking/assets/
+    - lib/mocking/assets/l10n/
+    - lib/mocking/assets/seal_vegan/seal_vegan_none.svg
+    - lib/mocking/assets/seal_vegan/seal_vegan_partial.svg
+    - lib/mocking/assets/seal_vegan/seal_vegan_full.svg
+    - lib/mocking/assets/seal_organic/seal_organic_none.svg
+    - lib/mocking/assets/seal_organic/seal_organic_partial.svg
+    - lib/mocking/assets/seal_organic/seal_organic_full.svg
+    - lib/mocking/assets/seal_comercio_justo.svg
+    - lib/mocking/assets/seal_regional/none.svg
+    - lib/mocking/assets/seal_regional/full.svg
+    - lib/mocking/assets/seal_regional/partial.svg
+    - lib/mocking/assets/seal_plastic/seal_plastic_none.svg
+    - lib/mocking/assets/seal_plastic/seal_plastic_partial.svg
+    - lib/mocking/assets/seal_plastic/seal_plastic_full.svg
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -96,7 +96,7 @@ class EntityDetailScreen extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage('$backgroundImage?${DateTime.now().millisecondsSinceEpoch}'),
+                image: AssetImage('$backgroundImage'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -110,7 +110,7 @@ class EntityDetailScreen extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: NetworkImage('$imageUrl?${DateTime.now().millisecondsSinceEpoch}'),
+                image: AssetImage('$imageUrl'),
                 fit: BoxFit.cover,
               ),
               border: Border.all(color: Colors.white, width: 3),

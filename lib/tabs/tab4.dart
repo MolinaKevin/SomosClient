@@ -102,11 +102,11 @@ class _Tab4State extends State<Tab4> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(widget.translations['common']['success'] ?? 'Success'),
-          content: Text(widget.translations['common']['imageUploaded'] ?? 'Image uploaded successfully.'),
+          title: Text(widget.translations['common']?['success'] ?? 'Success'),
+          content: Text(widget.translations['common']?['imageUploaded'] ?? 'Image uploaded successfully.'),
           actions: [
             CupertinoDialogAction(
-              child: Text(widget.translations['common']['ok'] ?? 'OK'),
+              child: Text(widget.translations['common']?['ok'] ?? 'OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -185,7 +185,7 @@ class _Tab4State extends State<Tab4> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${widget.translations['user']['name'] ?? 'Name'}:',
+                                '${widget.translations['user']?['name'] ?? 'Name'}:',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               _isEditing
@@ -198,7 +198,7 @@ class _Tab4State extends State<Tab4> {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                '${widget.translations['user']['email'] ?? 'Email'}:',
+                                '${widget.translations['user']?['email'] ?? 'Email'}:',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               _isEditing
@@ -211,7 +211,7 @@ class _Tab4State extends State<Tab4> {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                '${widget.translations['user']['phone'] ?? 'Phone'}:',
+                                '${widget.translations['user']?['phone'] ?? 'Phone'}:',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               _isEditing
@@ -224,7 +224,7 @@ class _Tab4State extends State<Tab4> {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                '${widget.translations['common']['language'] ?? 'Language'}:',
+                                '${widget.translations['common']?['language'] ?? 'Language'}:',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               _isEditing
@@ -238,20 +238,20 @@ class _Tab4State extends State<Tab4> {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                '${widget.translations['user']['pass'] ?? 'Somos Pass'}:',
+                                '${widget.translations['user']?['pass'] ?? 'Somos Pass'}:',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                userData.pass ?? widget.translations['common']['noDataAvailable'] ?? 'Not available',
+                                userData.pass ?? widget.translations['common']?['noDataAvailable'] ?? 'Not available',
                                 style: const TextStyle(fontSize: 18),
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                '${widget.translations['user']['referrer_pass'] ?? 'Referrer Pass'}:',
+                                '${widget.translations['user']?['referrer_pass'] ?? 'Referrer Pass'}:',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                userData.referrerPass ?? widget.translations['common']['noDataAvailable'] ?? 'Not available',
+                                userData.referrerPass ?? widget.translations['common']?['noDataAvailable'] ?? 'Not available',
                                 style: const TextStyle(fontSize: 18),
                               ),
                             ],
@@ -265,8 +265,8 @@ class _Tab4State extends State<Tab4> {
                             backgroundImage: _image != null
                                 ? FileImage(_image!)
                                 : (userData.profilePhotoUrl.isNotEmpty
-                                ? NetworkImage(userData.profilePhotoUrl)
-                                : const NetworkImage('https://via.placeholder.com/150')) as ImageProvider,
+                                ? AssetImage(userData.profilePhotoUrl)
+                                : const AssetImage('lib/mocking/assets/test_avatar.png')) as ImageProvider,
                           ),
                         ),
                       ],
@@ -278,8 +278,8 @@ class _Tab4State extends State<Tab4> {
                         onPressed: () => _toggleEdit(userData),
                         child: Text(
                           _isEditing
-                              ? widget.translations['common']['save'] ?? 'Save'
-                              : widget.translations['user']['modifyProfile'] ?? 'Edit Profile',
+                              ? (widget.translations['common']?['save']) ?? 'Save'
+                              : widget.translations['user']?['modifyProfile'] ?? 'Edit Profile',
                         ),
                       ),
                     ),
@@ -288,7 +288,7 @@ class _Tab4State extends State<Tab4> {
                       child: CupertinoButton(
                         color: CupertinoColors.activeBlue,
                         onPressed: () => _changePassword(context),
-                        child: Text(widget.translations['user']['changePassword'] ?? 'Change Password'),
+                        child: Text(widget.translations['user']?['changePassword'] ?? 'Change Password'),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -296,7 +296,7 @@ class _Tab4State extends State<Tab4> {
                       child: CupertinoButton(
                         color: CupertinoColors.destructiveRed,
                         onPressed: () => _logout(userData),
-                        child: Text(widget.translations['common']['logout'] ?? 'Logout'),
+                        child: Text(widget.translations['common']?['logout'] ?? 'Logout'),
                       ),
                     ),
                   ],
@@ -313,17 +313,17 @@ class _Tab4State extends State<Tab4> {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
-        title: Text(widget.translations['user']['avatarOptions'] ?? 'Avatar Options'),
+        title: Text(widget.translations['user']?['avatarOptions'] ?? 'Avatar Options'),
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text(widget.translations['user']['uploadFromGallery'] ?? 'Upload from Gallery'),
+            child: Text(widget.translations['user']?['uploadFromGallery'] ?? 'Upload from Gallery'),
             onPressed: () {
               Navigator.pop(context);
               _pickImageFromGallery();
             },
           ),
           CupertinoActionSheetAction(
-            child: Text(widget.translations['user']['uploadFromCamera'] ?? 'Upload from Camera'),
+            child: Text(widget.translations['user']?['uploadFromCamera'] ?? 'Upload from Camera'),
             onPressed: () {
               Navigator.pop(context);
               _pickImageFromCamera();
@@ -331,7 +331,7 @@ class _Tab4State extends State<Tab4> {
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text(widget.translations['common']['close'] ?? 'Close'),
+          child: Text(widget.translations['common']?['close'] ?? 'Close'),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -348,12 +348,12 @@ class _Tab4State extends State<Tab4> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: Text(widget.translations['common']['selectLanguage'] ?? 'Select Language'),
+          title: Text(widget.translations['common']?['selectLanguage'] ?? 'Select Language'),
           actions: [
             for (Locale locale in userData.availableLocales)
               CupertinoActionSheetAction(
                 child: Text(
-                  widget.translations['languages'][locale.languageCode] ?? locale.languageCode,
+                  widget.translations['languages']?[locale.languageCode] ?? locale.languageCode,
                 ),
                 onPressed: () {
                   setState(() {
@@ -374,7 +374,7 @@ class _Tab4State extends State<Tab4> {
               ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: Text(widget.translations['common']['close'] ?? 'Close'),
+            child: Text(widget.translations['common']?['close'] ?? 'Close'),
             onPressed: () {
               print('Language selector closed');
               Navigator.pop(context);
