@@ -1,0 +1,2 @@
+/home/kevin/Projects/SomosClient/android/app/.cxx/RelWithDebInfo/242g6y3c/armeabi-v7a/CMakeFiles/edit_cache.dir
+/home/kevin/Projects/SomosClient/android/app/.cxx/RelWithDebInfo/242g6y3c/armeabi-v7a/CMakeFiles/rebuild_cache.dir

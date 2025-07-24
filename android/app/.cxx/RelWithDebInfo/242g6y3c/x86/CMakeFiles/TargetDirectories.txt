@@ -1,0 +1,2 @@
+/home/kevin/Projects/SomosClient/android/app/.cxx/RelWithDebInfo/242g6y3c/x86/CMakeFiles/edit_cache.dir
+/home/kevin/Projects/SomosClient/android/app/.cxx/RelWithDebInfo/242g6y3c/x86/CMakeFiles/rebuild_cache.dir

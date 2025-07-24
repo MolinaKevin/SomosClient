@@ -1,0 +1,1 @@
+/home/kevin/Projects/SomosClient/build/app/intermediates/cxx/RelWithDebInfo/242g6y3c/obj/arm64-v8a

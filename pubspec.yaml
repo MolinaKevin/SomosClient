@@ -39,7 +39,7 @@ dependencies:
   nfc_manager: ^3.0.1
   geolocator: ^9.0.2
   http: ^1.2.1
-  flutter_secure_storage: ^5.0.2
+  flutter_secure_storage: ^9.2.4
   image_picker: ^0.8.4+4
   flutter_svg: ^1.0.0
   cupertino_icons: ^1.0.2
