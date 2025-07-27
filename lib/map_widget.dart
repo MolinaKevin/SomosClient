@@ -213,7 +213,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             children: [
               TileLayer(
                 urlTemplate:
-                'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+                'http://localhost:8080/styles/positron/{z}/{x}/{y}.png',
               ),
               MarkerLayer(
                 markers: markers,
