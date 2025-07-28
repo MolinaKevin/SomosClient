@@ -3,7 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'app_localizations.dart';
+//import 'app_localizations.dart';
 import 'splash_screen.dart';
 import 'providers/user_data_provider.dart';
 import 'services/translation_service.dart';
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             localizationsDelegates: const [
-              AppLocalizations.delegate,
+              //AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
