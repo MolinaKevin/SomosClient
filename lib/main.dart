@@ -54,6 +54,14 @@ class MyApp extends StatelessWidget {
               }
               return supportedLocales.first;
             },
+            theme: ThemeData(
+              fontFamily: 'PlayfairDisplay',
+              textTheme: const TextTheme(
+                bodyLarge: TextStyle(fontSize: 18),
+                bodyMedium: TextStyle(fontSize: 16),
+                labelLarge: TextStyle(fontSize: 14),
+              ),
+            ),
             home: SplashScreen(),
           );
         },

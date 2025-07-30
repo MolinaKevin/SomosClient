@@ -6,12 +6,14 @@ class Tab1 extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isAuthenticated;
   final Map<String, dynamic> translations;
+  final VoidCallback onTapList;
 
   const Tab1({
     Key? key,
     required this.scaffoldKey,
     required this.isAuthenticated,
     required this.translations,
+    required this.onTapList,
   }) : super(key: key);
 
   @override
@@ -20,6 +22,7 @@ class Tab1 extends StatelessWidget {
       scaffoldKey: scaffoldKey,
       isAuthenticated: isAuthenticated,
       translations: translations,
+      onTapList: onTapList,
     );
   }
 }

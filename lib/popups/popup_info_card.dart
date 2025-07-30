@@ -120,37 +120,40 @@ class InfoCardPopup {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            CircleAvatar(
+                              radius: 28,
+                              backgroundColor: Color(0xFF103D1B),
+                              backgroundImage: NetworkImage(data['avatar_url'] ?? ''),
+                            ),
+                            const SizedBox(width: 16),
                             Expanded(
-                              flex: 2,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        data['is_open'] == true ? Icons.check : Icons.close,
-                                        color: data['is_open'] == true ? Colors.green : Colors.red,
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        data['is_open'] == true
-                                            ? translations['entities']['open'] ?? 'Open'
-                                            : translations['entities']['closed'] ?? 'Closed',
-                                        style: TextStyle(
-                                          color: data['is_open'] == true ? Colors.green : Colors.red,
-                                          fontSize: 17,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
                                   Text(
                                     data['name'] ?? translations['common']['noDataAvailable'] ?? 'Not available',
-                                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: data['is_open'] == true ? Colors.green[100] : Colors.red[100],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      data['is_open'] == true
+                                          ? translations['entities']['open'] ?? 'Open'
+                                          : translations['entities']['closed'] ?? 'Closed',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: data['is_open'] == true ? Colors.green[800] : Colors.red[800],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -168,7 +171,6 @@ class InfoCardPopup {
                                             (seal) => seal['id'] == sealState['id'],
                                         orElse: () => {},
                                       );
-
                                       if (combinedSeal.isNotEmpty) {
                                         final completeSeal = {
                                           ...combinedSeal,
@@ -179,12 +181,12 @@ class InfoCardPopup {
                                           child: SealIconWidget(seal: completeSeal),
                                         );
                                       } else {
-                                        return SizedBox.shrink();
+                                        return const SizedBox.shrink();
                                       }
                                     }).toList(),
                                   ),
                                 ),
-                              ),
+                            ),
                           ],
                         ),
                       ),

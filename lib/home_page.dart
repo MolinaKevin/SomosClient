@@ -131,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
         scaffoldKey: _scaffoldKey,
         isAuthenticated: widget.isAuthenticated,
         translations: widget.translations,
+        onTapList: () => setState(() => _currentIndex = 1),
       ),
       Tab2(translations: widget.translations),
       widget.isAuthenticated
@@ -148,46 +149,114 @@ class _MyHomePageState extends State<MyHomePage> {
           : _buildRestrictedAccess(),
     ];
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
       child: Scaffold(
         key: _scaffoldKey,
-        appBar: CupertinoNavigationBar(
-          middle: Text(_tabTitles[_currentIndex]),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Transform.translate(
+          offset: Offset(0, 40),
+          child: Container(
+            margin: EdgeInsets.only(bottom: 0),
+            height: 128,
+            width: 128,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFFF7EFE4), //Anillo extra del color de la barra
+            ),
+            child: Center(
+              child: Container(
+                height: 90,
+                width: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF103D1B), // Borde externo verde oscuro
+                ),
+                child: Center(
+                  child: Container(
+                    height: 86,
+                    width: 86,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white, // Anillo blanco
+                    ),
+                    child: Center(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(84),
+                        onTap: () => setState(() => _currentIndex = 2),
+                        child: Container(
+                          height: 84,
+                          width: 84,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF103D1B), // Interior verde oscuro
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(CupertinoIcons.money_dollar_circle, size: 42, color: Colors.white),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        bottomNavigationBar: BottomAppBar(
+          //shape: CircularNotchedRectangle(),
+          notchMargin: 6.0,
+          color: Color(0xFFF7EFE4),
+          height: 100,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _bottomIcon(CupertinoIcons.map_fill, 'Map', 0),
+                SizedBox(width: 90),
+                _bottomIcon(CupertinoIcons.person_crop_circle_fill, 'Profile', 1),
+              ],
+            ),
+          ),
         ),
         body: SafeArea(
-          child: CupertinoTabScaffold(
-            tabBar: CupertinoTabBar(
-              items: [
-                BottomNavigationBarItem(
-                  icon: const Icon(CupertinoIcons.map),
-                  label: _getTranslation('navigation', 'map', 'Map'),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(CupertinoIcons.phone),
-                  label: _getTranslation('navigation', 'list', 'List'),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(CupertinoIcons.bitcoin),
-                  label: _getTranslation('navigation', 'pointsTab', 'Points'),
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(CupertinoIcons.profile_circled),
-                  label: _getTranslation('navigation', 'profile', 'Profile'),
-                ),
-              ],
-              currentIndex: _currentIndex,
-              onTap: (index) => setState(() {
-                _currentIndex = index;
-              }),
-            ),
-            tabBuilder: (BuildContext context, int index) {
-              return tabs[_currentIndex];
-            },
-          ),
+          child: tabs[_currentIndex],
         ),
         drawer: _buildDrawer(),
         endDrawer: _buildEndDrawer(),
+      ),
+    );
+  }
+
+
+  Widget _bottomIcon(IconData icon, String label, int index) {
+    final bool isActive = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = index),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 84.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: Color(0xFF103D1B),
+              size: 30, // más grande
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14, // más grande
+                color: Color(0xFF103D1B),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -295,15 +364,5 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
-  }
-
-  Future<bool> _onWillPop() async {
-    if (_currentIndex != 0) {
-      setState(() {
-        _currentIndex = 0;
-      });
-      return false;
-    }
-    return true;
   }
 }

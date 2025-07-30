@@ -84,6 +84,36 @@ class _MapControlsWidgetState extends State<MapControlsWidget> {
     }
   }
 
+
+  Widget _buildCircleButton(IconData icon, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 52, // Aumentado
+          height: 52, // Aumentado
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.black,
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: Colors.black, size: 24),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -91,45 +121,17 @@ class _MapControlsWidgetState extends State<MapControlsWidget> {
       children: [
         Container(
           width: 48,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
           child: Column(
             children: [
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.black),
-                onPressed: _toggleSearch,
-              ),
-              IconButton(
-                icon: const Icon(Icons.zoom_in, color: Colors.green),
-                onPressed: () {
-                  widget.mapController.move(
-                      widget.mapController.center, widget.mapController.zoom + 1);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.zoom_out, color: Colors.red),
-                onPressed: () {
-                  widget.mapController.move(
-                      widget.mapController.center, widget.mapController.zoom - 1);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.filter_alt, color: Colors.blue),
-                onPressed: widget.showFilterPopup,
-              ),
-              IconButton(
-                icon: const Icon(Icons.circle, color: Colors.yellow),
-                onPressed: widget.showSealPopup,
-              ),
+              _buildCircleButton(Icons.search, _toggleSearch),
+              _buildCircleButton(Icons.zoom_in, () {
+                widget.mapController.move(widget.mapController.center, widget.mapController.zoom + 1);
+              }),
+              _buildCircleButton(Icons.zoom_out, () {
+                widget.mapController.move(widget.mapController.center, widget.mapController.zoom - 1);
+              }),
+              _buildCircleButton(Icons.filter_alt, widget.showFilterPopup),
+              _buildCircleButton(Icons.store, widget.showSealPopup),
             ],
           ),
         ),

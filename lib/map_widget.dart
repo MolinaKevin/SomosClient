@@ -14,12 +14,14 @@ class MyMapWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isAuthenticated;
   final Map<String, dynamic> translations;
+  final VoidCallback onTapList;
 
   const MyMapWidget({
     Key? key,
     required this.scaffoldKey,
     required this.isAuthenticated,
     required this.translations,
+    required this.onTapList,
   }) : super(key: key);
 
   @override
@@ -192,6 +194,34 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     );
   }
 
+  Widget _buildTabButton(String label, int index) {
+    final isSelected = index == 0;
+    return GestureDetector(
+      onTap: () {
+        if (label == 'List') {
+          widget.onTapList();
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: Colors.white,
+                decoration: isSelected ? TextDecoration.underline : TextDecoration.none,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final markers = MarkerWidget.createMarkers(
@@ -204,21 +234,56 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     return CupertinoPageScaffold(
       child: Stack(
         children: [
-          FlutterMap(
-            mapController: mapController,
-            options: const MapOptions(
-              initialCenter: LatLng(51.534709, 9.932835),
-              initialZoom: 13.0,
+          Positioned.fill(
+            child: FlutterMap(
+              mapController: mapController,
+              options: const MapOptions(
+                initialCenter: LatLng(51.534709, 9.932835),
+                initialZoom: 13.0,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                  'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+                ),
+                MarkerLayer(
+                  markers: markers,
+                ),
+              ],
             ),
-            children: [
-              TileLayer(
-                urlTemplate:
-                'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 220,
+            child: IgnorePointer(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black54,
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
               ),
-              MarkerLayer(
-                markers: markers,
-              ),
-            ],
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildTabButton('Map', 0),
+                SizedBox(width: 84),
+                _buildTabButton('List', 1),
+              ],
+            ),
           ),
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
@@ -240,8 +305,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           ),
           Positioned(
             top: MediaQuery.of(context).padding.top + 50,
-            left: 10,
-            right: 180,
+            right: 10,
             child: MapControlsWidget(
               mapController: mapController,
               translations: widget.translations,
@@ -251,7 +315,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           ),
           Positioned(
             top: MediaQuery.of(context).padding.top + 50,
-            right: 10,
+            left: 10,
             width: 150,
             child: Container(
               padding: const EdgeInsets.all(10),
