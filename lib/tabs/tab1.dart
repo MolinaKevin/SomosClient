@@ -7,6 +7,9 @@ class Tab1 extends StatelessWidget {
   final bool isAuthenticated;
   final Map<String, dynamic> translations;
   final VoidCallback onTapList;
+  final GlobalKey? viewSwitchKey;
+  final GlobalKey? controlsKey;
+  final GlobalKey? mapAreaKey;
 
   const Tab1({
     Key? key,
@@ -14,6 +17,9 @@ class Tab1 extends StatelessWidget {
     required this.isAuthenticated,
     required this.translations,
     required this.onTapList,
+    this.viewSwitchKey,
+    this.controlsKey,
+    this.mapAreaKey,
   }) : super(key: key);
 
   @override
@@ -23,6 +29,9 @@ class Tab1 extends StatelessWidget {
       isAuthenticated: isAuthenticated,
       translations: translations,
       onTapList: onTapList,
+      viewSwitchKey: viewSwitchKey,
+      controlsKey: controlsKey,
+      mapAreaKey: mapAreaKey,
     );
   }
 }

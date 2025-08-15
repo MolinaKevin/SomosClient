@@ -16,12 +16,19 @@ class MyMapWidget extends StatefulWidget {
   final Map<String, dynamic> translations;
   final VoidCallback onTapList;
 
+  final GlobalKey? viewSwitchKey;
+  final GlobalKey? controlsKey;
+  final GlobalKey? mapAreaKey;
+
   const MyMapWidget({
     Key? key,
     required this.scaffoldKey,
     required this.isAuthenticated,
     required this.translations,
     required this.onTapList,
+    this.viewSwitchKey,
+    this.controlsKey,
+    this.mapAreaKey,
   }) : super(key: key);
 
   @override
@@ -75,9 +82,6 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             categories.add(item);
           }
         }
-
-        print('Filtered Seals: $seals');
-        print('Filtered Categories: $categories');
 
         final combinedFilters = {
           'seals': seals,
@@ -198,7 +202,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     final isSelected = index == 0;
     return GestureDetector(
       onTap: () {
-        if (label == 'List') {
+        if (index == 1) {
           widget.onTapList();
         }
       },
@@ -221,7 +225,6 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final markers = MarkerWidget.createMarkers(
@@ -235,23 +238,25 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: FlutterMap(
-              mapController: mapController,
-              options: const MapOptions(
-                initialCenter: LatLng(51.534709, 9.932835),
-                initialZoom: 13.0,
+            child: Container(
+              key: widget.mapAreaKey,
+              child: FlutterMap(
+                mapController: mapController,
+                options: const MapOptions(
+                  initialCenter: LatLng(51.534709, 9.932835),
+                  initialZoom: 13.0,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                    'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+                  ),
+                  MarkerLayer(markers: markers),
+                ],
               ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                  'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
-                ),
-                MarkerLayer(
-                  markers: markers,
-                ),
-              ],
             ),
           ),
+
           Positioned(
             top: 0,
             left: 0,
@@ -263,16 +268,15 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black54,
-                      Colors.transparent,
-                    ],
+                    colors: [Colors.black54, Colors.transparent],
                   ),
                 ),
               ),
             ),
           ),
+
           Positioned(
+            key: widget.viewSwitchKey,
             top: MediaQuery.of(context).padding.top,
             left: 0,
             right: 0,
@@ -280,11 +284,12 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildTabButton('Map', 0),
-                SizedBox(width: 84),
+                const SizedBox(width: 84),
                 _buildTabButton('List', 1),
               ],
             ),
           ),
+
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,
@@ -303,16 +308,21 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               ),
             ),
           ),
+
           Positioned(
             top: MediaQuery.of(context).padding.top + 50,
             right: 10,
-            child: MapControlsWidget(
-              mapController: mapController,
-              translations: widget.translations,
-              showFilterPopup: _showFilterPopup,
-              showSealPopup: _showSealPopup,
+            child: KeyedSubtree(
+              key: widget.controlsKey,
+              child: MapControlsWidget(
+                mapController: mapController,
+                translations: widget.translations,
+                showFilterPopup: _showFilterPopup,
+                showSealPopup: _showSealPopup,
+              ),
             ),
           ),
+
           Positioned(
             top: MediaQuery.of(context).padding.top + 50,
             left: 10,
@@ -322,7 +332,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 10,
@@ -380,9 +390,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         child: Row(
           children: [
             Text(
-              type == 'seal'
-                  ? "${item['name']}: ${item['state']}"
-                  : item['name'],
+              type == 'seal' ? "${item['name']}: ${item['state']}" : item['name'],
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(width: 4),

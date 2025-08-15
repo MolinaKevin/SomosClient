@@ -41,8 +41,10 @@ dependencies:
   http: ^1.2.1
   flutter_secure_storage: ^5.0.2
   image_picker: ^0.8.4+4
-  flutter_svg: ^1.0.0
+  flutter_svg: ^2.2.0
   cupertino_icons: ^1.0.2
+  shared_preferences: ^2.0.15
+  tutorial_coach_mark: ^1.2.11
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +72,8 @@ flutter:
     - assets/images/somos_splash.png
     - assets/images/map_marker.png
     - assets/images/active_marker.png
+    - assets/images/tutorial/
+
 
   fonts:
     - family: PlayfairDisplay
