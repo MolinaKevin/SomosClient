@@ -1,20 +1,38 @@
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class EnvironmentConfig {
-  static Future<bool> isEmulator() async {
-    if (Platform.isAndroid) {
-      return true;
+  static bool get isEmulator {
+    return Platform.isAndroid || Platform.isIOS;
+  }
+  /// Devuelve la URL base (sin sufijo /api) definida en .env,
+  /// o bien, en emulador de Android, 10.0.2.2,
+  /// o 'localhost' en dispositivos físicos.
+  static String getBaseUrl() {
+    final envUrl = dotenv.env['API_BASE_URL'];
+    if (envUrl != null && envUrl.isNotEmpty) {
+      return envUrl;
     }
-    return false;
+
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2';
+    } else if (Platform.isIOS) {
+      // iOS emulator usa localhost directamente
+      return 'http://localhost';
+    } else {
+      // Web o desktop
+      return 'http://localhost';
+    }
   }
 
-  static Future<String> getBaseUrl() async {
-    bool emulator = await isEmulator();
-    return emulator ? 'http://10.0.2.2/api' : 'http://localhost/api';
+  /// Concatena el sufijo /api automáticamente
+  static String getApiUrl() {
+    final base = getBaseUrl();
+    return base.endsWith('/') ? '${base}api' : '$base/api';
   }
 
-  static Future<String> getPublicUrl() async {
-    bool emulator = await isEmulator();
-    return emulator ? 'http://10.0.2.2' : 'http://localhost';
+  static String getPublicUrl() {
+    return getBaseUrl();
   }
 }

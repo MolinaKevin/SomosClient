@@ -45,6 +45,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.0.15
   tutorial_coach_mark: ^1.2.11
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +74,8 @@ flutter:
     - assets/images/map_marker.png
     - assets/images/active_marker.png
     - assets/images/tutorial/
-
+    - assets/styles/positron.json
+    - .env
 
   fonts:
     - family: PlayfairDisplay

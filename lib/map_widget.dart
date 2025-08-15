@@ -9,6 +9,7 @@ import 'popups/popup_categories.dart';
 import 'popups/popup_seals.dart';
 import 'widgets/marker_widget.dart';
 import 'popups/popup_info_card.dart';
+const bool kUseLocalTiles = false;
 
 class MyMapWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -19,6 +20,7 @@ class MyMapWidget extends StatefulWidget {
   final GlobalKey? viewSwitchKey;
   final GlobalKey? controlsKey;
   final GlobalKey? mapAreaKey;
+
 
   const MyMapWidget({
     Key? key,
@@ -247,15 +249,20 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                   initialZoom: 13.0,
                 ),
                 children: [
+                  // Elegí fuente de tiles con un flag:
                   TileLayer(
-                    urlTemplate:
-                    'https://abcd.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+                    urlTemplate: kUseLocalTiles
+                        ? 'http://localhost:8080/styles/positron/{z}/{x}/{y}.png'
+                        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+                    // subdominios solo para Carto
+                    subdomains: kUseLocalTiles ? const [] : const ['a', 'b', 'c', 'd'],
                   ),
                   MarkerLayer(markers: markers),
                 ],
               ),
             ),
           ),
+
 
           Positioned(
             top: 0,
