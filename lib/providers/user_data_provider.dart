@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import '../config/environment_config.dart';
 import '../services/translation_service.dart';
@@ -100,21 +101,66 @@ class UserDataProvider extends ChangeNotifier {
 
   Future<void> loadTranslations() async {
     try {
-      translations = await _translationService.fetchTranslations(language);
-      print('Traducciones cargadas para el idioma: $language');
+      // intento online con timeout
+      final map = await _translationService
+          .fetchTranslations(language)
+          .timeout(const Duration(seconds: 6));
+
+      translations = map;
+
+      // cacheo para abrir rápido sin red la próxima
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('translations_cache_$language', jsonEncode(map));
+
+      debugPrint('Traducciones ONLINE ($language) cargadas y cacheadas.');
     } catch (e) {
-      print('Error al obtener las traducciones: $e');
-      translations = {};
+      debugPrint('loadTranslations() falló: $e — intento cache/assets');
+
+      final prefs = await SharedPreferences.getInstance();
+
+      // 1) Cache
+      final cached = prefs.getString('translations_cache_$language');
+      if (cached != null) {
+        translations = jsonDecode(cached) as Map<String, dynamic>;
+        debugPrint('Traducciones desde CACHE ($language).');
+        notifyListeners();
+        return;
+      }
+
+      // 2) Assets locales
+      try {
+        final assetStr = await rootBundle.loadString('assets/i18n/$language.json');
+        translations = jsonDecode(assetStr) as Map<String, dynamic>;
+        debugPrint('Traducciones desde ASSETS ($language).');
+      } catch (e2) {
+        // 3) Último recurso mínimo para que la UI no rompa
+        translations = {
+          'navigation': {
+            'map': 'Map',
+            'list': 'List',
+            'pointsTab': 'Points',
+            'profile': 'Profile',
+          },
+          'common': {'close': 'Close'},
+          'user': {'profile': 'User Profile'}
+        };
+        debugPrint('Traducciones por DEFECTO (mínimas).');
+      }
     }
+
     notifyListeners();
   }
 
+
   Future<void> fetchAvailableLocales() async {
     try {
-      availableLocales = await _translationService.fetchAvailableLocales();
-      print('Locales disponibles: $availableLocales');
+      availableLocales = await _translationService
+          .fetchAvailableLocales()
+          .timeout(const Duration(seconds: 6));
+      debugPrint('Locales disponibles: $availableLocales');
     } catch (e) {
-      print('Error al obtener locales disponibles: $e');
+      debugPrint('Locales fallaron: $e — uso fallback');
+      availableLocales = const [Locale('en'), Locale('es'), Locale('de')];
     }
     notifyListeners();
   }

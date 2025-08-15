@@ -1,0 +1,262 @@
+{
+    "app": {
+        "information": "Informationen",
+        "language": "Sprache",
+        "save": "Speichern",
+        "selectLanguage": "Sprache ausw\u00e4hlen",
+        "title": "Meine Anwendung"
+    },
+    "auth": {
+        "authError": "Authentifizierungsfehler",
+        "authTokenDeleted": "Authentifizierungstoken gel\u00f6scht",
+        "autoLoginSuccess": "Automatische Anmeldung erfolgreich. Token gefunden.",
+        "confirmPassword": "Passwort best\u00e4tigen",
+        "email": "E-Mail",
+        "enterAllFields": "Bitte f\u00fcllen Sie alle Felder aus und stellen Sie sicher, dass die Passw\u00f6rter \u00fcbereinstimmen",
+        "enterCredentials": "Bitte geben Sie Ihre Zugangsdaten ein",
+        "errorCreatingBusiness": "Ein Problem beim Erstellen des Unternehmens ist aufgetreten.",
+        "fullName": "Vollst\u00e4ndiger Name",
+        "login": "Anmelden",
+        "loginFailed": "Anmeldung fehlgeschlagen.",
+        "logout": "Abmelden",
+        "noTokenFound": "Kein Token gefunden. Weiterleitung zur Anmeldung.",
+        "password": "Passwort",
+        "register": "Registrieren",
+        "restrictedAccessMessage": "Eingeschr\u00e4nkter Zugang",
+        "skipLogin": "Anmeldung \u00fcberspringen",
+        "tokenNotFound": "Authentifizierungstoken konnte nicht abgerufen werden.",
+        "tryingAutoLogin": "Automatische Anmeldung wird versucht..."
+    },
+    "avatar": {
+        "changeAvatar": "Avatar \u00e4ndern",
+        "enterAvatarUrl": "Avatar-URL eingeben",
+        "enterUrl": "URL eingeben",
+        "takePhoto": "Foto machen",
+        "uploadFromGallery": "Aus der Galerie hochladen"
+    },
+    "backgroundImage": {
+        "addBackgroundImage": "Hintergrundbild hinzuf\u00fcgen",
+        "enterBackgroundImageUrl": "URL des Hintergrundbilds eingeben",
+        "noImagesAvailable": "Keine Bilder verf\u00fcgbar"
+    },
+    "business": {
+        "activateCommerce": "Unternehmen aktivieren",
+        "businessCreated": "Unternehmen erstellt",
+        "businessCreatedSuccessfully": "Das Unternehmen wurde erfolgreich erstellt.",
+        "commerceUpdated": "Unternehmen aktualisiert",
+        "commerceUpdatedSuccessfully": "Das Unternehmen wurde erfolgreich aktualisiert",
+        "createNewBusiness": "Neues Unternehmen erstellen",
+        "deactivateCommerce": "Unternehmen deaktivieren",
+        "editCommerce": "Unternehmen bearbeiten",
+        "saveBusiness": "Unternehmen speichern"
+    },
+    "common": {
+        "cancel": "Abbrechen",
+        "close": "Schlie\u00dfen",
+        "failedToLoadData": "Fehler beim Laden der Daten",
+        "noDataAvailable": "Nicht verf\u00fcgbar",
+        "ok": "OK",
+        "retry": "Erneut versuchen",
+        "unknown": "Unbekannt"
+    },
+    "entities": {
+        "address": "Adresse",
+        "city": "Stadt",
+        "closed": "Geschlossen",
+        "comercios": "Gesch\u00e4fte",
+        "gallery": "Galerie",
+        "instituciones": "Institutionen",
+        "noAddress": "Adresse nicht verf\u00fcgbar",
+        "noCity": "Stadt nicht verf\u00fcgbar",
+        "noDescription": "Beschreibung nicht verf\u00fcgbar",
+        "noEmail": "E-Mail nicht verf\u00fcgbar",
+        "noPhone": "Telefon nicht verf\u00fcgbar",
+        "open": "Ge\u00f6ffnet",
+        "phone": "Telefon",
+        "search": "Suchen..."
+    },
+    "entity": {
+        "businessAndInstitutions": "Unternehmen und Institutionen",
+        "businesses": "Unternehmen",
+        "institutions": "Institutionen",
+        "isNotAccepted": "ist noch nicht akzeptiert, bitte warten.",
+        "menu": "Men\u00fc",
+        "myEntities": "Meine Einheiten",
+        "notAccepted": "Nicht akzeptiert",
+        "theBusiness": "Das Unternehmen"
+    },
+    "entity_fields": {
+        "address": "Adresse",
+        "avatarUrl": "Avatar (URL)",
+        "backgroundImageUrl": "Hintergrundbild (URL)",
+        "city": "Stadt",
+        "latitude": "Breitengrad",
+        "longitude": "L\u00e4ngengrad",
+        "name": "Name",
+        "percent": "Prozentsatz",
+        "phone": "Telefon",
+        "plz": "PLZ"
+    },
+    "errors": {
+        "authTokenError": "Authentifizierungstoken konnte nicht abgerufen werden",
+        "error": "Fehler",
+        "fetchEntitiesError": "Fehler beim Abrufen der Benutzereinheiten:",
+        "imageUploadError": "Fehler beim Hochladen des Bildes von URL",
+        "invalidDate": "Ung\u00fcltiges Datum",
+        "movementsLoadError": "Fehler beim Laden der Bewegungen",
+        "noDescription": "Keine Beschreibung",
+        "problem": "Ein Problem ist aufgetreten",
+        "unexpectedStructureComm": "Unerwartete Struktur in der Antwort (comm):",
+        "unexpectedStructureNro": "Unerwartete Struktur in der Antwort (nro):"
+    },
+    "filter": {
+        "category": "Nach Kategorie filtern",
+        "location": "Nach Standort filtern",
+        "location.all": "Alle Standorte",
+        "location.kilometers": "km",
+        "openNow": "Nur offene anzeigen",
+        "options": "Filteroptionen",
+        "rating": "Nach Bewertung filtern",
+        "rating.all": "Alle Bewertungen"
+    },
+    "forms": {
+        "accept": "Akzeptieren",
+        "activate": "Aktivieren",
+        "activating": "aktivieren",
+        "confirm": "Best\u00e4tigen",
+        "deactivate": "Deaktivieren",
+        "deactivating": "deaktivieren",
+        "delete": "L\u00f6schen",
+        "deleting": "L\u00f6schen",
+        "edit": "Bearbeiten",
+        "save": "Speichern",
+        "saveChanges": "\u00c4nderungen speichern"
+    },
+    "institution": {
+        "activateInstitution": "Institution aktivieren",
+        "createNewInstitution": "Neue Institution erstellen",
+        "deactivateInstitution": "Institution deaktivieren",
+        "editInstitution": "Institution bearbeiten",
+        "institutionCreated": "Institution erstellt",
+        "institutionUpdated": "Institution aktualisiert",
+        "institutionUpdatedSuccessfully": "Die Institution wurde erfolgreich aktualisiert",
+        "pleaseSelectSomos": "Bitte w\u00e4hlen Sie eine Somos-Option aus",
+        "saveInstitution": "Institution speichern",
+        "somos": "Somos"
+    },
+    "language": {
+        "selectLanguage": "Sprache ausw\u00e4hlen"
+    },
+    "languages": {
+        "de": "Deutsch",
+        "en": "Englisch",
+        "es": "Spanisch"
+    },
+    "map": {
+        "searchPlace": "Ort suchen...",
+        "selectLocation": "Ort ausw\u00e4hlen"
+    },
+    "movements": {
+        "all": "Alle",
+        "closures": "Abschl\u00fcsse",
+        "commerceMovements": "Bewegungen des Unternehmens",
+        "contributionsMade": "Geleistete Beitr\u00e4ge",
+        "contributionTo": "Beitrag an",
+        "donationFrom": "Spende von",
+        "donations": "Spenden",
+        "donationsReceived": "Erhaltene Spenden",
+        "donationTo": "Spende an",
+        "institutionMovements": "Bewegungen der Institution",
+        "movementsLoadError": "Fehler beim Laden der Bewegungen",
+        "noMovements": "Keine Bewegungen verf\u00fcgbar",
+        "purchases": "Eink\u00e4ufe"
+    },
+    "navigation": {
+        "list": "Liste",
+        "logout": "Abmelden",
+        "map": "Karte",
+        "pointsTab": "Punkte",
+        "profile": "Profil",
+        "referral": "Referrers"
+    },
+    "placeholders": {
+        "pleaseEnterAddress": "Bitte geben Sie eine Adresse ein",
+        "pleaseEnterAvatarUrl": "Bitte geben Sie die Avatar-URL ein",
+        "pleaseEnterBackgroundImageUrl": "Bitte geben Sie die URL des Hintergrundbilds ein",
+        "pleaseEnterCity": "Bitte geben Sie eine Stadt ein",
+        "pleaseEnterLatitude": "Bitte geben Sie den Breitengrad ein",
+        "pleaseEnterLongitude": "Bitte geben Sie den L\u00e4ngengrad ein",
+        "pleaseEnterName": "Bitte geben Sie einen Namen ein",
+        "pleaseEnterPercent": "Bitte geben Sie einen Prozentsatz ein",
+        "pleaseEnterPLZ": "Bitte geben Sie die Postleitzahl (PLZ) ein"
+    },
+    "points": {
+        "amount": "Betrag",
+        "currentPoints": "Aktuelle Punkte",
+        "pass": "Pass",
+        "points": "Punkte"
+    },
+    "referrals": {
+        "fifthLevel": "F\u00fcnfte Ebene",
+        "firstLevel": "Erste Ebene",
+        "fourthLevel": "Vierte Ebene",
+        "hierarchy": "Referrershierarchie",
+        "secondLevel": "Zweite Ebene",
+        "seventhLevel": "Siebte Ebene",
+        "sixthLevel": "Sechste Ebene",
+        "thirdLevel": "Dritte Ebene",
+        "view": "Referrers anzeigen"
+    },
+    "tabs": {
+        "tab1": "Tab 1",
+        "tab2": "Tab 2",
+        "tab3": "Tab 3"
+    },
+    "time": {
+        "choose": "W\u00e4hlen",
+        "closingTime": "Schlie\u00dfzeit",
+        "date": "Datum",
+        "openingTime": "\u00d6ffnungszeit",
+        "schedule": "Zeitplan",
+        "selectClosingTime": "Schlie\u00dfzeit ausw\u00e4hlen",
+        "selectOpeningTime": "\u00d6ffnungszeit ausw\u00e4hlen",
+        "withdrawalDate": "Auszahlungsdatum"
+    },
+    "transaction": {
+        "buy": "Kaufen",
+        "enableNFC": "Bitte NFC aktivieren, um fortzufahren.",
+        "generate": "Transaktion erstellen",
+        "initiateTransaction": "Transaktion starten",
+        "nfcDisabled": "NFC deaktiviert",
+        "noTransactions": "Keine Transaktionen gefunden.",
+        "pointPurchase": "Punktkauf",
+        "purchase": "Kauf",
+        "viewPoints": "Punkte anzeigen",
+        "viewTransactions": "Transaktionen anzeigen",
+        "waitingForDevice": "Warten auf Akzeptanz"
+    },
+    "transactions": {
+        "institutionNfcTransaction": "Institution NFC-Transaktion",
+        "nfcInstitutionTransaction": "Institution NFC-Transaktion",
+        "nfcTransaction": "NFC-Transaktion",
+        "notAvailable": "Derzeit nicht verf\u00fcgbar.",
+        "qrInstitutionTransaction": "Institution QR-Transaktion",
+        "qrTransaction": "QR-Transaktion",
+        "waitingForDevice": "Warten auf Ger\u00e4t..."
+    },
+    "user": {
+        "changePassword": "Password \u00e4ndern",
+        "description": "Beschreibung",
+        "email": "E-Mail",
+        "firstLevelReferrals": "Erste Ebene",
+        "lowerLevelReferrals": "Untere Ebenen",
+        "modifyProfile": "Profil bearbeiten",
+        "name": "Name",
+        "pass": "Somos Pass",
+        "phone": "Telefon",
+        "profile": "Benutzerprofil",
+        "referrer_pass": "Referrer pass",
+        "totalPoints": "Punkte",
+        "totalReferrals": "Referrers insgesamt"
+    }
+}
