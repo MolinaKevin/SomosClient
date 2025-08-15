@@ -11,6 +11,8 @@ import 'tabs/tab4.dart';
 import 'services/auth_service.dart';
 import 'services/tutorial_service.dart';
 import 'screens/tutorial_screen.dart';
+import 'widgets/spotlight.dart';
+import 'services/home_tutorial_flow.dart';
 
 class MyHomePage extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -47,6 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   OverlayEntry? _spotlightEntry;
 
+  late Spotlight _spotlight;
+
   String name = 'Name not available';
   String email = 'Email not available';
   String phone = 'Phone not available';
@@ -57,9 +61,21 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _spotlight = Spotlight(context); // simple
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _runTutorialFlow();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await HomeTutorialFlow(TutorialService()).run(
+        context: context,
+        spotlight: _spotlight,
+        viewSwitchKey: _viewSwitchKey,
+        controlsKey: _controlsKey,
+        mapAreaKey: _mapAreaKey,
+        navProfileKey: _navProfileKey,
+        navMapKey: _navMapKey,
+        payKey: _payKey,
+        setTabIndex: (i) => setState(() => _currentIndex = i),
+        ensureMapTab: () => setState(() => _currentIndex = 0),
+      );
     });
 
     if (widget.isAuthenticated) {
@@ -69,131 +85,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> _runTutorialFlow() async {
-    final tutorialService = TutorialService();
-
-    final shouldShowOnboarding =
-        EnvironmentConfig.testForceOnboarding || !(await tutorialService.isOnboardingDone());
-
-    if (shouldShowOnboarding && mounted) {
-      await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const TutorialScreen()),
-      );
-      await tutorialService.setOnboardingDone();
-    }
-
-    final shouldShowSpotlight =
-        EnvironmentConfig.testForceSpotlight || !(await tutorialService.isSpotlightDone());
-
-    if (shouldShowSpotlight && mounted) {
-      setState(() => _currentIndex = 0);
-      await _nextFrame();
-
-      await _spotlightForKey(
-        _viewSwitchKey,
-        label: 'Acá podés cambiar cómo visualizar: Mapa o Lista.',
-        placement: SpotlightPlacement.below,
-        labelOffset: const Offset(0, 4),
-      );
-
-      await _spotlightForKey(
-        _controlsKey,
-        label: 'Estos controles te dejan filtrar, buscar lugares y cambiar el zoom.',
-        placement: SpotlightPlacement.below,
-        labelOffset: const Offset(0, 4),
-      );
-
-      await _spotlightForKey(
-        _mapAreaKey,
-        label: 'En el mapa se muestran los comercios e instituciones asociadas.',
-        extraPadding: 0,
-      );
-
-      await _spotlightForKey(
-        _navProfileKey,
-        label: 'Desde acá accedés a tu perfil.',
-      );
-
-      await _spotlightForKey(
-        _navMapKey,
-        label: 'Este botón te lleva de vuelta al mapa.',
-      );
-
-      await _spotlightForKey(
-        _payKey,
-        label: 'Tocá acá para generar una transacción.',
-        circular: true,
-        onTapInside: () => setState(() => _currentIndex = 2),
-      );
-
-      await tutorialService.setSpotlightDone();
-    }
-  }
-
-  Future<void> _nextFrame() async => WidgetsBinding.instance.endOfFrame;
-
-  Future<void> _spotlightForKey(
-      GlobalKey key, {
-        required String label,
-        bool circular = false,
-        double extraPadding = 8,
-        VoidCallback? onTapInside,
-        SpotlightPlacement placement = SpotlightPlacement.auto,
-        Offset labelOffset = Offset.zero,
-        double bubbleWidth = 280,
-      }) async {
-    final completer = Completer<void>();
-
-    await _nextFrame();
-
-    final ctx = key.currentContext;
-    if (ctx == null) {
-      completer.complete();
-      return completer.future;
-    }
-
-    final box = ctx.findRenderObject() as RenderBox?;
-    if (box == null || !box.attached) {
-      completer.complete();
-      return completer.future;
-    }
-
-    final offset = box.localToGlobal(Offset.zero);
-    final rect   = (offset & box.size).inflate(extraPadding);
-
-    _spotlightEntry = OverlayEntry(
-      builder: (_) => SpotlightOverlay(
-        holeRect: rect,
-        borderRadius: circular ? 999 : 16,
-        label: label,
-        onTapInside: () {
-          _removeSpotlight();
-          onTapInside?.call();
-          if (!completer.isCompleted) completer.complete();
-        },
-        onTapOutside: () {
-          _removeSpotlight();
-          if (!completer.isCompleted) completer.complete();
-        },
-
-        placement: placement,
-        labelOffset: labelOffset,
-        bubbleWidth: bubbleWidth,
-      ),
-    );
-
-    Overlay.of(context, rootOverlay: true).insert(_spotlightEntry!);
-    return completer.future;
-  }
-
-  void _removeSpotlight() {
-    _spotlightEntry?.remove();
-    _spotlightEntry = null;
-  }
 
   @override
   void dispose() {
-    _removeSpotlight();
+    _spotlight.dismiss();
     super.dispose();
   }
 
@@ -498,156 +393,3 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// ------- Spotlight UI -------
-enum SpotlightPlacement { auto, above, below, left, right }
-
-class SpotlightOverlay extends StatelessWidget {
-  final Rect holeRect;
-  final double borderRadius;
-  final VoidCallback onTapInside;
-  final VoidCallback? onTapOutside;
-  final String? label;
-
-  final SpotlightPlacement placement;
-  final Offset labelOffset;
-  final double bubbleWidth;
-
-  const SpotlightOverlay({
-    super.key,
-    required this.holeRect,
-    required this.onTapInside,
-    this.onTapOutside,
-    this.borderRadius = 16,
-    this.label,
-    this.placement = SpotlightPlacement.auto,
-    this.labelOffset = Offset.zero,
-    this.bubbleWidth = 280,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: (d) {
-          if (holeRect.contains(d.globalPosition)) {
-            onTapInside();
-          } else {
-            onTapOutside?.call();
-          }
-        },
-        child: Stack(
-          children: [
-            CustomPaint(
-              painter: _HolePainter(holeRect, borderRadius),
-              child: const SizedBox.expand(),
-            ),
-            if (label != null) _positionedBubble(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _positionedBubble(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    const margin = 12.0;
-    final double w =
-        (bubbleWidth.clamp(160.0, size.width - 2 * margin)).toDouble();
-
-    SpotlightPlacement p = placement;
-    if (p == SpotlightPlacement.auto) {
-      p = (holeRect.top > size.height * 0.33)
-          ? SpotlightPlacement.above
-          : SpotlightPlacement.below;
-    }
-
-    double clampLeft(double left) =>
-        left.clamp(margin, size.width - w - margin);
-
-    switch (p) {
-      case SpotlightPlacement.above:
-        final bottom = (size.height - holeRect.top) + margin - labelOffset.dy;
-        final left = clampLeft(holeRect.center.dx - w / 2 + labelOffset.dx);
-        return Positioned(left: left, bottom: bottom, width: w, child: _Bubble(label: label!));
-
-      case SpotlightPlacement.below:
-        final top = holeRect.bottom + margin + labelOffset.dy;
-        final left = clampLeft(holeRect.center.dx - w / 2 + labelOffset.dx);
-        return Positioned(left: left, top: top, width: w, child: _Bubble(label: label!));
-
-      case SpotlightPlacement.left:
-        final right = (size.width - holeRect.left) + margin - labelOffset.dx;
-        final top = (holeRect.center.dy - 50 + labelOffset.dy)
-            .clamp(margin, size.height - 100 - margin);
-        return Positioned(right: right, top: top, width: w, child: _Bubble(label: label!));
-
-      case SpotlightPlacement.right:
-        final left = holeRect.right + margin + labelOffset.dx;
-        final top = (holeRect.center.dy - 50 + labelOffset.dy)
-            .clamp(margin, size.height - 100 - margin);
-        return Positioned(left: left, top: top, width: w, child: _Bubble(label: label!));
-
-      case SpotlightPlacement.auto:
-        final top = holeRect.bottom + margin + labelOffset.dy;
-        final left = clampLeft(holeRect.center.dx - w / 2 + labelOffset.dx);
-        return Positioned(left: left, top: top, width: w, child: _Bubble(label: label!));
-    }
-  }
-
-}
-
-class _HolePainter extends CustomPainter {
-  final Rect rect;
-  final double radius;
-  _HolePainter(this.rect, this.radius);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.65);
-    final bg = Path()..addRect(Offset.zero & size);
-    final hole = RRect.fromRectAndRadius(rect, Radius.circular(radius));
-    final path = Path()
-      ..addPath(bg, Offset.zero)
-      ..addRRect(hole)
-      ..fillType = PathFillType.evenOdd;
-
-    canvas.drawPath(path, paint);
-
-    final outline = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawRRect(hole, outline);
-  }
-
-  @override
-  bool shouldRepaint(covariant _HolePainter old) =>
-      rect != old.rect || radius != old.radius;
-}
-
-class _Bubble extends StatelessWidget {
-  final String label;
-  const _Bubble({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      elevation: 6,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}
