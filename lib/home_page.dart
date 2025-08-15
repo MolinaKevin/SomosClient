@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'config/environment_config.dart';
 import 'screens/login_screen.dart';
 import 'tabs/tab1.dart';
 import 'tabs/tab2.dart';
@@ -71,16 +72,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _runTutorialFlow() async {
     final tutorialService = TutorialService();
 
-    final onboardingDone = await tutorialService.isOnboardingDone();
-    if (onboardingDone && mounted) {
+    final shouldShowOnboarding =
+        EnvironmentConfig.testForceOnboarding || !(await tutorialService.isOnboardingDone());
+
+    if (shouldShowOnboarding && mounted) {
       await Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const TutorialScreen()),
       );
       await tutorialService.setOnboardingDone();
     }
 
-    final spotlightDone = await tutorialService.isSpotlightDone();
-    if (spotlightDone && mounted) {
+    final shouldShowSpotlight =
+        EnvironmentConfig.testForceSpotlight || !(await tutorialService.isSpotlightDone());
+
+    if (shouldShowSpotlight && mounted) {
       setState(() => _currentIndex = 0);
       await _nextFrame();
 

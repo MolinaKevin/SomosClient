@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'home_page.dart';
 import 'providers/user_data_provider.dart';
 import 'screens/login_screen.dart';
+import 'config/environment_config.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -95,13 +97,14 @@ class _SplashScreenState extends State<SplashScreen> {
     Provider.of<UserDataProvider>(context, listen: false);
 
     final authToken = await _safeReadToken();
+    final forceLogin = EnvironmentConfig.testForceLogin;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
       final locale = Locale(userDataProvider.language);
 
-      if (authToken == null) {
+      if (forceLogin || authToken == null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => LoginScreen(
