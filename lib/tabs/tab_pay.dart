@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import '../screens/points_screen.dart';
 
-class Tab3 extends StatefulWidget {
+class TabPay extends StatefulWidget {
   final Map<String, dynamic> translations;
   final Function(Locale) onChangeLanguage;
 
-  const Tab3({Key? key, required this.translations, required this.onChangeLanguage}) : super(key: key);
+  const TabPay({Key? key, required this.translations, required this.onChangeLanguage}) : super(key: key);
 
   @override
-  _Tab3State createState() => _Tab3State();
+  _TabPayState createState() => _TabPayState();
 }
 
-class _Tab3State extends State<Tab3> {
+class _TabPayState extends State<TabPay> {
   final TextEditingController _amountController = TextEditingController();
   final ValueNotifier<bool> _isAmountValid = ValueNotifier<bool>(false);
   bool _isWaitingForNFC = false;

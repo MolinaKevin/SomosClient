@@ -10,16 +10,16 @@ import '../screens/entity_detail_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-class Tab2 extends StatefulWidget {
+class TabList extends StatefulWidget {
   final Map<String, dynamic> translations;
 
-  const Tab2({Key? key, required this.translations}) : super(key: key);
+  const TabList({Key? key, required this.translations}) : super(key: key);
 
   @override
-  _Tab2State createState() => _Tab2State();
+  _TabListState createState() => _TabListState();
 }
 
-class _Tab2State extends State<Tab2> {
+class _TabListState extends State<TabList> {
   int _selectedSegment = 0;
   bool _isLoading = true;
   final CommerceService commerceService = CommerceService();

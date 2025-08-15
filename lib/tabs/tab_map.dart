@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../map_widget.dart';
 
-class Tab1 extends StatelessWidget {
+class TabMap extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isAuthenticated;
   final Map<String, dynamic> translations;
@@ -11,7 +11,7 @@ class Tab1 extends StatelessWidget {
   final GlobalKey? controlsKey;
   final GlobalKey? mapAreaKey;
 
-  const Tab1({
+  const TabMap({
     Key? key,
     required this.scaffoldKey,
     required this.isAuthenticated,

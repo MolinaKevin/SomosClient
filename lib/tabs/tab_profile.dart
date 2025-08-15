@@ -6,12 +6,12 @@ import 'package:provider/provider.dart';
 import '../screens/login_screen.dart';
 import '../providers/user_data_provider.dart';
 
-class Tab4 extends StatefulWidget {
+class TabProfile extends StatefulWidget {
   final Map<String, dynamic> translations;
   final Function(Locale) onChangeLanguage;
   final Locale currentLocale;
 
-  const Tab4({
+  const TabProfile({
     Key? key,
     required this.translations,
     required this.onChangeLanguage,
@@ -19,10 +19,10 @@ class Tab4 extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _Tab4State createState() => _Tab4State();
+  _TabProfileState createState() => _TabProfileState();
 }
 
-class _Tab4State extends State<Tab4> {
+class _TabProfileState extends State<TabProfile> {
   bool _isEditing = false;
   bool _avatarUpdated = false;
   late TextEditingController _nameController;

@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'controllers/map_controller.dart';
 import 'widgets/map_controls_widget.dart';
 import 'popups/popup_categories.dart';
 import 'popups/popup_seals.dart';
 import 'widgets/marker_widget.dart';
 import 'popups/popup_info_card.dart';
+
+import 'widgets/map_tile_layer.dart';
+import 'widgets/view_switch_bar.dart';
+import 'widgets/selected_filters_bar.dart';
+import 'widgets/points_card.dart';
+
 const bool kUseLocalTiles = false;
 
 class MyMapWidget extends StatefulWidget {
@@ -16,11 +23,9 @@ class MyMapWidget extends StatefulWidget {
   final bool isAuthenticated;
   final Map<String, dynamic> translations;
   final VoidCallback onTapList;
-
   final GlobalKey? viewSwitchKey;
   final GlobalKey? controlsKey;
   final GlobalKey? mapAreaKey;
-
 
   const MyMapWidget({
     Key? key,
@@ -34,18 +39,17 @@ class MyMapWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _MyMapWidgetState createState() => _MyMapWidgetState();
+  State<MyMapWidget> createState() => _MyMapWidgetState();
 }
 
 class _MyMapWidgetState extends State<MyMapWidget> {
   late final MapController mapController;
   String activeMarker = '';
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final MapDataController dataController = MapDataController();
 
   List<Map<String, dynamic>> selectedSeals = [];
   List<Map<String, dynamic>> selectedCategories = [];
-
   bool isLoading = false;
 
   @override
@@ -60,11 +64,8 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     setState(() {});
   }
 
-  void applyFilters() async {
-    setState(() {
-      isLoading = true;
-    });
-
+  Future<void> applyFilters() async {
+    setState(() => isLoading = true);
     try {
       if (selectedSeals.isEmpty && selectedCategories.isEmpty) {
         await dataController.fetchData(
@@ -72,64 +73,48 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           forceRefresh: true,
         );
       } else {
-        final selectedItems = [...selectedSeals, ...selectedCategories];
-
-        List<Map<String, dynamic>> seals = [];
-        List<Map<String, dynamic>> categories = [];
-
-        for (var item in selectedItems) {
+        final seals = <Map<String, dynamic>>[];
+        final categories = <Map<String, dynamic>>[];
+        for (final item in [...selectedSeals, ...selectedCategories]) {
           if (item.containsKey('state')) {
             seals.add(item);
           } else if (item.containsKey('slug') || item.containsKey('children')) {
             categories.add(item);
           }
         }
-
-        final combinedFilters = {
-          'seals': seals,
-          'categories': categories,
-        };
-
         await dataController.fetchFilteredMarkers(
-          combinedFilters,
+          {'seals': seals, 'categories': categories},
           translations: widget.translations,
         );
       }
-
       setState(() {});
     } catch (e) {
-      print('Error applying filters: $e');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to apply filters. Please try again later.'),
-            actions: [
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+      debugPrint('Error applying filters: $e');
+      _showErrorDialog();
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   void _selectSeal(Map<String, dynamic> seal) {
     setState(() {
-      int index = selectedSeals.indexWhere((s) => s['id'] == seal['id']);
-      if (index >= 0) {
-        selectedSeals.removeAt(index);
+      final i = selectedSeals.indexWhere((s) => s['id'] == seal['id']);
+      if (i >= 0) {
+        selectedSeals.removeAt(i);
       } else {
         selectedSeals.add(seal);
+      }
+    });
+    applyFilters();
+  }
+
+  void _selectCategory(Map<String, dynamic> category) {
+    setState(() {
+      final i = selectedCategories.indexWhere((c) => c['id'] == category['id']);
+      if (i >= 0) {
+        selectedCategories.removeAt(i);
+      } else {
+        selectedCategories.add(category);
       }
     });
     applyFilters();
@@ -142,9 +127,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       categories: dataController.categories,
       selectedCategories: selectedCategories,
       onItemSelected: (item, type) {
-        if (type == 'category') {
-          _selectCategory(item);
-        }
+        if (type == 'category') _selectCategory(item);
       },
     );
   }
@@ -154,15 +137,11 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       context: context,
       seals: dataController.seals,
       selectedSeals: selectedSeals,
-      onSealStateChanged: (updatedSeals) {
+      onSealStateChanged: (updated) {
         setState(() {
-          selectedSeals = updatedSeals
-              .where((seal) => seal['state'] != 'none')
-              .map((seal) => {
-            'id': seal['id'],
-            'name': seal['name'],
-            'state': seal['state'],
-          })
+          selectedSeals = updated
+              .where((s) => s['state'] != 'none')
+              .map((s) => {'id': s['id'], 'name': s['name'], 'state': s['state']})
               .toList();
         });
         applyFilters();
@@ -170,59 +149,24 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     );
   }
 
-  void _selectCategory(Map<String, dynamic> category) {
-    setState(() {
-      int index = selectedCategories.indexWhere((c) => c['id'] == category['id']);
-      if (index >= 0) {
-        selectedCategories.removeAt(index);
-      } else {
-        selectedCategories.add(category);
-      }
-    });
-    applyFilters();
-  }
-
   void _onMarkerTap(BuildContext context, Map<String, dynamic> data) {
-    setState(() {
-      activeMarker = data['id'].toString();
-    });
-
+    setState(() => activeMarker = data['id'].toString());
     InfoCardPopup.show(
       context: context,
       data: data,
       translations: widget.translations,
       allSeals: dataController.seals,
-      onDismiss: () {
-        setState(() {
-          activeMarker = '';
-        });
-      },
+      onDismiss: () => setState(() => activeMarker = ''),
     );
   }
 
-  Widget _buildTabButton(String label, int index) {
-    final isSelected = index == 0;
-    return GestureDetector(
-      onTap: () {
-        if (index == 1) {
-          widget.onTapList();
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        child: Column(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: Colors.white,
-                decoration: isSelected ? TextDecoration.underline : TextDecoration.none,
-              ),
-            ),
-          ],
-        ),
+  void _showErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text('Failed to apply filters. Please try again later.'),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
       ),
     );
   }
@@ -235,6 +179,8 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       activeMarker: activeMarker,
       onMarkerTap: _onMarkerTap,
     );
+
+    final topPad = MediaQuery.of(context).padding.top;
 
     return CupertinoPageScaffold(
       child: Stack(
@@ -249,32 +195,20 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                   initialZoom: 13.0,
                 ),
                 children: [
-                  // Elegí fuente de tiles con un flag:
-                  TileLayer(
-                    urlTemplate: kUseLocalTiles
-                        ? 'http://localhost:8080/styles/positron/{z}/{x}/{y}.png'
-                        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
-                    // subdominios solo para Carto
-                    subdomains: kUseLocalTiles ? const [] : const ['a', 'b', 'c', 'd'],
-                  ),
+                  buildBaseTileLayer(useLocalTiles: kUseLocalTiles),
                   MarkerLayer(markers: markers),
                 ],
               ),
             ),
           ),
 
-
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 220,
-            child: IgnorePointer(
-              child: Container(
-                decoration: const BoxDecoration(
+            top: 0, left: 0, right: 0, height: 220,
+            child: const IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                    begin: Alignment.topCenter, end: Alignment.bottomCenter,
                     colors: [Colors.black54, Colors.transparent],
                   ),
                 ),
@@ -283,42 +217,31 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           ),
 
           Positioned(
-            key: widget.viewSwitchKey,
-            top: MediaQuery.of(context).padding.top,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildTabButton('Map', 0),
-                const SizedBox(width: 84),
-                _buildTabButton('List', 1),
-              ],
-            ),
-          ),
-
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
-            left: 10,
-            right: 10,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  ...selectedSeals.map((seal) {
-                    return _buildSelectedItem(seal, 'seal');
-                  }).toList(),
-                  ...selectedCategories.map((category) {
-                    return _buildSelectedItem(category, 'category');
-                  }).toList(),
-                ],
+            top: topPad, left: 0, right: 0,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onTapList,
+              child: ViewSwitchBar(
+                onTapList: widget.onTapList,
+                viewSwitchKey: widget.viewSwitchKey,
               ),
             ),
           ),
 
           Positioned(
-            top: MediaQuery.of(context).padding.top + 50,
-            right: 10,
+            top: topPad + 10, left: 10, right: 10,
+            child: SelectedFiltersBar(
+              selectedSeals: selectedSeals,
+              selectedCategories: selectedCategories,
+              onRemove: (item, type) {
+                if (type == 'seal') _selectSeal(item);
+                if (type == 'category') _selectCategory(item);
+              },
+            ),
+          ),
+
+          Positioned(
+            top: topPad + 50, right: 10,
             child: KeyedSubtree(
               key: widget.controlsKey,
               child: MapControlsWidget(
@@ -331,79 +254,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).padding.top + 50,
-            left: 10,
-            width: 150,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    widget.translations['user']?['totalPoints'] ?? "Points",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: widget.isAuthenticated
-                          ? CupertinoColors.activeGreen
-                          : CupertinoColors.destructiveRed,
-                    ),
-                  ),
-                  Text(
-                    dataController.points.toString(),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: widget.isAuthenticated
-                          ? CupertinoColors.activeGreen
-                          : CupertinoColors.destructiveRed,
-                    ),
-                  ),
-                ],
-              ),
+            top: topPad + 50, left: 10,
+            child: PointsCard(
+              isAuthenticated: widget.isAuthenticated,
+              points: dataController.points,
+              totalPointsLabel: widget.translations['user']?['totalPoints'] ?? "Points",
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSelectedItem(Map<String, dynamic> item, String type) {
-    return GestureDetector(
-      onTap: () {
-        if (type == 'seal') {
-          _selectSeal(item);
-        } else if (type == 'category') {
-          _selectCategory(item);
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        decoration: BoxDecoration(
-          color: Colors.blueAccent,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Row(
-          children: [
-            Text(
-              type == 'seal' ? "${item['name']}: ${item['state']}" : item['name'],
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(width: 4),
-            const Icon(Icons.close, color: Colors.white, size: 16),
-          ],
-        ),
       ),
     );
   }

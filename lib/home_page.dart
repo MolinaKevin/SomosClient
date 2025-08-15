@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'config/environment_config.dart';
 import 'screens/login_screen.dart';
-import 'tabs/tab1.dart';
-import 'tabs/tab2.dart';
-import 'tabs/tab3.dart';
-import 'tabs/tab4.dart';
+import 'tabs/tab_map.dart';
+import 'tabs/tab_list.dart';
+import 'tabs/tab_pay.dart';
+import 'tabs/tab_profile.dart';
 import 'services/auth_service.dart';
 import 'services/tutorial_service.dart';
 import 'screens/tutorial_screen.dart';
@@ -162,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     final tabs = <Widget>[
-      Tab1(
+      TabMap(
         scaffoldKey: _scaffoldKey,
         isAuthenticated: widget.isAuthenticated,
         translations: widget.translations,
@@ -172,15 +172,15 @@ class _MyHomePageState extends State<MyHomePage> {
         controlsKey: _controlsKey,
         mapAreaKey: _mapAreaKey,
       ),
-      Tab2(translations: widget.translations),
+      TabList(translations: widget.translations),
       widget.isAuthenticated
-          ? Tab3(
+          ? TabPay(
         translations: widget.translations,
         onChangeLanguage: widget.onChangeLanguage,
       )
           : _buildRestrictedAccess(),
       widget.isAuthenticated
-          ? Tab4(
+          ? TabProfile(
         translations: widget.translations,
         onChangeLanguage: widget.onChangeLanguage,
         currentLocale: widget.currentLocale,
