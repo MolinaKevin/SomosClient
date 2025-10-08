@@ -253,14 +253,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
           ),
 
-          Positioned(
-            top: topPad + 50, left: 10,
-            child: PointsCard(
-              isAuthenticated: widget.isAuthenticated,
-              points: dataController.points,
-              totalPointsLabel: widget.translations['user']?['totalPoints'] ?? "Points",
-            ),
-          ),
+          //Positioned(
+          //  top: topPad + 50, left: 10,
+          //  child: PointsCard(
+          //    isAuthenticated: widget.isAuthenticated,
+          //    points: dataController.points,
+          //    totalPointsLabel: widget.translations['user']?['totalPoints'] ?? "Points",
+          //   ),
+          // ),
         ],
       ),
     );

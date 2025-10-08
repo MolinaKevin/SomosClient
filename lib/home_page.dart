@@ -200,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
             width: 128,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFF7EFE4), // Anillo extra del color de la barra
+              color: Color(0xFFFFF5E6), // Anillo extra del color de la barra
             ),
             child: Center(
               child: Container(
@@ -247,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         bottomNavigationBar: BottomAppBar(
           notchMargin: 6.0,
-          color: const Color(0xFFF7EFE4),
+          color: const Color(0xFFFFF5E6),
           height: 100,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0),

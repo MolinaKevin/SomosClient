@@ -23,8 +23,9 @@ class TutorialScreen extends StatefulWidget {
 }
 
 class _TutorialScreenState extends State<TutorialScreen> {
-  static const cream = Color(0xFFF7EFE4);
-  static const green = Color(0xFF103D1B);
+  static const cream = Color(0xFFFFF5E6);
+  static const greenLight = Color(0xFF47894A);
+  static const greenDark = Color(0xFF103322);
 
   final _controller = PageController();
   int _index = 0;
@@ -34,31 +35,31 @@ class _TutorialScreenState extends State<TutorialScreen> {
       title: '¿Qué es SOMOS?',
       description:
       'Una plataforma que fortalece la economía local conectando comercios, organizaciones y personas. Cada compra suma puntos y financia proyectos cercanos.',
-      imagePath: 'assets/images/tutorial/tutorial_cover.png',
+      imagePath: 'assets/images/tutorial/tutorial1.png',
     ),
     TutorialPageData(
       title: 'Cómo funciona',
       description:
       'Pagás en un comercio adherido → ganás puntos.\nEntidades sin fines de lucro reciben donaciones de parte de SOMOS en base a los puntos generados.',
-      imagePath: 'assets/images/tutorial/tutorial_cover.png',
+      imagePath: 'assets/images/tutorial/tutorial2.png',
     ),
     TutorialPageData(
       title: 'Para personas',
       description:
       'Descubrí lugares cerca tuyo, ahorrá con beneficios y apoyá causas locales sin pagar extra. Todo desde una sola app.',
-      imagePath: 'assets/images/tutorial/tutorial_cover.png',
+      imagePath: 'assets/images/tutorial/tutorial3.png',
     ),
     TutorialPageData(
       title: 'Para comercios',
       description:
       'Más visibilidad en el mapa y en la lista, una comunidad activa y una solución de marketing de bajo costo.',
-      imagePath: 'assets/images/tutorial/tutorial_cover.png',
+      imagePath: 'assets/images/tutorial/tutorial1.png',
     ),
     TutorialPageData(
       title: 'Para organizaciones',
       description:
       'Ingresos recurrentes y un canal directo con la comunidad para impulsar proyectos con impacto real en el territorio.',
-      imagePath: 'assets/images/tutorial/tutorial_cover.png',
+      imagePath: 'assets/images/tutorial/tutorial2.png',
     ),
   ];
 
@@ -154,7 +155,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                 fontWeight: FontWeight.w700,
                                 fontSize: titleSize,
                                 height: 1.1,
-                                color: green,
+                                color: greenLight,
                               ),
                             ),
                             SizedBox(height: _clamp(h * 0.02, 10, 24)),
@@ -167,7 +168,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                 fontFamily: 'PlayfairDisplay',
                                 fontSize: descSize,
                                 height: 1.28,
-                                color: green.withOpacity(0.92),
+                                color: greenDark.withOpacity(0.92),
                               ),
                             ),
                           ],
@@ -190,7 +191,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                   height: 10,
                   width: active ? 26 : 10,
                   decoration: BoxDecoration(
-                    color: active ? green : green.withOpacity(0.35),
+                    color: active ? greenDark : greenDark.withOpacity(0.35),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 );
@@ -210,8 +211,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                           icon: const Icon(Icons.arrow_back_rounded),
                           label: const Text('Anterior'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: green,
-                            side: BorderSide(color: green.withOpacity(0.8)),
+                            foregroundColor: greenDark,
+                            side: BorderSide(color: greenDark.withOpacity(0.8)),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 12),
                             shape: RoundedRectangleBorder(
@@ -233,7 +234,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     label: Text(
                         _index == _pages.length - 1 ? 'Empezar' : 'Siguiente'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: green,
+                      backgroundColor: greenDark,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 22, vertical: 14),

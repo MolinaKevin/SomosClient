@@ -91,10 +91,10 @@ class _MapControlsWidgetState extends State<MapControlsWidget> {
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
-          width: 52, // Aumentado
-          height: 52, // Aumentado
+          width: 52,
+          height: 52,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFFF2F2F2),
             shape: BoxShape.circle,
             border: Border.all(
               color: Colors.black,

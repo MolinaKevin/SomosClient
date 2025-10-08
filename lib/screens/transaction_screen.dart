@@ -37,6 +37,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      backgroundColor: const Color(0xFFF2F2F2),
       navigationBar: CupertinoNavigationBar(
         middle: Text(widget.translations['generateTransaction'] ?? 'Generar Transacción'),
       ),

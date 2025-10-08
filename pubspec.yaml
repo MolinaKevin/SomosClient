@@ -74,6 +74,7 @@ flutter:
     - assets/images/map_marker.png
     - assets/images/active_marker.png
     - assets/images/tutorial/
+    - assets/images/auth/
     - assets/styles/positron.json
     - .env
     - assets/i18n/en.json
