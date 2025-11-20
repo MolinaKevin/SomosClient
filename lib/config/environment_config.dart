@@ -69,5 +69,14 @@ class EnvironmentConfig {
     return (v == null || v.isEmpty) ? null : v;
   }
 
+  // ---------- Mock / Demo content ----------
+  static bool get testShowMockCommerce  =>
+      _envFlag('TEST_SHOW_MOCK_COMMERCE', def: false);
+
+  static bool get testShowMockNgo       =>
+      _envFlag('TEST_SHOW_MOCK_NGO', def: false);
+
+  // ---------- Mock / Server ----------
+  static bool get mockServer => _envFlag('MOCK_SERVER', def: false);
 
 }

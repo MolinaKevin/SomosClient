@@ -5,8 +5,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+
 import '../config/environment_config.dart';
 import '../services/translation_service.dart';
+import '../services/auth_service.dart';
 
 class UserDataProvider extends ChangeNotifier {
   String name = 'Name not available';
@@ -21,68 +23,76 @@ class UserDataProvider extends ChangeNotifier {
   Map<String, dynamic> translations = {};
   List<Locale> availableLocales = [];
 
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final TranslationService _translationService;
 
   UserDataProvider(this._translationService) {
     initialize();
   }
 
+  // ---------- Helpers ----------
+  void _applyUserData(Map<String, dynamic> userData) {
+    name = userData['name'] ?? 'Nombre no disponible';
+    email = userData['email'] ?? 'Email no disponible';
+    phone = userData['phone'] ?? userData['phone_number'] ?? 'Teléfono no disponible';
+
+    // points robusto
+    points = (userData['points'] is num)
+        ? (userData['points'] as num).toDouble()
+        : double.tryParse('${userData['points'] ?? 0}') ?? 0.0;
+
+    // totalReferrals robusto (admite totalReferrals o total_referrals)
+    totalReferrals = userData['totalReferrals'] ??
+        userData['total_referrals'] ??
+        0;
+
+    pass = userData['pass'] ?? 'No disponible';
+    referrerPass = userData['referrer_pass'] ?? 'No disponible';
+    language = userData['language'] ?? language;
+    profilePhotoUrl = userData['profile_photo_url'] ?? '';
+  }
+
+  Future<void> _persistMinimalUserData() async {
+    await _secureStorage.write(key: 'user_name', value: name);
+    await _secureStorage.write(key: 'user_email', value: email);
+    await _secureStorage.write(key: 'user_phone', value: phone);
+    await _secureStorage.write(key: 'user_points', value: points.toString());
+    await _secureStorage.write(key: 'user_total_referrals', value: '$totalReferrals');
+    await _secureStorage.write(key: 'user_pass', value: pass);
+    await _secureStorage.write(key: 'user_referrer_pass', value: referrerPass);
+    await _secureStorage.write(key: 'user_language', value: language);
+    await _secureStorage.write(key: 'profile_photo_url', value: profilePhotoUrl);
+  }
+
+  // ---------- Lifecycle ----------
   Future<void> initialize() async {
     await loadUserData();
     await fetchUserDataFromServer().catchError((e) {
-      print('Error al sincronizar en segundo plano: $e');
+      debugPrint('Error al sincronizar en segundo plano: $e');
     });
     await fetchAvailableLocales();
     await loadTranslations();
   }
 
-
+  // ---------- User fetch (centralizado en AuthService) ----------
   Future<void> fetchUserDataFromServer() async {
     try {
-      final baseUrl = await EnvironmentConfig.getBaseUrl();
-      final url = Uri.parse('$baseUrl/user');
-      final token = await _secureStorage.read(key: 'auth_token');
+      final auth = AuthService();
+      // AuthService ya respeta MOCK_SERVER y devuelve mock si está activo
+      final data = await auth.fetchUserData();
 
-      if (token == null) throw Exception('Token de autenticación no encontrado');
+      _applyUserData(data);
+      await _persistMinimalUserData();
 
-      final response = await http.get(url, headers: {
-        'Authorization': 'Bearer $token',
-      });
-
-      if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-
-        name = userData['name'] ?? 'Nombre no disponible';
-        email = userData['email'] ?? 'Email no disponible';
-        phone = userData['phone'] ?? 'Teléfono no disponible';
-        points = userData['points'] ?? 0.0;
-        totalReferrals = userData['total_referrals'] ?? 0;
-        pass = userData['pass'] ?? 'No disponible';
-        referrerPass = userData['referrer_pass'] ?? 'No disponible';
-        language = userData['language'] ?? 'es';
-        profilePhotoUrl = userData['profile_photo_url'] ?? '';
-
-        print('Actualizando almacenamiento seguro con pass: $pass');
-
-        await _secureStorage.write(key: 'user_pass', value: pass);
-        print('Pass escrito en almacenamiento seguro.');
-
-        final writtenPass = await _secureStorage.read(key: 'user_pass');
-        print('Pass leído tras la escritura: $writtenPass');
-
-        notifyListeners();
-      } else {
-        print('Error al sincronizar con el servidor: ${response.body}');
-      }
+      notifyListeners();
     } catch (e) {
-      print('Error al obtener los datos del servidor: $e');
-      throw e;
+      debugPrint('Error al obtener los datos del servidor: $e');
+      rethrow;
     }
   }
 
   Future<void> loadUserData() async {
-    Map<String, String?> allData = await _secureStorage.readAll();
+    final allData = await _secureStorage.readAll();
 
     name = allData['user_name'] ?? 'Nombre no disponible';
     email = allData['user_email'] ?? 'Email no disponible';
@@ -94,21 +104,20 @@ class UserDataProvider extends ChangeNotifier {
     language = allData['user_language'] ?? 'es';
     profilePhotoUrl = allData['profile_photo_url'] ?? '';
 
-    print('Datos cargados del almacenamiento seguro.');
-    print('$allData');
+    debugPrint('Datos cargados del almacenamiento seguro.');
+    debugPrint('$allData');
     notifyListeners();
   }
 
+  // ---------- Translations ----------
   Future<void> loadTranslations() async {
     try {
-      // intento online con timeout
       final map = await _translationService
           .fetchTranslations(language)
           .timeout(const Duration(seconds: 6));
 
       translations = map;
 
-      // cacheo para abrir rápido sin red la próxima
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('translations_cache_$language', jsonEncode(map));
 
@@ -133,7 +142,7 @@ class UserDataProvider extends ChangeNotifier {
         translations = jsonDecode(assetStr) as Map<String, dynamic>;
         debugPrint('Traducciones desde ASSETS ($language).');
       } catch (e2) {
-        // 3) Último recurso mínimo para que la UI no rompa
+        // 3) Último recurso mínimo
         translations = {
           'navigation': {
             'map': 'Map',
@@ -146,11 +155,9 @@ class UserDataProvider extends ChangeNotifier {
         };
         debugPrint('Traducciones por DEFECTO (mínimas).');
       }
+      notifyListeners();
     }
-
-    notifyListeners();
   }
-
 
   Future<void> fetchAvailableLocales() async {
     try {
@@ -165,7 +172,15 @@ class UserDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveUserData(String newName, String newEmail, String newPhone, String newLanguage, String newPass, String newReferrerPass) async {
+  // ---------- Save profile ----------
+  Future<void> saveUserData(
+      String newName,
+      String newEmail,
+      String newPhone,
+      String newLanguage,
+      String newPass,
+      String newReferrerPass,
+      ) async {
     name = newName;
     email = newEmail;
     phone = newPhone;
@@ -174,67 +189,84 @@ class UserDataProvider extends ChangeNotifier {
     referrerPass = newReferrerPass;
 
     try {
-      final response = await _sendUserDataToServer(name, email, phone, language, pass, referrerPass);
-      if (response.statusCode == 200) {
-        await _secureStorage.write(key: 'user_name', value: name);
-        await _secureStorage.write(key: 'user_email', value: email);
-        await _secureStorage.write(key: 'user_phone', value: phone);
-        await _secureStorage.write(key: 'user_language', value: language);
-        await _secureStorage.write(key: 'user_pass', value: pass);
-        print('Escribiendo pass en almacenamiento seguro: $pass');
-        final writtenPass = await _secureStorage.read(key: 'user_pass');
-        print('Pass leído tras la escritura: $writtenPass');
-        await _secureStorage.write(key: 'user_referrer_pass', value: referrerPass);
-
+      if (EnvironmentConfig.mockServer) {
+        // Simula guardado local y recarga de traducciones
+        await _persistMinimalUserData();
         await loadTranslations();
-
         notifyListeners();
-        print('Datos guardados en el servidor y almacenamiento local.');
+        debugPrint('🧩 MOCK_SERVER: datos de usuario guardados localmente.');
+        return;
+      }
+
+      final response = await _sendUserDataToServer(
+        name, email, phone, language, pass, referrerPass,
+      );
+
+      if (response.statusCode == 200) {
+        await _persistMinimalUserData();
+        await loadTranslations();
+        notifyListeners();
+        debugPrint('Datos guardados en el servidor y almacenamiento local.');
       } else {
-        print('Error al guardar los datos en el servidor: ${response.body}');
+        debugPrint('Error al guardar los datos en el servidor: ${response.body}');
       }
     } catch (e) {
-      print('Error al enviar los datos al servidor: $e');
+      debugPrint('Error al enviar los datos al servidor: $e');
     }
   }
 
-  Future<http.Response> _sendUserDataToServer(String name, String email, String phone, String language, String pass, String referrerPass) async {
-    final baseUrl = await EnvironmentConfig.getBaseUrl();
+  Future<http.Response> _sendUserDataToServer(
+      String name,
+      String email,
+      String phone,
+      String language,
+      String pass,
+      String referrerPass,
+      ) async {
+    if (EnvironmentConfig.mockServer) {
+      // Simula 200 sin tocar red
+      return http.Response('{"ok":true}', 200);
+    }
+
+    final baseUrl = EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/user');
     final token = await _secureStorage.read(key: 'auth_token');
-
     if (token == null) throw Exception('Token de autenticación no encontrado');
 
-    final Map<String, String> body = {
+    final headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'};
+    final body = jsonEncode({
       'name': name,
       'email': email,
       'phone': phone,
       'language': language,
       'pass': pass,
       'referrer_pass': referrerPass,
-    };
+    });
 
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-
-    return await http.put(url, headers: headers, body: jsonEncode(body));
+    return http.put(url, headers: headers, body: body);
   }
 
+  // ---------- Avatar ----------
   Future<void> uploadAvatar(File imageFile) async {
-    final baseUrl = await EnvironmentConfig.getBaseUrl();
+    if (EnvironmentConfig.mockServer) {
+      // Simula subida: asigna una URL y persiste
+      profilePhotoUrl = 'https://picsum.photos/seed/mock-avatar-${DateTime.now().millisecondsSinceEpoch}/200';
+      await _secureStorage.write(key: 'profile_photo_url', value: profilePhotoUrl);
+      notifyListeners();
+      debugPrint('🧩 MOCK_SERVER: avatar simulado actualizado.');
+      return;
+    }
+
+    final baseUrl = EnvironmentConfig.getBaseUrl();
     final url = Uri.parse('$baseUrl/user/upload-avatar');
     final token = await _secureStorage.read(key: 'auth_token');
-
     if (token == null) throw Exception('Token de autenticación no encontrado');
 
-    var request = http.MultipartRequest('POST', url)
+    final request = http.MultipartRequest('POST', url)
       ..headers['Authorization'] = 'Bearer $token'
       ..files.add(await http.MultipartFile.fromPath('avatar', imageFile.path));
 
     final response = await request.send();
-
     if (response.statusCode == 200) {
       final responseBody = await http.Response.fromStream(response);
       final jsonResponse = jsonDecode(responseBody.body);
@@ -242,10 +274,11 @@ class UserDataProvider extends ChangeNotifier {
       await _secureStorage.write(key: 'profile_photo_url', value: profilePhotoUrl);
       notifyListeners();
     } else {
-      print('Error al subir el avatar: ${response.statusCode}');
+      debugPrint('Error al subir el avatar: ${response.statusCode}');
     }
   }
 
+  // ---------- Logout ----------
   Future<void> logout() async {
     await _secureStorage.deleteAll();
     name = 'Nombre no disponible';
@@ -259,7 +292,6 @@ class UserDataProvider extends ChangeNotifier {
     profilePhotoUrl = '';
     translations = {};
     availableLocales = [];
-
     notifyListeners();
   }
 }

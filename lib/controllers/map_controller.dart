@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../services/commerce_service.dart';
 import '../services/institution_service.dart';
 import '../services/auth_service.dart';
@@ -9,9 +10,11 @@ import '../services/seal_service.dart';
 
 class MapDataController {
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
   List<Map<String, dynamic>> markerData = [];
   List<Map<String, dynamic>> categories = [];
   List<Map<String, dynamic>> seals = [];
+
   final CommerceService commerceService = CommerceService();
   final InstitutionService institutionService = InstitutionService();
   final AuthService authService = AuthService();
@@ -26,12 +29,16 @@ class MapDataController {
     await fetchSeals();
   }
 
-  Future<void> fetchData({required Map<String, dynamic> translations, bool forceRefresh = false}) async {
+  Future<void> fetchData({
+    required Map<String, dynamic> translations,
+    bool forceRefresh = false,
+  }) async {
     final commerces = await commerceService.fetchCommerces(forceRefresh: forceRefresh);
     final institutions = await institutionService.fetchInstitutions(forceRefresh: forceRefresh);
     final userData = await authService.fetchUserData();
 
     markerData = [
+      // -------- Comercios --------
       ...commerces.map((commerce) => {
         'id': commerce['id'],
         'name': commerce['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
@@ -48,7 +55,10 @@ class MapDataController {
         'background_image': commerce['background_image'] ?? '',
         'fotos_urls': commerce['fotos_urls'] ?? [],
         'seals_with_state': commerce['seals_with_state'] ?? [],
-      }).toList(),
+        'entity_type': 'commerce',
+        'type': 'commerce',
+      }),
+      // -------- Instituciones --------
       ...institutions.map((institution) => {
         'id': institution['id'],
         'name': institution['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
@@ -65,7 +75,9 @@ class MapDataController {
         'background_image': institution['background_image'] ?? '',
         'fotos_urls': institution['fotos_urls'] ?? [],
         'seals_with_state': [],
-      }).toList(),
+        'entity_type': 'institution',
+        'type': 'institution',
+      }),
     ];
 
     points = userData['points'] ?? 0.0;
@@ -94,7 +106,8 @@ class MapDataController {
         required Map<String, dynamic> translations,
       }) async {
     try {
-      final List<int> categoryIds = filters['categories']?.map((category) => category['id'] as int).toList() ?? [];
+      final List<int> categoryIds =
+          filters['categories']?.map((category) => category['id'] as int).toList() ?? [];
       final List<Map<String, dynamic>> seals = filters['seals'] ?? [];
 
       final commerces = await commerceService.fetchCommercesByFilters(
@@ -105,6 +118,7 @@ class MapDataController {
       final institutions = await institutionService.fetchInstitutions();
 
       markerData = [
+        // -------- Comercios filtrados --------
         ...commerces.map((commerce) => {
           'id': commerce['id'],
           'name': commerce['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
@@ -121,7 +135,10 @@ class MapDataController {
           'background_image': commerce['background_image'] ?? '',
           'fotos_urls': commerce['fotos_urls'] ?? [],
           'seals_with_state': commerce['seals_with_state'] ?? [],
-        }).toList(),
+          'entity_type': 'commerce',
+          'type': 'commerce',
+        }),
+        // -------- Instituciones (sin filtrar por seals) --------
         ...institutions.map((institution) => {
           'id': institution['id'],
           'name': institution['name'] ?? translations['common']['noDataAvailable'] ?? 'Name not available',
@@ -137,7 +154,10 @@ class MapDataController {
           'avatar_url': institution['avatar_url'],
           'background_image': institution['background_image'] ?? '',
           'fotos_urls': institution['fotos_urls'] ?? [],
-        }).toList(),
+          'seals_with_state': [],
+          'entity_type': 'institution',
+          'type': 'institution',
+        }),
       ];
 
       print('Applied Seals: $seals');

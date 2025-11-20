@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
+import 'package:auto_size_text/auto_size_text.dart';
 
 class TutorialPageData {
   final String title;
@@ -108,149 +109,179 @@ class _TutorialScreenState extends State<TutorialScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: cream,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
-            Expanded(
-              child: ScrollConfiguration(
-                behavior: const MaterialScrollBehavior().copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                    PointerDeviceKind.stylus,
-                  },
-                ),
-                child: PageView.builder(
-                  controller: _controller,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _pages.length,
-                  onPageChanged: (i) => setState(() => _index = i),
-                  itemBuilder: (context, i) {
-                    final p = _pages[i];
+    final mq = MediaQuery.of(context);
+    final capped = mq.textScaler.scale(1.0).clamp(0.85, 1.15).toDouble();
 
-                    return LayoutBuilder(builder: (context, c) {
-                      final w = c.maxWidth;
-                      final h = c.maxHeight;
-
-                      final titleSize = _clamp(w * 0.095, 24, 40);
-                      final descSize = _clamp(w * 0.078, 20, 34);
-                      final imgHeight =
-                      _clamp(h * 0.45, 240, math.max(300, h * 0.52));
-
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _clamp(w * 0.06, 20, 28),
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 8),
-                            Text(
-                              p.title,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontFamily: 'PlayfairDisplay',
-                                fontWeight: FontWeight.w700,
-                                fontSize: titleSize,
-                                height: 1.1,
-                                color: greenLight,
-                              ),
-                            ),
-                            SizedBox(height: _clamp(h * 0.02, 10, 24)),
-                            _buildImage(p.imagePath, imgHeight),
-                            SizedBox(height: _clamp(h * 0.03, 14, 28)),
-                            Text(
-                              p.description,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontFamily: 'PlayfairDisplay',
-                                fontSize: descSize,
-                                height: 1.28,
-                                color: greenDark.withOpacity(0.92),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    });
-                  },
-                ),
-              ),
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_pages.length, (i) {
-                final active = i == _index;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin:
-                  const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                  height: 10,
-                  width: active ? 26 : 10,
-                  decoration: BoxDecoration(
-                    color: active ? greenDark : greenDark.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(8),
+    return MediaQuery(
+      data: mq.copyWith(textScaler: TextScaler.linear(capped)),
+      child: Scaffold(
+        backgroundColor: cream,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              Expanded(
+                child: ScrollConfiguration(
+                  behavior: const MaterialScrollBehavior().copyWith(
+                    dragDevices: {
+                      PointerDeviceKind.touch,
+                      PointerDeviceKind.mouse,
+                      PointerDeviceKind.stylus,
+                    },
                   ),
-                );
-              }),
-            ),
+                  child: PageView.builder(
+                    controller: _controller,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _pages.length,
+                    onPageChanged: (i) => setState(() => _index = i),
+                    itemBuilder: (context, i) {
+                      final p = _pages[i];
 
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 22),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      if (_index > 0)
-                        OutlinedButton.icon(
-                          onPressed: _prev,
-                          icon: const Icon(Icons.arrow_back_rounded),
-                          label: const Text('Anterior'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: greenDark,
-                            side: BorderSide(color: greenDark.withOpacity(0.8)),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
+                      return LayoutBuilder(builder: (context, c) {
+                        final w = c.maxWidth;
+                        final h = c.maxHeight;
+                        final s = math.min(w, h);
+
+                        final titleSize = _clamp(s * 0.08, 22, 36);
+                        final descSize = _clamp(s * 0.062, 16, 28);
+                        final imgHeight =
+                        _clamp(h * 0.40, 220, math.max(300, h * 0.46));
+
+                        return SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: _clamp(w * 0.06, 16, 24),
+                          ),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: h - 1),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 8),
+                                AutoSizeText(
+                                  p.title,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  minFontSize: 18,
+                                  stepGranularity: 0.5,
+                                  style: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                    fontFamily: 'PlayfairDisplay',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: titleSize,
+                                    height: 1.07,
+                                    color: greenLight,
+                                  ),
+                                ),
+                                SizedBox(height: _clamp(h * 0.018, 8, 18)),
+                                _buildImage(p.imagePath, imgHeight),
+                                SizedBox(height: _clamp(h * 0.024, 10, 22)),
+                                AutoSizeText(
+                                  p.description,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 10,
+                                  minFontSize: 14,
+                                  stepGranularity: 0.5,
+                                  overflowReplacement: Text(
+                                    p.description,
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      fontFamily: 'PlayfairDisplay',
+                                      fontSize: 16,
+                                      height: 1.28,
+                                      color: greenDark.withOpacity(0.92),
+                                    ),
+                                  ),
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontFamily: 'PlayfairDisplay',
+                                    fontSize: descSize,
+                                    height: 1.28,
+                                    color: greenDark.withOpacity(0.92),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
                             ),
                           ),
-                        ),
-                      if (_index > 0) const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Saltar'),
-                      ),
-                    ],
+                        );
+                      });
+                    },
                   ),
+                ),
+              ),
 
-                  ElevatedButton.icon(
-                    onPressed: _next,
-                    icon: const Icon(Icons.arrow_forward_rounded),
-                    label: Text(
-                        _index == _pages.length - 1 ? 'Empezar' : 'Siguiente'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: greenDark,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 22, vertical: 14),
-                      textStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+              // Dots
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_pages.length, (i) {
+                  final active = i == _index;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                    height: 10,
+                    width: active ? 26 : 10,
+                    decoration: BoxDecoration(
+                      color: active ? greenDark : greenDark.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  );
+                }),
+              ),
+
+              // Bottom bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 22),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        if (_index > 0)
+                          OutlinedButton.icon(
+                            onPressed: _prev,
+                            icon: const Icon(Icons.arrow_back_rounded),
+                            label: const Text('Anterior'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: greenDark,
+                              side: BorderSide(
+                                  color: greenDark.withOpacity(0.8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28),
+                              ),
+                            ),
+                          ),
+                        if (_index > 0) const SizedBox(width: 8),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Saltar'),
+                        ),
+                      ],
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _next,
+                      icon: const Icon(Icons.arrow_forward_rounded),
+                      label: Text(
+                          _index == _pages.length - 1 ? 'Empezar' : 'Siguiente'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: greenDark,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 22, vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

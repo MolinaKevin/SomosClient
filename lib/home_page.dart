@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'config/environment_config.dart';
 import 'screens/login_screen.dart';
@@ -61,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _spotlight = Spotlight(context); // simple
+    _spotlight = Spotlight(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await HomeTutorialFlow(TutorialService()).run(
@@ -193,30 +194,31 @@ class _MyHomePageState extends State<MyHomePage> {
         key: _scaffoldKey,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Transform.translate(
-          offset: const Offset(0, 40),
+          offset: const Offset(0, 60),
           child: Container(
             margin: const EdgeInsets.only(bottom: 0),
-            height: 128,
-            width: 128,
+            height: 148,
+            width: 148,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFFFF5E6), // Anillo extra del color de la barra
+              color: Color(0xFFFFF5E6),
             ),
             child: Center(
               child: Container(
+                margin: const EdgeInsets.only(bottom: 35),
                 height: 90,
                 width: 90,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF103D1B), // Borde externo verde oscuro
+                  color: Color(0xFF103D1B),
                 ),
                 child: Center(
                   child: Container(
-                    height: 86,
-                    width: 86,
+                    height: 84,
+                    width: 84,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white, // Anillo blanco
+                      color: Colors.white,
                     ),
                     child: Center(
                       child: InkWell(
@@ -224,16 +226,21 @@ class _MyHomePageState extends State<MyHomePage> {
                         borderRadius: BorderRadius.circular(84),
                         onTap: () => setState(() => _currentIndex = 2),
                         child: Container(
-                          height: 84,
-                          width: 84,
+                          height: 80,
+                          width: 80,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xFF103D1B), // Interior verde oscuro
+                            color: Color(0xFF103D1B),
                           ),
-                          child: const Column(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(CupertinoIcons.money_dollar_circle, size: 42, color: Colors.white),
+                              SvgPicture.asset(
+                                'assets/images/icons/hand-coins.svg',
+                                width: 42,
+                                height: 42,
+                                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                              ),
                             ],
                           ),
                         ),
@@ -256,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 _bottomIcon(CupertinoIcons.map_fill, 'Map', 0, key: _navMapKey),
                 const SizedBox(width: 90),
-                _bottomIcon(CupertinoIcons.person_crop_circle_fill, 'Profile', 1, key: _navProfileKey),
+                _bottomIcon(CupertinoIcons.person_crop_circle_fill, 'Profile', 3, key: _navProfileKey),
               ],
             ),
           ),
@@ -273,23 +280,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return GestureDetector(
       key: key,
       onTap: () => setState(() => _currentIndex = index),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 84.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: const Color(0xFF103D1B), size: 30),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF103D1B),
-                fontWeight: FontWeight.w500,
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: const Color(0xFF103D1B), size: 30),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF103D1B),
+              fontWeight: FontWeight.w500,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -392,4 +396,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-

@@ -14,7 +14,8 @@ import 'popups/popup_info_card.dart';
 import 'widgets/map_tile_layer.dart';
 import 'widgets/view_switch_bar.dart';
 import 'widgets/selected_filters_bar.dart';
-import 'widgets/points_card.dart';
+// import 'widgets/points_card.dart';
+import 'ui/responsive.dart';
 
 const bool kUseLocalTiles = false;
 
@@ -60,8 +61,16 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   }
 
   Future<void> _initializeData() async {
-    await dataController.initializeData(translations: widget.translations);
-    setState(() {});
+    debugPrint('🟡 _initializeData() START');
+    try {
+      await dataController.initializeData(translations: widget.translations);
+      debugPrint('🟢 OK. markers=${dataController.markerData.length}');
+    } catch (e, st) {
+      debugPrint('🔴 ERROR: $e\n$st');
+    } finally {
+      if (mounted) setState(() {});
+      debugPrint('🔵 _initializeData() END');
+    }
   }
 
   Future<void> applyFilters() async {
@@ -150,6 +159,8 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   }
 
   void _onMarkerTap(BuildContext context, Map<String, dynamic> data) {
+    final r = context.r;
+
     setState(() => activeMarker = data['id'].toString());
     InfoCardPopup.show(
       context: context,
@@ -157,8 +168,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       translations: widget.translations,
       allSeals: dataController.seals,
       onDismiss: () => setState(() => activeMarker = ''),
+
+      bottomBarHeight: 0,
+      extraBottomGap: 0.1,
+      maxHeightFactorPhone: 0.36,
+      maxHeightFactorLarge: 0.28,
     );
   }
+
 
   void _showErrorDialog() {
     showDialog(
@@ -173,6 +190,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final r = context.r; // Responsive helper
     final markers = MarkerWidget.createMarkers(
       context: context,
       markerData: dataController.markerData,
@@ -191,7 +209,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               child: FlutterMap(
                 mapController: mapController,
                 options: const MapOptions(
-                  initialCenter: LatLng(51.534709, 9.932835),
+                  initialCenter: LatLng(52.4009, 13.0591),
                   initialZoom: 13.0,
                 ),
                 children: [
@@ -202,13 +220,18 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
           ),
 
+          // Gradiente superior
           Positioned(
-            top: 0, left: 0, right: 0, height: 220,
+            top: 0,
+            left: 0,
+            right: 0,
+            height: r.rh(140),
             child: const IgnorePointer(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                     colors: [Colors.black54, Colors.transparent],
                   ),
                 ),
@@ -216,8 +239,11 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
           ),
 
+          // Switch Map/List
           Positioned(
-            top: topPad, left: 0, right: 0,
+            top: topPad,
+            left: 0,
+            right: 0,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: widget.onTapList,
@@ -228,8 +254,11 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
           ),
 
+          // Chips de filtros
           Positioned(
-            top: topPad + 10, left: 10, right: 10,
+            top: topPad + r.r(44),
+            left: r.r(10),
+            right: r.r(10),
             child: SelectedFiltersBar(
               selectedSeals: selectedSeals,
               selectedCategories: selectedCategories,
@@ -240,25 +269,31 @@ class _MyMapWidgetState extends State<MyMapWidget> {
             ),
           ),
 
+          // Controles (zoom/filtro/sellos) con escala
           Positioned(
-            top: topPad + 50, right: 10,
-            child: KeyedSubtree(
-              key: widget.controlsKey,
-              child: MapControlsWidget(
-                mapController: mapController,
-                translations: widget.translations,
-                showFilterPopup: _showFilterPopup,
-                showSealPopup: _showSealPopup,
+            top: topPad + r.r(86),
+            right: r.r(10),
+            child: Transform.scale(
+              scale: (r.w <= 420) ? 0.86 : (r.w <= 520 ? 0.92 : 1.0),
+              child: KeyedSubtree(
+                key: widget.controlsKey,
+                child: MapControlsWidget(
+                  mapController: mapController,
+                  translations: widget.translations,
+                  showFilterPopup: _showFilterPopup,
+                  showSealPopup: _showSealPopup,
+                ),
               ),
             ),
           ),
 
-          //Positioned(
-          //  top: topPad + 50, left: 10,
-          //  child: PointsCard(
-          //    isAuthenticated: widget.isAuthenticated,
-          //    points: dataController.points,
-          //    totalPointsLabel: widget.translations['user']?['totalPoints'] ?? "Points",
+          // Positioned(
+          //   top: topPad + r.r(86),
+          //   left: r.r(10),
+          //   child: PointsCard(
+          //     isAuthenticated: widget.isAuthenticated,
+          //     points: dataController.points,
+          //     totalPointsLabel: widget.translations['user']?['totalPoints'] ?? "Points",
           //   ),
           // ),
         ],

@@ -1,16 +1,25 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
+import '../widgets/seal_icon_widget.dart';
 
 class SealSelectionWidget extends StatefulWidget {
   final List<Map<String, dynamic>> sealsWithState;
-  final Function(List<Map<String, dynamic>> updatedSeals) onSealStateChanged;
 
-  SealSelectionWidget({
+  /// Se dispara en cada cambio
+  final ValueChanged<List<Map<String, dynamic>>>? onSealStateChanged;
+
+  /// Se dispara al tocar “Aplicar”.
+  final ValueChanged<List<Map<String, dynamic>>>? onApply;
+
+  /// Se dispara al tocar “Limpiar”.
+  final VoidCallback? onClearAll;
+
+  const SealSelectionWidget({
+    Key? key,
     required this.sealsWithState,
-    required this.onSealStateChanged,
-  });
+    this.onSealStateChanged,
+    this.onApply,
+    this.onClearAll,
+  }) : super(key: key);
 
   @override
   _SealSelectionWidgetState createState() => _SealSelectionWidgetState();
@@ -18,33 +27,61 @@ class SealSelectionWidget extends StatefulWidget {
 
 class _SealSelectionWidgetState extends State<SealSelectionWidget> {
   late List<Map<String, dynamic>> _seals;
-  final List<String> states = ['none', 'partial', 'full'];
-  final List<String> stateLabels = ['Nada', 'Algo', 'Todo'];
+  final List<String> states = const ['none', 'partial', 'full'];
+  final List<String> stateLabels = const ['Nada', 'Algo', 'Todo'];
 
   @override
   void initState() {
     super.initState();
     _seals = widget.sealsWithState.map((seal) {
-      if (!states.contains(seal['state'])) {
-        seal['state'] = 'none';
-      }
-      return Map<String, dynamic>.from(seal);
+      final s = Map<String, dynamic>.from(seal);
+      final raw = (s['state'] ?? 'none').toString().toLowerCase();
+      s['state'] = _normalize(raw);
+      return s;
     }).toList();
+  }
+
+  String _normalize(String v) {
+    switch (v) {
+      case 'verified':
+        return 'full';
+      case 'candidate':
+        return 'partial';
+      case 'full':
+      case 'partial':
+        return v;
+      default:
+        return 'none';
+    }
   }
 
   void _updateSealState(int index, String newState) {
     setState(() {
       _seals[index]['state'] = newState;
     });
-    widget.onSealStateChanged(_seals);
+    widget.onSealStateChanged?.call(_seals);
+  }
+
+  void _apply() {
+    widget.onApply?.call(_seals);
+  }
+
+  void _clearAll() {
+    for (final s in _seals) {
+      s['state'] = 'none';
+    }
+    setState(() {});
+    widget.onSealStateChanged?.call(_seals);
+    widget.onClearAll?.call();
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // encabezado de columnas (labels del slider)
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
           child: Row(
             children: [
               const SizedBox(width: 150),
@@ -52,13 +89,16 @@ class _SealSelectionWidgetState extends State<SealSelectionWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: stateLabels
-                      .map((label) => Text(label, style: TextStyle(fontSize: 12)))
+                      .map((label) =>
+                      Text(label, style: const TextStyle(fontSize: 12)))
                       .toList(),
                 ),
               ),
             ],
           ),
         ),
+
+        // lista de sellos
         Expanded(
           child: ListView.builder(
             itemCount: _seals.length,
@@ -66,12 +106,27 @@ class _SealSelectionWidgetState extends State<SealSelectionWidget> {
               return SealItemWidget(
                 seal: _seals[index],
                 states: states,
-                onStateChanged: (newState) {
-                  _updateSealState(index, newState);
-                },
+                onStateChanged: (newState) => _updateSealState(index, newState),
               );
             },
           ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // acciones
+        Row(
+          children: [
+            OutlinedButton(
+              onPressed: _clearAll,
+              child: const Text('Limpiar'),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _apply,
+              child: const Text('Aplicar'),
+            ),
+          ],
         ),
       ],
     );
@@ -81,123 +136,50 @@ class _SealSelectionWidgetState extends State<SealSelectionWidget> {
 class SealItemWidget extends StatefulWidget {
   final Map<String, dynamic> seal;
   final List<String> states;
-  final Function(String newState) onStateChanged;
+  final ValueChanged<String> onStateChanged;
 
-  SealItemWidget({
+  const SealItemWidget({
+    Key? key,
     required this.seal,
     required this.states,
     required this.onStateChanged,
-  });
+  }) : super(key: key);
 
   @override
   _SealItemWidgetState createState() => _SealItemWidgetState();
 }
 
 class _SealItemWidgetState extends State<SealItemWidget> {
-  static final Map<String, Uint8List> _imageCache = {};
-  Uint8List? _imageData;
-  bool _isLoading = false;
-  bool _error = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadImage();
-  }
-
-  @override
-  void didUpdateWidget(covariant SealItemWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _loadImage();
-  }
-
-  Future<void> _loadImage() async {
-    final baseUrl = 'http://localhost/storage/';
-    final seal = widget.seal;
-    final state = seal['state'] ?? 'none';
-    String? imagePath = seal['image'] as String?;
-    if (imagePath == null || imagePath.isEmpty) {
-      setState(() {
-        _imageData = null;
-        _error = false;
-        _isLoading = false;
-      });
-      return;
-    }
-
-    imagePath = imagePath.replaceAll('::STATE::', state);
-    final imageUrl = '$baseUrl$imagePath';
-
-    if (_imageCache.containsKey(imageUrl)) {
-      setState(() {
-        _imageData = _imageCache[imageUrl]!;
-        _error = false;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = true;
-        _error = false;
-      });
-      try {
-        final data = await _fetchSvg(imageUrl);
-        _imageCache[imageUrl] = data;
-        setState(() {
-          _imageData = data;
-          _isLoading = false;
-          _error = false;
-        });
-      } catch (e) {
-        setState(() {
-          _error = true;
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<Uint8List> _fetchSvg(String url) async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      return response.bodyBytes;
-    } else {
-      throw Exception('Failed to load SVG');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final seal = widget.seal;
-    final state = seal['state'] ?? 'none';
+    final String state = (seal['state'] ?? 'none').toString();
     int currentIndex = widget.states.indexOf(state);
-    if (currentIndex == -1) {
-      currentIndex = 0;
-    }
+    if (currentIndex == -1) currentIndex = 0;
 
-    Widget leading;
-    if (_isLoading) {
-      leading = Icon(Icons.hourglass_empty);
-    } else if (_error || _imageData == null) {
-      leading = Icon(Icons.image_not_supported, size: 40);
-    } else {
-      leading = SvgPicture.memory(
-        _imageData!,
-        width: 40,
-        height: 40,
-      );
-    }
+    final leading = SealIconWidget(
+      key: ValueKey('seal-${seal['id']}-$state'),
+      seal: {'id': seal['id'], 'state': state},
+      size: 40,
+    );
 
     return Column(
       children: [
         ListTile(
           leading: leading,
-          title: Container(),
+          title: Text(
+            (seal['name'] ?? '').toString(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           trailing: SizedBox(
             width: 300,
             child: SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 10.0,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
+                thumbShape:
+                const RoundSliderThumbShape(enabledThumbRadius: 10.0),
               ),
               child: Slider(
                 value: currentIndex.toDouble(),
@@ -212,7 +194,7 @@ class _SealItemWidgetState extends State<SealItemWidget> {
             ),
           ),
         ),
-        const Divider(),
+        const Divider(height: 1),
       ],
     );
   }

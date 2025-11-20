@@ -31,6 +31,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+android/app/.cxx/
 
 # Symbolication related
 app.*.symbols
@@ -42,3 +43,47 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+
+# Build outputs
+build/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+macos/Flutter/ephemeral/
+linux/flutter/
+windows/flutter/
+
+# Logs
+flutter_*.log
+
+# Android
+android/.gradle/
+android/captures/
+android/app/build/
+android/local.properties
+android/key.properties
+
+# VS Code
+.vscode/
+
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Dart / Generated
+pubspec.lock # (solo ignóralo SI ES UNA LIBRERÍA. Para apps, se recomienda mantenerlo)
+generated_plugin_registrant.dart
+
+# Web
+build/web/
+
+# OS files
+Thumbs.db

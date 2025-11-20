@@ -16,6 +16,10 @@ class PointsScreen extends StatefulWidget {
 }
 
 class _PointsScreenState extends State<PointsScreen> {
+  static const _cream = Color(0xFFFFF5E6);
+  static const _greenDark = Color(0xFF103D1B);
+  static const _greenSoft = Color(0xFF2F5E3B);
+
   double _points = 0.0;
   int _firstLevelReferrals = 0;
   int _lowerLevelReferrals = 0;
@@ -40,7 +44,6 @@ class _PointsScreenState extends State<PointsScreen> {
         _hasError = false;
       });
     } catch (e) {
-      print('Failed to load user data: $e');
       setState(() {
         _isLoading = false;
         _hasError = true;
@@ -64,99 +67,158 @@ class _PointsScreenState extends State<PointsScreen> {
     );
   }
 
+  Widget _pillButton({
+    required String label,
+    required VoidCallback onPressed,
+    IconData? icon,
+    Color bg = _greenDark,
+    Color fg = Colors.white,
+  }) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3))],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18, color: fg),
+              const SizedBox(width: 8),
+            ],
+            Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w700)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionCard({required Widget child, EdgeInsets? padding}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _cream,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _greenSoft.withOpacity(.12), width: 1),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5))],
+      ),
+      padding: padding ?? const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = widget.translations;
+    final viewPointsTitle = t['transaction']['viewPoints'] ?? 'View Points';
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.translations['transaction']['viewPoints'] ?? 'View Points'),
+        middle: Text(viewPointsTitle, style: const TextStyle(color: _greenDark, fontWeight: FontWeight.w700)),
+        backgroundColor: _cream.withOpacity(.96),
+        border: const Border(bottom: BorderSide(color: Colors.transparent)),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _isLoading
-              ? const Center(child: CupertinoActivityIndicator())
-              : _hasError
-              ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  widget.translations['common']['failedToLoadData'] ?? 'Failed to load data',
-                  style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 18),
+        child: _isLoading
+            ? const Center(child: CupertinoActivityIndicator())
+            : _hasError
+            ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                t['common']['failedToLoadData'] ?? 'Failed to load data',
+                style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 18),
+              ),
+              const SizedBox(height: 8),
+              _pillButton(
+                label: t['common']['retry'] ?? 'Retry',
+                icon: CupertinoIcons.refresh,
+                onPressed: _fetchUserData,
+                bg: _greenSoft,
+              ),
+            ],
+          ),
+        )
+            : SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _sectionCard(
+                child: Column(
+                  children: [
+                    Text(
+                      t['user']?['totalPoints'] ?? 'Total Points',
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: _greenDark),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '$_points',
+                      style: const TextStyle(fontSize: 52, fontWeight: FontWeight.w900, color: _greenSoft),
+                    ),
+                  ],
                 ),
-                CupertinoButton(
-                  child: Text(widget.translations['common']['retry'] ?? 'Retry'),
-                  onPressed: _fetchUserData,
+              ),
+              _sectionCard(
+                child: Column(
+                  children: [
+                    Text(
+                      t['user']['referrals'] ?? 'Referrals',
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: _greenDark),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              t['user']['firstLevelReferrals'] ?? 'First Level',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                            Text(
+                              '$_firstLevelReferrals',
+                              style: const TextStyle(fontSize: 26, color: _greenSoft, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              t['user']['lowerLevelReferrals'] ?? 'Lower Levels',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                            Text(
+                              '$_lowerLevelReferrals',
+                              style: const TextStyle(fontSize: 26, color: _greenSoft, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )
-              : SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    '${widget.translations['user']?['totalPoints'] ?? 'Total Points'}:',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    '$_points',
-                    style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: CupertinoColors.activeGreen),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    '${widget.translations['user']['referrals'] ?? 'Referrals'}:',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    '${widget.translations['user']['firstLevelReferrals'] ?? 'First Level'}:',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    '$_firstLevelReferrals',
-                    style: const TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    '${widget.translations['user']['lowerLevelReferrals'] ?? 'Lower Levels'}:',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    '$_lowerLevelReferrals',
-                    style: const TextStyle(fontSize: 24, color: CupertinoColors.activeBlue),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: CupertinoButton.filled(
-                    onPressed: () => _navigateToTransactionsScreen(context),
-                    child: Text(widget.translations['transaction']['viewTransactions'] ?? 'View Transactions'),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: CupertinoButton.filled(
-                    onPressed: () => _navigateToReferralScreen(context),
-                    child: Text(widget.translations['user']['viewReferrals'] ?? 'View Referrals'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              _pillButton(
+                label: t['transaction']['viewTransactions'] ?? 'View Transactions',
+                icon: CupertinoIcons.list_bullet,
+                onPressed: () => _navigateToTransactionsScreen(context),
+              ),
+              const SizedBox(height: 12),
+              _pillButton(
+                label: t['user']['viewReferrals'] ?? 'View Referrals',
+                icon: CupertinoIcons.person_2_fill,
+                onPressed: () => _navigateToReferralScreen(context),
+                bg: _greenSoft,
+              ),
+            ],
           ),
         ),
       ),

@@ -91,14 +91,14 @@ class _MapControlsWidgetState extends State<MapControlsWidget> {
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
-          width: 52,
-          height: 52,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: const Color(0xFFF2F2F2),
             shape: BoxShape.circle,
             border: Border.all(
               color: Colors.black,
-              width: 1,
+              width: 0.5,
             ),
             boxShadow: [
               BoxShadow(
@@ -108,7 +108,7 @@ class _MapControlsWidgetState extends State<MapControlsWidget> {
               ),
             ],
           ),
-          child: Icon(icon, color: Colors.black, size: 24),
+          child: Icon(icon, color: Colors.black, size: 20),
         ),
       ),
     );

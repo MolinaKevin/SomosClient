@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import '../config/environment_config.dart';
 import 'auth_service.dart';
@@ -30,8 +31,6 @@ class TransactionService {
     };
 
     final response = await http.get(url, headers: headers);
-    print('Response body for purchases: ${response.body}');
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'] as List;
       _cachedPurchases = data.map<Map<String, dynamic>>((purchase) {
@@ -70,8 +69,6 @@ class TransactionService {
     };
 
     final response = await http.get(url, headers: headers);
-    print('Response body for point purchases: ${response.body}');
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'] as List;
       _cachedPointPurchases = data.map<Map<String, dynamic>>((pointPurchase) {
@@ -80,6 +77,7 @@ class TransactionService {
           'amount': pointPurchase['amount'],
           'description': pointPurchase['description'],
           'date': pointPurchase['created_at'],
+          'points': double.tryParse(pointPurchase['points']?.toString() ?? '0') ?? 0.0,
         };
       }).toList();
       return _cachedPointPurchases!;
@@ -106,14 +104,12 @@ class TransactionService {
     };
 
     final response = await http.get(url, headers: headers);
-    print('Response body for referral points: ${response.body}');
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'] as List;
       _cachedReferralPoints = data.map<Map<String, dynamic>>((referralPoint) {
         return {
           'id': referralPoint['purchase_id'],
-          'points': double.tryParse(referralPoint['points']) ?? 0.0,
+          'points': double.tryParse(referralPoint['points']?.toString() ?? '0') ?? 0.0,
           'date': referralPoint['created_at'],
           'referrer': referralPoint['referrer'],
         };
@@ -123,23 +119,15 @@ class TransactionService {
       throw Exception('Failed to load referral points');
     }
   }
-  
+
   Future<List<Map<String, dynamic>>> fetchAllTransactions({bool forceRefresh = false}) async {
     final purchases = await fetchPurchases(forceRefresh: forceRefresh);
     final pointPurchases = await fetchPointPurchases(forceRefresh: forceRefresh);
     final referralPoints = await fetchReferralPoints(forceRefresh: forceRefresh);
 
-    final purchasesWithType = purchases.map((transaction) {
-      return {...transaction, 'type': 'purchase'};
-    }).toList();
-
-    final pointPurchasesWithType = pointPurchases.map((transaction) {
-      return {...transaction, 'type': 'pointPurchase'};
-    }).toList();
-
-    final referralPointsWithType = referralPoints.map((transaction) {
-      return {...transaction, 'type': 'referralPoint'};
-    }).toList();
+    final purchasesWithType = purchases.map((transaction) => {...transaction, 'type': 'purchase'}).toList();
+    final pointPurchasesWithType = pointPurchases.map((transaction) => {...transaction, 'type': 'pointPurchase'}).toList();
+    final referralPointsWithType = referralPoints.map((transaction) => {...transaction, 'type': 'referralPoint'}).toList();
 
     final allTransactions = [
       ...purchasesWithType,
@@ -148,12 +136,56 @@ class TransactionService {
     ].where((transaction) => (transaction['points'] ?? 0) > 0).toList();
 
     allTransactions.sort((a, b) {
-      DateTime dateA = DateTime.parse(a['date']);
-      DateTime dateB = DateTime.parse(b['date']);
+      final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
       return dateB.compareTo(dateA);
     });
 
     return allTransactions;
   }
 
+  Future<Map<String, dynamic>> createMockTransaction({required double amount}) async {
+    _cachedPurchases ??= [];
+    _cachedPointPurchases ??= [];
+    _cachedReferralPoints ??= [];
+
+    final now = DateTime.now().toIso8601String();
+    final rnd = Random();
+    final types = ['purchase', 'pointPurchase', 'referralPoint'];
+    final type = types[rnd.nextInt(types.length)];
+
+    final pts = (amount * (0.05 + rnd.nextDouble() * 0.15)).clamp(0.1, double.infinity);
+    final base = <String, dynamic>{'date': now, 'points': double.parse(pts.toStringAsFixed(2))};
+
+    if (type == 'purchase') {
+      final tx = {
+        'id': 'mock-p-${now.hashCode}',
+        'amount': amount,
+        'description': 'Mock purchase',
+        'commerce': {'name': 'Mock Store'},
+        'gived_to_users_points': [],
+        'money': amount,
+        ...base,
+      };
+      _cachedPurchases!.insert(0, tx);
+      return {...tx, 'type': 'purchase'};
+    } else if (type == 'pointPurchase') {
+      final tx = {
+        'id': 'mock-pp-${now.hashCode}',
+        'amount': amount,
+        'description': 'Mock points buy',
+        ...base,
+      };
+      _cachedPointPurchases!.insert(0, tx);
+      return {...tx, 'type': 'pointPurchase'};
+    } else {
+      final tx = {
+        'id': 'mock-rp-${now.hashCode}',
+        'referrer': {'name': 'Mock Referrer'},
+        ...base,
+      };
+      _cachedReferralPoints!.insert(0, tx);
+      return {...tx, 'type': 'referralPoint'};
+    }
+  }
 }
