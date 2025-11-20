@@ -15,6 +15,7 @@ import 'screens/tutorial_screen.dart';
 import 'widgets/spotlight.dart';
 import 'services/home_tutorial_flow.dart';
 
+
 class MyHomePage extends StatefulWidget {
   final Map<String, dynamic> translations;
   final Function(Locale) onChangeLanguage;

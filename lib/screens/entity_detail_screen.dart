@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../widgets/seal_icon_widget.dart';
 
 class EntityDetailScreen extends StatelessWidget {
+  static const _cream = Color(0xFFFFF5E6);
+  static const _greenDark = Color(0xFF103D1B);
+  static const _greenSoft = Color(0xFF2F5E3B);
+
   final String title;
   final String address;
   final String phone;
@@ -30,135 +34,273 @@ class EntityDetailScreen extends StatelessWidget {
     required this.translations,
   });
 
-  List<Map<String, dynamic>> _combineSeals() {
-    final List<Map<String, dynamic>> baseSeals = [
-      {'id': 3, 'image': 'seals/default/::STATE::.svg'},
-      {'id': 5, 'image': 'seals/default/::STATE::.svg'},
-      {'id': 2, 'image': 'seals/default/::STATE::.svg'},
-    ];
+  bool get _hasBackgroundImage =>
+      backgroundImage.isNotEmpty == true && Uri.tryParse(backgroundImage) != null;
 
-    return seals.map((seal) {
-      final baseSeal = baseSeals.firstWhere(
-            (b) => b['id'] == seal['id'],
-        orElse: () => {},
-      );
+  bool get _hasDescription => description.trim().isNotEmpty;
 
-      return {
-        ...seal,
-        'image': baseSeal['image'] ?? '',
-      };
-    }).toList();
-  }
+  bool get _hasFotos => fotosUrls.isNotEmpty;
+
+  bool get _hasSeals => seals.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> combinedSeals = _combineSeals();
-    print('EntityDetailScreen - Combined Seals: $combinedSeals');
+    final t = translations;
+    final addressLabel = t['entities']?['address'] ?? 'Address';
+    final phoneLabel = t['entities']?['phone'] ?? 'Phone';
+    final emailLabel = t['entities']?['email'] ?? 'Email';
+    final cityLabel = t['entities']?['city'] ?? 'City';
+    final descLabel = t['entities']?['description'] ?? 'Description';
+    final fotosLabel = t['entities']?['photos'] ?? 'Photos';
+    final sealsLabel = t['entities']?['seals'] ?? 'Seals';
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(title),
+        backgroundColor: _cream.withOpacity(.96),
+        border: const Border(bottom: BorderSide(color: Colors.transparent)),
+        middle: Text(
+          title,
+          style: const TextStyle(
+            color: _greenDark,
+            fontWeight: FontWeight.w600,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 60),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInfoText('Address', address),
-                    _buildInfoText('Phone', phone),
-                    _buildInfoText('Email', email),
-                    _buildInfoText('City', city),
-                    _buildInfoText('Description', description),
-                    if (combinedSeals.isNotEmpty) _buildSealsSection(combinedSeals),
-                  ],
+        child: Container(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeaderCard(),
+                if (_hasBackgroundImage || _hasFotos)
+                  _sectionCard(
+                    title: fotosLabel,
+                    child: _buildPhotosSection(),
+                  ),
+                _sectionCard(
+                  title: t['entities']?['info'] ?? 'Information',
+                  child: Column(
+                    children: [
+                      _labelValue(label: addressLabel, value: address),
+                      const SizedBox(height: 12),
+                      _labelValue(label: phoneLabel, value: phone),
+                      const SizedBox(height: 12),
+                      _labelValue(label: emailLabel, value: email),
+                      const SizedBox(height: 12),
+                      _labelValue(label: cityLabel, value: city),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                if (_hasDescription)
+                  _sectionCard(
+                    title: descLabel,
+                    child: Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.35,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                if (_hasSeals)
+                  _sectionCard(
+                    title: sealsLabel,
+                    child: _buildSealsRow(),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Stack(
-      children: [
-        if (backgroundImage.isNotEmpty)
-          Container(
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage('$backgroundImage?${DateTime.now().millisecondsSinceEpoch}'),
-                fit: BoxFit.cover,
-              ),
+  Widget _buildHeaderCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: _cream,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5)),
+        ],
+        border: Border.all(color: _greenSoft.withOpacity(.12), width: 1),
+      ),
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 42,
+            backgroundColor: _greenDark,
+            backgroundImage: imageUrl.isNotEmpty
+                ? NetworkImage('$imageUrl?${DateTime.now().millisecondsSinceEpoch}')
+                : null,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title.isNotEmpty ? title : (translations['common']?['noDataAvailable'] ?? 'Not available'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: _greenDark,
+                    height: 1.05,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                if (city.isNotEmpty)
+                  Text(
+                    city,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                if (address.isNotEmpty) const SizedBox(height: 4),
+                if (address.isNotEmpty)
+                  Text(
+                    address,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
+                    ),
+                  ),
+              ],
             ),
           ),
-        Positioned(
-          top: 120,
-          left: MediaQuery.of(context).size.width / 2 - 40,
-          child: Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: NetworkImage('$imageUrl?${DateTime.now().millisecondsSinceEpoch}'),
-                fit: BoxFit.cover,
-              ),
-              border: Border.all(color: Colors.white, width: 3),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionCard({required String title, required Widget child}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _cream,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5)),
+        ],
+        border: Border.all(color: _greenSoft.withOpacity(.12), width: 1),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: _greenSoft,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              height: 1.05,
             ),
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _labelValue({required String label, required String value}) {
+    final safeValue = value.isNotEmpty
+        ? value
+        : (translations['common']?['noDataAvailable'] ?? 'Not available');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.black54,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          safeValue,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: _greenDark,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildInfoText(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Text(
-        '$label: $value',
-        style: const TextStyle(fontSize: 18),
+  Widget _buildPhotosSection() {
+    final List<String> allFotos = [
+      if (_hasBackgroundImage) backgroundImage,
+      ...fotosUrls,
+    ];
+
+    return SizedBox(
+      height: 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: allFotos.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (_, i) {
+          final url = allFotos[i];
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: AspectRatio(
+              aspectRatio: 4 / 3,
+              child: Container(
+                color: Colors.black12,
+                child: Image.network(
+                  '$url?${DateTime.now().millisecondsSinceEpoch}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Center(
+                    child: Icon(CupertinoIcons.photo, color: Colors.black26),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSealsSection(List<Map<String, dynamic>> seals) {
-    print('Building Seals Section - Total seals: ${seals.length}');
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            translations['entities']?['seals'] ?? 'Seals:',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 80,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: seals.length,
-              itemBuilder: (context, index) {
-                final seal = seals[index];
-                print('Rendering Seal - index: $index, seal: $seal');
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: SealIconWidget(seal: seal),
-                );
-              },
+  Widget _buildSealsRow() {
+    return SizedBox(
+      height: 72,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: seals.length,
+        itemBuilder: (context, index) {
+          final seal = seals[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SealIconWidget(seal: seal, size: 40),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
