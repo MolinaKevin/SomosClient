@@ -603,153 +603,260 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = widget.translations;
+    final media = MediaQuery.of(context);
+    final size = media.size;
+    final isPhone = size.shortestSide < 600;
+    final maxHeight = size.height * (isPhone ? 0.40 : 0.32);
 
     return SafeArea(
       top: false,
-      child: CupertinoPopupSurface(
-        isSurfacePainted: true,
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black12,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t['filters']?['title'] ?? 'Filtros',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  CupertinoButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(t['common']?['close'] ?? 'Cerrar'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  t['filters']?['category'] ?? 'Categoría',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 40,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: widget.availableCategories.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (_, i) {
-                    final c = widget.availableCategories[i];
-                    final active = c == _cat;
-                    return GestureDetector(
-                      onTap: () => setState(() => _cat = c),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: active ? const Color(0xFF103D1B) : const Color(0xFFFFF5E6),
-                          borderRadius: BorderRadius.circular(20),
-                          border: active ? null : Border.all(color: const Color(0xFF2F5E3B).withOpacity(.25)),
-                          boxShadow: active
-                              ? const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3))]
-                              : const [],
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          c,
-                          style: TextStyle(
-                            color: active ? Colors.white : const Color(0xFF2F5E3B),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  t['filters']?['distance'] ?? 'Distancia',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  CupertinoSwitch(
-                    value: _dist != null,
-                    onChanged: (on) => setState(() => _dist = on ? (_dist ?? 1000) : null),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(_kmLabel(_dist)),
-                ],
-              ),
-              if (_dist != null) ...[
-                const SizedBox(height: 8),
-                CupertinoSlider(
-                  min: 500,
-                  max: 20000,
-                  value: _dist!.clamp(500, 20000),
-                  onChanged: (v) => setState(() => _dist = v),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          child: Container(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF5E6),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
                 ),
               ],
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    t['filters']?['openNow'] ?? 'Abierto ahora',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  CupertinoSwitch(
-                    value: _open,
-                    onChanged: (v) => setState(() => _open = v),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: CupertinoButton.filled(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      onPressed: () {
-                        widget.onCategorySelected(_cat);
-                        widget.onDistanceSelected(_dist);
-                        widget.onToggleOpenNow(_open);
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(t['filters']?['apply'] ?? 'Aplicar'),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  CupertinoButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    onPressed: widget.onResetFilters,
-                    child: Text(t['filters']?['reset'] ?? 'Resetear'),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            t['filters']?['title'] ?? 'Filtros',
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        CupertinoButton(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            t['common']?['close'] ?? 'Cerrar',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t['filters']?['category'] ?? 'Categoría',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 34,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: widget.availableCategories.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              itemBuilder: (_, i) {
+                                final c = widget.availableCategories[i];
+                                final active = c == _cat;
+                                return GestureDetector(
+                                  onTap: () => setState(() => _cat = c),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: active ? const Color(0xFF103D1B) : const Color(0xFFFFF5E6),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: active
+                                          ? null
+                                          : Border.all(
+                                        color: const Color(0xFF2F5E3B).withOpacity(.25),
+                                      ),
+                                      boxShadow: active
+                                          ? const [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 6,
+                                          offset: Offset(0, 3),
+                                        )
+                                      ]
+                                          : const [],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      c,
+                                      style: TextStyle(
+                                        color: active ? Colors.white : const Color(0xFF2F5E3B),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            t['filters']?['distance'] ?? 'Distancia',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              CupertinoSwitch(
+                                value: _dist != null,
+                                onChanged: (on) => setState(() => _dist = on ? (_dist ?? 1000) : null),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _kmLabel(_dist),
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                          if (_dist != null) ...[
+                            const SizedBox(height: 8),
+                            CupertinoSlider(
+                              min: 500,
+                              max: 20000,
+                              value: _dist!.clamp(500, 20000),
+                              onChanged: (v) => setState(() => _dist = v),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                t['filters']?['openNow'] ?? 'Abierto ahora',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              CupertinoSwitch(
+                                value: _open,
+                                onChanged: (v) => setState(() => _open = v),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CupertinoButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    widget.onCategorySelected(_cat);
+                                    widget.onDistanceSelected(_dist);
+                                    widget.onToggleOpenNow(_open);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF103D1B),
+                                      borderRadius: BorderRadius.circular(24),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      t['filters']?['apply'] ?? 'Aplicar',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: CupertinoButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: widget.onResetFilters,
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(
+                                        color: const Color(0xFF2F5E3B).withOpacity(.25),
+                                      ),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 6,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      t['filters']?['reset'] ?? 'Resetear',
+                                      style: const TextStyle(
+                                        color: Color(0xFF103D1B),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
