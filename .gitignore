@@ -79,7 +79,7 @@ fastlane/screenshots
 fastlane/test_output
 
 # Dart / Generated
-pubspec.lock # (solo ignóralo SI ES UNA LIBRERÍA. Para apps, se recomienda mantenerlo)
+pubspec.lock
 generated_plugin_registrant.dart
 
 # Web
